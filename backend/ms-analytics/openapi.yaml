@@ -1,0 +1,750 @@
+openapi: 3.0.3
+info:
+  title: Analytics Microservice API
+  description: |
+    Microservicio analítico del sistema Bus MVP que ejecuta consultas sobre datos 
+    almacenados en object storage (S3/GCS/Blob) usando un motor de consulta serverless 
+    (Athena/BigQuery/Synapse).
+    
+    **Entorno Local**: Retorna datos mock para desarrollo
+    **Entorno Nube**: Ejecuta consultas reales sobre el data lake
+    
+    **Puerto**: 8010
+  version: 1.0.0
+  contact:
+    name: Analytics Team (@A)
+    email: analytics@busmvp.com
+
+servers:
+  - url: http://localhost:8010
+    description: Servidor de desarrollo local
+  - url: http://localhost:8088/api/analytics
+    description: A través del Load Balancer
+
+paths:
+  /health:
+    get:
+      summary: Health Check
+      description: |
+        Endpoint para verificar el estado del servicio y conectividad 
+        con servicios de nube (catalog, query engine, object storage)
+      tags:
+        - Health
+      responses:
+        '200':
+          description: Servicio funcionando correctamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "healthy"
+                  timestamp:
+                    type: string
+                    format: date-time
+                    example: "2024-01-15T10:30:00Z"
+                  version:
+                    type: string
+                    example: "1.0.0"
+                  environment:
+                    type: string
+                    enum: [local, cloud]
+                    example: "local"
+                  cloud_services:
+                    type: object
+                    properties:
+                      object_storage:
+                        type: string
+                        example: "connected"
+                      data_catalog:
+                        type: string
+                        example: "connected"
+                      query_engine:
+                        type: string
+                        example: "connected"
+
+  /analytics/revenue-by-route:
+    get:
+      summary: Ingresos por ruta
+      description: |
+        Obtiene estadísticas de ingresos agrupados por ruta y período de tiempo.
+        
+        **Local**: Retorna datos mock
+        **Nube**: Ejecuta consulta SQL sobre datos en object storage
+      tags:
+        - Revenue Analytics
+      parameters:
+        - name: date_from
+          in: query
+          description: Fecha inicio del análisis (YYYY-MM-DD)
+          required: false
+          schema:
+            type: string
+            format: date
+            example: "2024-01-01"
+        - name: date_to
+          in: query
+          description: Fecha fin del análisis (YYYY-MM-DD)
+          required: false
+          schema:
+            type: string
+            format: date
+            example: "2024-01-31"
+        - name: route_code
+          in: query
+          description: Filtrar por código de ruta específica
+          required: false
+          schema:
+            type: string
+            example: "RT001"
+        - name: group_by
+          in: query
+          description: Agrupar resultados por período
+          required: false
+          schema:
+            type: string
+            enum: [day, week, month]
+            default: month
+        - name: limit
+          in: query
+          description: Número máximo de resultados
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 1000
+            default: 100
+      responses:
+        '200':
+          description: Estadísticas de ingresos por ruta
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/RevenueByRoute'
+                  query_info:
+                    $ref: '#/components/schemas/QueryInfo'
+                  summary:
+                    type: object
+                    properties:
+                      total_revenue:
+                        type: number
+                        format: decimal
+                        example: 125750.50
+                      total_routes:
+                        type: integer
+                        example: 15
+                      period_analyzed:
+                        type: string
+                        example: "2024-01-01 to 2024-01-31"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /analytics/occupancy-trends:
+    get:
+      summary: Tendencias de ocupación
+      description: |
+        Analiza las tendencias de ocupación de autobuses por ruta, día de la semana 
+        y período de tiempo.
+        
+        **Local**: Retorna datos mock
+        **Nube**: Ejecuta consulta SQL sobre datos en object storage
+      tags:
+        - Occupancy Analytics
+      parameters:
+        - name: date_from
+          in: query
+          description: Fecha inicio del análisis (YYYY-MM-DD)
+          required: false
+          schema:
+            type: string
+            format: date
+            example: "2024-01-01"
+        - name: date_to
+          in: query
+          description: Fecha fin del análisis (YYYY-MM-DD)
+          required: false
+          schema:
+            type: string
+            format: date
+            example: "2024-01-31"
+        - name: route_code
+          in: query
+          description: Filtrar por código de ruta específica
+          required: false
+          schema:
+            type: string
+            example: "RT001"
+        - name: day_of_week
+          in: query
+          description: Filtrar por día de la semana (0=Domingo, 6=Sábado)
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            maximum: 6
+        - name: include_cancelled
+          in: query
+          description: Incluir viajes cancelados en el análisis
+          required: false
+          schema:
+            type: boolean
+            default: false
+      responses:
+        '200':
+          description: Tendencias de ocupación
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/OccupancyTrend'
+                  query_info:
+                    $ref: '#/components/schemas/QueryInfo'
+                  summary:
+                    type: object
+                    properties:
+                      average_occupancy_rate:
+                        type: number
+                        format: decimal
+                        example: 73.5
+                      best_performing_route:
+                        type: string
+                        example: "RT001"
+                      worst_performing_route:
+                        type: string
+                        example: "RT015"
+                      peak_day:
+                        type: string
+                        example: "Friday"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /analytics/customer-segmentation:
+    get:
+      summary: Segmentación de clientes
+      description: |
+        Analiza el comportamiento de clientes y los segmenta según frecuencia 
+        de viaje, gasto total y patrones de uso.
+        
+        **Local**: Retorna datos mock
+        **Nube**: Ejecuta consulta SQL sobre datos en object storage
+      tags:
+        - Customer Analytics
+      parameters:
+        - name: segment
+          in: query
+          description: Filtrar por segmento específico
+          required: false
+          schema:
+            type: string
+            enum: [VIP, Frequent, Regular, Occasional]
+        - name: min_trips
+          in: query
+          description: Mínimo número de viajes para incluir en análisis
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: date_from
+          in: query
+          description: Fecha inicio del análisis (YYYY-MM-DD)
+          required: false
+          schema:
+            type: string
+            format: date
+            example: "2024-01-01"
+        - name: date_to
+          in: query
+          description: Fecha fin del análisis (YYYY-MM-DD)
+          required: false
+          schema:
+            type: string
+            format: date
+            example: "2024-01-31"
+      responses:
+        '200':
+          description: Segmentación de clientes
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/CustomerSegment'
+                  query_info:
+                    $ref: '#/components/schemas/QueryInfo'
+                  summary:
+                    type: object
+                    properties:
+                      total_customers_analyzed:
+                        type: integer
+                        example: 1250
+                      segment_distribution:
+                        type: object
+                        properties:
+                          VIP:
+                            type: integer
+                            example: 45
+                          Frequent:
+                            type: integer
+                            example: 180
+                          Regular:
+                            type: integer
+                            example: 425
+                          Occasional:
+                            type: integer
+                            example: 600
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /analytics/route-performance:
+    get:
+      summary: Performance de rutas
+      description: |
+        Analiza el rendimiento de rutas considerando múltiples métricas:
+        ingresos, ocupación, frecuencia, satisfacción estimada.
+        
+        **Local**: Retorna datos mock
+        **Nube**: Ejecuta consulta SQL sobre datos en object storage
+      tags:
+        - Route Analytics
+      parameters:
+        - name: sort_by
+          in: query
+          description: Criterio de ordenamiento
+          required: false
+          schema:
+            type: string
+            enum: [revenue, occupancy_rate, trip_count, profit_margin]
+            default: revenue
+        - name: limit
+          in: query
+          description: Número de rutas a retornar
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+        - name: date_from
+          in: query
+          description: Fecha inicio del análisis (YYYY-MM-DD)
+          required: false
+          schema:
+            type: string
+            format: date
+            example: "2024-01-01"
+        - name: date_to
+          in: query
+          description: Fecha fin del análisis (YYYY-MM-DD)
+          required: false
+          schema:
+            type: string
+            format: date
+            example: "2024-01-31"
+        - name: include_inactive
+          in: query
+          description: Incluir rutas inactivas
+          required: false
+          schema:
+            type: boolean
+            default: false
+      responses:
+        '200':
+          description: Performance de rutas
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/RoutePerformance'
+                  query_info:
+                    $ref: '#/components/schemas/QueryInfo'
+                  summary:
+                    type: object
+                    properties:
+                      total_routes_analyzed:
+                        type: integer
+                        example: 25
+                      best_performer:
+                        type: string
+                        example: "RT001"
+                      worst_performer:
+                        type: string
+                        example: "RT020"
+                      average_occupancy:
+                        type: number
+                        format: decimal
+                        example: 68.5
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /analytics/query/custom:
+    post:
+      summary: Ejecutar consulta personalizada
+      description: |
+        Permite ejecutar consultas SQL personalizadas sobre el data lake.
+        
+        **IMPORTANTE**: Solo disponible en entorno de nube y con autenticación apropiada.
+        **Local**: Retorna error indicando que no está disponible.
+      tags:
+        - Custom Queries
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - sql_query
+              properties:
+                sql_query:
+                  type: string
+                  description: Consulta SQL a ejecutar
+                  example: |
+                    SELECT 
+                      route_code, 
+                      COUNT(*) as total_trips,
+                      AVG(total_price) as avg_price
+                    FROM tickets_raw t
+                    JOIN trips_raw tr ON t.trip_id = tr.trip_id
+                    WHERE t.year = 2024 AND t.month = 1
+                    GROUP BY route_code
+                    ORDER BY total_trips DESC
+                    LIMIT 10
+                max_results:
+                  type: integer
+                  description: Máximo número de resultados
+                  minimum: 1
+                  maximum: 10000
+                  default: 1000
+                output_format:
+                  type: string
+                  enum: [json, csv]
+                  default: json
+      responses:
+        '200':
+          description: Resultados de la consulta personalizada
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      description: Resultados dinámicos según la consulta
+                  query_info:
+                    $ref: '#/components/schemas/QueryInfo'
+                  column_metadata:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                          example: "route_code"
+                        type:
+                          type: string
+                          example: "string"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          description: No autorizado
+        '403':
+          description: Consulta no permitida por políticas de seguridad
+        '501':
+          description: No implementado en entorno local
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Custom queries not available in local environment"
+                  code:
+                    type: string
+                    example: "NOT_IMPLEMENTED_LOCAL"
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+components:
+  schemas:
+    RevenueByRoute:
+      type: object
+      properties:
+        route_code:
+          type: string
+          example: "RT001"
+        route_name:
+          type: string
+          example: "Madrid - Barcelona Express"
+        origin_city:
+          type: string
+          example: "Madrid"
+        destination_city:
+          type: string
+          example: "Barcelona"
+        period:
+          type: string
+          example: "2024-01"
+        total_revenue:
+          type: number
+          format: decimal
+          example: 25750.50
+        total_tickets:
+          type: integer
+          example: 567
+        total_trips:
+          type: integer
+          example: 25
+        average_price:
+          type: number
+          format: decimal
+          example: 45.42
+        revenue_growth:
+          type: number
+          format: decimal
+          description: Crecimiento respecto al período anterior (%)
+          example: 12.5
+
+    OccupancyTrend:
+      type: object
+      properties:
+        route_code:
+          type: string
+          example: "RT001"
+        route_name:
+          type: string
+          example: "Madrid - Barcelona Express"
+        date:
+          type: string
+          format: date
+          example: "2024-01-15"
+        day_of_week:
+          type: string
+          example: "Monday"
+        total_capacity:
+          type: integer
+          example: 500
+        tickets_sold:
+          type: integer
+          example: 367
+        occupancy_rate:
+          type: number
+          format: decimal
+          example: 73.4
+        average_price:
+          type: number
+          format: decimal
+          example: 45.50
+        total_trips:
+          type: integer
+          example: 10
+
+    CustomerSegment:
+      type: object
+      properties:
+        passenger_id:
+          type: string
+          example: "pass_001"
+        full_name:
+          type: string
+          example: "Juan Pérez García"
+        email:
+          type: string
+          example: "juan.perez@email.com"
+        segment:
+          type: string
+          enum: [VIP, Frequent, Regular, Occasional]
+          example: "Frequent"
+        total_trips:
+          type: integer
+          example: 15
+        total_spent:
+          type: number
+          format: decimal
+          example: 675.50
+        average_trip_price:
+          type: number
+          format: decimal
+          example: 45.03
+        first_trip_date:
+          type: string
+          format: date
+          example: "2024-01-15"
+        last_trip_date:
+          type: string
+          format: date
+          example: "2024-03-20"
+        favorite_route:
+          type: string
+          example: "RT001"
+        customer_lifetime_days:
+          type: integer
+          example: 65
+
+    RoutePerformance:
+      type: object
+      properties:
+        route_code:
+          type: string
+          example: "RT001"
+        route_name:
+          type: string
+          example: "Madrid - Barcelona Express"
+        origin_city:
+          type: string
+          example: "Madrid"
+        destination_city:
+          type: string
+          example: "Barcelona"
+        distance_km:
+          type: number
+          example: 621.5
+        total_revenue:
+          type: number
+          format: decimal
+          example: 125750.50
+        total_trips:
+          type: integer
+          example: 85
+        total_tickets_sold:
+          type: integer
+          example: 2890
+        average_occupancy_rate:
+          type: number
+          format: decimal
+          example: 78.5
+        revenue_per_km:
+          type: number
+          format: decimal
+          example: 202.25
+        profit_margin_estimate:
+          type: number
+          format: decimal
+          example: 35.2
+        performance_rank:
+          type: integer
+          example: 1
+
+    QueryInfo:
+      type: object
+      properties:
+        query_id:
+          type: string
+          description: ID único de la consulta ejecutada
+          example: "query_123456789"
+        execution_time_ms:
+          type: integer
+          description: Tiempo de ejecución en millisegundos
+          example: 2450
+        data_scanned_bytes:
+          type: integer
+          description: Bytes de datos escaneados
+          example: 1048576
+        result_count:
+          type: integer
+          description: Número de filas retornadas
+          example: 25
+        cost_estimate:
+          type: number
+          format: decimal
+          description: Costo estimado de la consulta
+          example: 0.05
+        environment:
+          type: string
+          enum: [local, cloud]
+          example: "cloud"
+        cache_hit:
+          type: boolean
+          description: Si el resultado provino de cache
+          example: false
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Mensaje de error
+        code:
+          type: string
+          description: Código de error
+        timestamp:
+          type: string
+          format: date-time
+        query_id:
+          type: string
+          description: ID de la consulta que falló (si aplica)
+
+  responses:
+    BadRequest:
+      description: Solicitud incorrecta
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: "Invalid date range parameters"
+            code: "BAD_REQUEST"
+            timestamp: "2024-01-15T10:30:00Z"
+
+    InternalError:
+      description: Error interno del servidor
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: "Query execution failed"
+            code: "QUERY_EXECUTION_ERROR"
+            timestamp: "2024-01-15T10:30:00Z"
+            query_id: "query_123456789"
+
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+
+tags:
+  - name: Health
+    description: Endpoints de salud del servicio
+  - name: Revenue Analytics
+    description: Análisis de ingresos y rentabilidad
+  - name: Occupancy Analytics
+    description: Análisis de ocupación y utilización
+  - name: Customer Analytics
+    description: Análisis de comportamiento de clientes
+  - name: Route Analytics
+    description: Análisis de rendimiento de rutas
+  - name: Custom Queries
+    description: Consultas personalizadas sobre el data lake

@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net" agent="5.0" version="24.7.8">
+  <diagram name="Bus MVP Architecture" id="architecture">
+    <mxGraphModel dx="1200" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <!-- Frontend Layer -->
+        <mxCell id="frontend" value="Frontend (SPA)&#xa;web-portal" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="450" y="50" width="200" height="60" as="geometry" />
+        </mxCell>
+        
+        <!-- Load Balancer -->
+        <mxCell id="lb" value="Load Balancer&#xa;(Nginx)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="450" y="160" width="200" height="60" as="geometry" />
+        </mxCell>
+        
+        <!-- Microservices Layer -->
+        <mxCell id="ms1" value="ms-passengers&#xa;(SQL DB 1)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="50" y="280" width="150" height="80" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="ms2" value="ms-trips&#xa;(SQL DB 2)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="250" y="280" width="150" height="80" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="ms3" value="ms-tickets&#xa;(NoSQL DB)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="450" y="280" width="150" height="80" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="ms4" value="ms-history&#xa;(Aggregator)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="650" y="280" width="150" height="80" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="ms5" value="ms-analytics&#xa;(Query Engine)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="850" y="280" width="150" height="80" as="geometry" />
+        </mxCell>
+        
+        <!-- Databases -->
+        <mxCell id="db1" value="SQL DB 1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="50" y="420" width="150" height="60" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="db2" value="SQL DB 2" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="250" y="420" width="150" height="60" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="db3" value="NoSQL DB" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="450" y="420" width="150" height="60" as="geometry" />
+        </mxCell>
+        
+        <!-- Data Ingestion -->
+        <mxCell id="ingest" value="Data Ingestion Layer" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="1">
+          <mxGeometry x="50" y="540" width="550" height="40" as="geometry" />
+        </mxCell>
+        
+        <!-- Object Storage -->
+        <mxCell id="storage" value="Object Storage&#xa;(S3/GCS/Blob)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="1">
+          <mxGeometry x="700" y="540" width="200" height="60" as="geometry" />
+        </mxCell>
+        
+        <!-- Data Catalog -->
+        <mxCell id="catalog" value="Data Catalog&#xa;(Glue/BigQuery)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="1">
+          <mxGeometry x="700" y="420" width="200" height="60" as="geometry" />
+        </mxCell>
+        
+        <!-- Connections -->
+        <mxCell id="conn1" value="" style="endArrow=classic;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" edge="1" parent="1" source="frontend" target="lb">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="550" y="120" as="sourcePoint" />
+            <mxPoint x="600" y="70" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- Add more connections as needed -->
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
+
+<!-- 
+PLACEHOLDER: Diagrama de Arquitectura para Bus MVP
+Este archivo debe ser editado con draw.io para crear el diagrama visual completo.
+
+Componentes a incluir:
+1. Frontend (SPA) - Consume los 5 microservicios
+2. Load Balancer - Distribuye tráfico a microservicios
+3. Microservicios:
+   - ms-passengers (con SQL DB 1)
+   - ms-trips (con SQL DB 2) 
+   - ms-tickets (con NoSQL DB)
+   - ms-history (agregador, sin DB)
+   - ms-analytics (consultas sobre object storage)
+4. Bases de datos: 2 SQL + 1 NoSQL
+5. Data Ingestion Layer - 3 contenedores
+6. Object Storage (S3/GCS/Blob)
+7. Data Catalog (Glue/BigQuery/etc)
+8. Query Engine (Athena/BigQuery/etc)
+
+Flujos a mostrar:
+- Frontend → Load Balancer → Microservicios
+- ms-history → otros microservicios (agregación)
+- ms-analytics → Object Storage + Catalog
+- Data Ingestion → Databases → Object Storage
+- Object Storage → Data Catalog → Query Engine
+-->

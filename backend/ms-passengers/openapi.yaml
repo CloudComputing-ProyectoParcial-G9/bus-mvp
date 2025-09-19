@@ -1,0 +1,383 @@
+openapi: 3.0.3
+info:
+  title: Passengers Microservice API
+  description: |
+    Microservicio para gestión de pasajeros del sistema Bus MVP.
+    Maneja el registro, actualización y consulta de información de pasajeros.
+    
+    **Base de datos**: SQL DB 1 (motor a definir)
+    **Puerto**: 8001
+  version: 1.0.0
+  contact:
+    name: Backend Team 1 (@B1)
+    email: backend1@busmvp.com
+
+servers:
+  - url: http://localhost:8001
+    description: Servidor de desarrollo local
+  - url: http://localhost:8088/api/passengers
+    description: A través del Load Balancer
+
+paths:
+  /health:
+    get:
+      summary: Health Check
+      description: Endpoint para verificar el estado del servicio
+      tags:
+        - Health
+      responses:
+        '200':
+          description: Servicio funcionando correctamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "healthy"
+                  timestamp:
+                    type: string
+                    format: date-time
+                    example: "2024-01-15T10:30:00Z"
+                  version:
+                    type: string
+                    example: "1.0.0"
+                  database:
+                    type: string
+                    example: "connected"
+
+  /passengers:
+    get:
+      summary: Listar pasajeros
+      description: Obtiene una lista paginada de pasajeros registrados
+      tags:
+        - Passengers
+      parameters:
+        - name: page
+          in: query
+          description: Número de página (empezando en 1)
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: limit
+          in: query
+          description: Número de elementos por página
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+        - name: status
+          in: query
+          description: Filtrar por estado del pasajero
+          required: false
+          schema:
+            type: string
+            enum: [active, inactive]
+        - name: search
+          in: query
+          description: Búsqueda por nombre o email
+          required: false
+          schema:
+            type: string
+            minLength: 3
+      responses:
+        '200':
+          description: Lista de pasajeros
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Passenger'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+    post:
+      summary: Crear nuevo pasajero
+      description: Registra un nuevo pasajero en el sistema
+      tags:
+        - Passengers
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePassengerRequest'
+      responses:
+        '201':
+          description: Pasajero creado exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Passenger created successfully"
+                  data:
+                    $ref: '#/components/schemas/Passenger'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '409':
+          description: Conflicto - Pasajero ya existe
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Passenger with this email already exists"
+                  code:
+                    type: string
+                    example: "DUPLICATE_EMAIL"
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /passengers/{id}:
+    get:
+      summary: Obtener pasajero por ID
+      description: Retorna la información detallada de un pasajero específico
+      tags:
+        - Passengers
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID único del pasajero
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Información del pasajero
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Passenger'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+    put:
+      summary: Actualizar pasajero
+      description: Actualiza la información de un pasajero existente
+      tags:
+        - Passengers
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID único del pasajero
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdatePassengerRequest'
+      responses:
+        '200':
+          description: Pasajero actualizado exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Passenger updated successfully"
+                  data:
+                    $ref: '#/components/schemas/Passenger'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+components:
+  schemas:
+    Passenger:
+      type: object
+      properties:
+        passenger_id:
+          type: string
+          description: Identificador único del pasajero
+          example: "pass_001"
+        full_name:
+          type: string
+          description: Nombre completo del pasajero
+          example: "Juan Pérez García"
+        email:
+          type: string
+          format: email
+          description: Correo electrónico
+          example: "juan.perez@email.com"
+        phone:
+          type: string
+          description: Número de teléfono
+          example: "+1234567890"
+        document_type:
+          type: string
+          description: Tipo de documento de identidad
+          enum: [DNI, Passport, License]
+          example: "DNI"
+        document_number:
+          type: string
+          description: Número del documento
+          example: "12345678A"
+        date_of_birth:
+          type: string
+          format: date
+          description: Fecha de nacimiento
+          example: "1990-05-15"
+        registration_date:
+          type: string
+          format: date-time
+          description: Fecha de registro en el sistema
+          example: "2024-01-15T10:30:00Z"
+        status:
+          type: string
+          enum: [active, inactive]
+          description: Estado del pasajero
+          example: "active"
+
+    CreatePassengerRequest:
+      type: object
+      required:
+        - full_name
+        - email
+        - phone
+        - document_type
+        - document_number
+        - date_of_birth
+      properties:
+        full_name:
+          type: string
+          minLength: 2
+          maxLength: 100
+          example: "Juan Pérez García"
+        email:
+          type: string
+          format: email
+          example: "juan.perez@email.com"
+        phone:
+          type: string
+          pattern: '^[\+]?[1-9][\d]{0,15}$'
+          example: "+1234567890"
+        document_type:
+          type: string
+          enum: [DNI, Passport, License]
+          example: "DNI"
+        document_number:
+          type: string
+          minLength: 5
+          maxLength: 20
+          example: "12345678A"
+        date_of_birth:
+          type: string
+          format: date
+          example: "1990-05-15"
+
+    UpdatePassengerRequest:
+      type: object
+      properties:
+        full_name:
+          type: string
+          minLength: 2
+          maxLength: 100
+          example: "Juan Pérez García"
+        phone:
+          type: string
+          pattern: '^[\+]?[1-9][\d]{0,15}$'
+          example: "+1234567890"
+        status:
+          type: string
+          enum: [active, inactive]
+          example: "active"
+
+    Pagination:
+      type: object
+      properties:
+        page:
+          type: integer
+          example: 1
+        limit:
+          type: integer
+          example: 20
+        total:
+          type: integer
+          example: 150
+        pages:
+          type: integer
+          example: 8
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Mensaje de error
+        code:
+          type: string
+          description: Código de error
+        timestamp:
+          type: string
+          format: date-time
+
+  responses:
+    BadRequest:
+      description: Solicitud incorrecta
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: "Invalid request parameters"
+            code: "BAD_REQUEST"
+            timestamp: "2024-01-15T10:30:00Z"
+
+    NotFound:
+      description: Recurso no encontrado
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: "Passenger not found"
+            code: "NOT_FOUND"
+            timestamp: "2024-01-15T10:30:00Z"
+
+    InternalError:
+      description: Error interno del servidor
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: "Internal server error"
+            code: "INTERNAL_ERROR"
+            timestamp: "2024-01-15T10:30:00Z"
+
+tags:
+  - name: Health
+    description: Endpoints de salud del servicio
+  - name: Passengers
+    description: Operaciones relacionadas con pasajeros

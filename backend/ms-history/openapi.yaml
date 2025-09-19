@@ -1,0 +1,655 @@
+openapi: 3.0.3
+info:
+  title: History Microservice API
+  description: |
+    Microservicio agregador para consultas de historial del sistema Bus MVP.
+    Este servicio NO tiene base de datos propia, sino que consume datos de otros microservicios 
+    para generar vistas consolidadas y reportes históricos.
+    
+    **Base de datos**: Ninguna (Microservicio agregador)
+    **Puerto**: 8004
+    **Consume**: ms-passengers, ms-trips, ms-tickets
+  version: 1.0.0
+  contact:
+    name: Backend Team 1 (@B1)
+    email: backend1@busmvp.com
+
+servers:
+  - url: http://localhost:8004
+    description: Servidor de desarrollo local
+  - url: http://localhost:8088/api/history
+    description: A través del Load Balancer
+
+paths:
+  /health:
+    get:
+      summary: Health Check
+      description: Endpoint para verificar el estado del servicio y conectividad con otros microservicios
+      tags:
+        - Health
+      responses:
+        '200':
+          description: Servicio funcionando correctamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "healthy"
+                  timestamp:
+                    type: string
+                    format: date-time
+                    example: "2024-01-15T10:30:00Z"
+                  version:
+                    type: string
+                    example: "1.0.0"
+                  dependencies:
+                    type: object
+                    properties:
+                      ms_passengers:
+                        type: string
+                        example: "connected"
+                      ms_trips:
+                        type: string
+                        example: "connected"
+                      ms_tickets:
+                        type: string
+                        example: "connected"
+
+  /history/passenger/{passenger_id}:
+    get:
+      summary: Historial completo de un pasajero
+      description: |
+        Obtiene el historial completo de un pasajero, incluyendo:
+        - Información personal del pasajero
+        - Todos sus boletos comprados
+        - Detalles de los viajes realizados
+        - Estadísticas de uso
+      tags:
+        - Passenger History
+      parameters:
+        - name: passenger_id
+          in: path
+          required: true
+          description: ID único del pasajero
+          schema:
+            type: string
+            example: "pass_001"
+        - name: include_cancelled
+          in: query
+          description: Incluir boletos cancelados
+          required: false
+          schema:
+            type: boolean
+            default: false
+        - name: date_from
+          in: query
+          description: Fecha desde (YYYY-MM-DD)
+          required: false
+          schema:
+            type: string
+            format: date
+        - name: date_to
+          in: query
+          description: Fecha hasta (YYYY-MM-DD)
+          required: false
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: Historial completo del pasajero
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PassengerHistory'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          description: Servicio no disponible (uno o más microservicios externos no responden)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: "One or more dependent services are unavailable"
+                code: "SERVICE_UNAVAILABLE"
+                timestamp: "2024-01-15T10:30:00Z"
+
+  /history/trip/{trip_id}:
+    get:
+      summary: Historial de un viaje específico
+      description: |
+        Obtiene información detallada de un viaje incluyendo:
+        - Información del viaje (ruta, horarios, etc.)
+        - Lista de pasajeros que compraron boletos
+        - Estadísticas de ocupación
+        - Estado actual del viaje
+      tags:
+        - Trip History
+      parameters:
+        - name: trip_id
+          in: path
+          required: true
+          description: ID único del viaje
+          schema:
+            type: string
+            example: "trip_001"
+      responses:
+        '200':
+          description: Historial completo del viaje
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TripHistory'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+
+  /history/route/{route_code}/summary:
+    get:
+      summary: Resumen histórico de una ruta
+      description: |
+        Obtiene estadísticas y resumen histórico de una ruta específica:
+        - Total de viajes realizados
+        - Ocupación promedio
+        - Ingresos generados
+        - Tendencias de demanda
+      tags:
+        - Route History
+      parameters:
+        - name: route_code
+          in: path
+          required: true
+          description: Código de la ruta
+          schema:
+            type: string
+            example: "RT001"
+        - name: period
+          in: query
+          description: Período de análisis
+          required: false
+          schema:
+            type: string
+            enum: [last_30_days, last_3_months, last_6_months, last_year]
+            default: last_30_days
+      responses:
+        '200':
+          description: Resumen histórico de la ruta
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RouteSummary'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+
+  /history/dashboard/summary:
+    get:
+      summary: Dashboard con métricas generales
+      description: |
+        Endpoint para dashboard que proporciona métricas consolidadas del sistema:
+        - Total de pasajeros registrados
+        - Total de viajes realizados
+        - Total de boletos vendidos
+        - Ingresos totales
+        - Rutas más populares
+        - Estadísticas de los últimos 30 días
+      tags:
+        - Dashboard
+      parameters:
+        - name: period
+          in: query
+          description: Período para las métricas
+          required: false
+          schema:
+            type: string
+            enum: [today, last_7_days, last_30_days, last_90_days]
+            default: last_30_days
+      responses:
+        '200':
+          description: Métricas consolidadas del dashboard
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DashboardSummary'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+
+  /history/analytics/popular-routes:
+    get:
+      summary: Análisis de rutas más populares
+      description: |
+        Obtiene estadísticas de las rutas más populares basado en:
+        - Número de boletos vendidos
+        - Frecuencia de viajes
+        - Ingresos generados
+        - Tendencias de crecimiento
+      tags:
+        - Analytics
+      parameters:
+        - name: limit
+          in: query
+          description: Número de rutas a retornar
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 50
+            default: 10
+        - name: sort_by
+          in: query
+          description: Criterio de ordenamiento
+          required: false
+          schema:
+            type: string
+            enum: [tickets_sold, revenue, trip_count, occupancy_rate]
+            default: tickets_sold
+      responses:
+        '200':
+          description: Lista de rutas más populares
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/PopularRouteStats'
+                  metadata:
+                    type: object
+                    properties:
+                      period_analyzed:
+                        type: string
+                        example: "last_30_days"
+                      total_routes:
+                        type: integer
+                        example: 25
+                      sort_criteria:
+                        type: string
+                        example: "tickets_sold"
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+
+components:
+  schemas:
+    PassengerHistory:
+      type: object
+      properties:
+        passenger_info:
+          type: object
+          properties:
+            passenger_id:
+              type: string
+              example: "pass_001"
+            full_name:
+              type: string
+              example: "Juan Pérez García"
+            email:
+              type: string
+              example: "juan.perez@email.com"
+            registration_date:
+              type: string
+              format: date-time
+              example: "2024-01-01T10:00:00Z"
+            status:
+              type: string
+              example: "active"
+        travel_statistics:
+          type: object
+          properties:
+            total_trips:
+              type: integer
+              example: 15
+            total_spent:
+              type: number
+              format: decimal
+              example: 567.50
+            favorite_route:
+              type: string
+              example: "Madrid - Barcelona"
+            first_trip_date:
+              type: string
+              format: date
+              example: "2024-01-15"
+            last_trip_date:
+              type: string
+              format: date
+              example: "2024-03-20"
+        ticket_history:
+          type: array
+          items:
+            type: object
+            properties:
+              ticket_id:
+                type: string
+                example: "ticket_001"
+              trip_info:
+                type: object
+                properties:
+                  trip_id:
+                    type: string
+                    example: "trip_001"
+                  route_code:
+                    type: string
+                    example: "RT001"
+                  origin_city:
+                    type: string
+                    example: "Madrid"
+                  destination_city:
+                    type: string
+                    example: "Barcelona"
+                  departure_time:
+                    type: string
+                    format: date-time
+                    example: "2024-01-20T08:00:00Z"
+              purchase_date:
+                type: string
+                format: date-time
+                example: "2024-01-15T10:30:00Z"
+              total_price:
+                type: number
+                format: decimal
+                example: 45.50
+              booking_status:
+                type: string
+                example: "confirmed"
+              seat_number:
+                type: string
+                example: "12A"
+
+    TripHistory:
+      type: object
+      properties:
+        trip_info:
+          type: object
+          properties:
+            trip_id:
+              type: string
+              example: "trip_001"
+            route_code:
+              type: string
+              example: "RT001"
+            origin_city:
+              type: string
+              example: "Madrid"
+            destination_city:
+              type: string
+              example: "Barcelona"
+            departure_time:
+              type: string
+              format: date-time
+              example: "2024-01-20T08:00:00Z"
+            arrival_time:
+              type: string
+              format: date-time
+              example: "2024-01-20T14:30:00Z"
+            bus_capacity:
+              type: integer
+              example: 50
+            base_price:
+              type: number
+              format: decimal
+              example: 45.50
+            status:
+              type: string
+              example: "completed"
+        occupancy_stats:
+          type: object
+          properties:
+            total_tickets_sold:
+              type: integer
+              example: 42
+            occupancy_rate:
+              type: number
+              format: decimal
+              example: 84.0
+            available_seats:
+              type: integer
+              example: 8
+            total_revenue:
+              type: number
+              format: decimal
+              example: 1911.00
+        passenger_list:
+          type: array
+          items:
+            type: object
+            properties:
+              passenger_id:
+                type: string
+                example: "pass_001"
+              full_name:
+                type: string
+                example: "Juan Pérez García"
+              seat_number:
+                type: string
+                example: "12A"
+              ticket_price:
+                type: number
+                format: decimal
+                example: 45.50
+              booking_status:
+                type: string
+                example: "confirmed"
+
+    RouteSummary:
+      type: object
+      properties:
+        route_info:
+          type: object
+          properties:
+            route_code:
+              type: string
+              example: "RT001"
+            name:
+              type: string
+              example: "Madrid - Barcelona Express"
+            origin_city:
+              type: string
+              example: "Madrid"
+            destination_city:
+              type: string
+              example: "Barcelona"
+            distance_km:
+              type: number
+              example: 621.5
+        statistics:
+          type: object
+          properties:
+            total_trips:
+              type: integer
+              example: 120
+            total_tickets_sold:
+              type: integer
+              example: 4250
+            total_revenue:
+              type: number
+              format: decimal
+              example: 193750.00
+            average_occupancy_rate:
+              type: number
+              format: decimal
+              example: 78.5
+            average_price:
+              type: number
+              format: decimal
+              example: 45.59
+        trends:
+          type: object
+          properties:
+            demand_trend:
+              type: string
+              enum: [increasing, stable, decreasing]
+              example: "increasing"
+            revenue_growth:
+              type: number
+              format: decimal
+              example: 12.5
+            popular_days:
+              type: array
+              items:
+                type: string
+              example: ["Friday", "Sunday"]
+
+    DashboardSummary:
+      type: object
+      properties:
+        overview:
+          type: object
+          properties:
+            total_passengers:
+              type: integer
+              example: 1250
+            total_trips:
+              type: integer
+              example: 320
+            total_tickets_sold:
+              type: integer
+              example: 8950
+            total_revenue:
+              type: number
+              format: decimal
+              example: 425750.00
+        recent_activity:
+          type: object
+          properties:
+            new_passengers_today:
+              type: integer
+              example: 15
+            tickets_sold_today:
+              type: integer
+              example: 67
+            revenue_today:
+              type: number
+              format: decimal
+              example: 3025.50
+            active_trips_now:
+              type: integer
+              example: 12
+        top_performers:
+          type: object
+          properties:
+            most_popular_route:
+              type: string
+              example: "Madrid - Barcelona"
+            highest_revenue_route:
+              type: string
+              example: "Madrid - Barcelona"
+            most_frequent_passenger:
+              type: string
+              example: "Juan Pérez García"
+
+    PopularRouteStats:
+      type: object
+      properties:
+        route_code:
+          type: string
+          example: "RT001"
+        route_name:
+          type: string
+          example: "Madrid - Barcelona Express"
+        origin_city:
+          type: string
+          example: "Madrid"
+        destination_city:
+          type: string
+          example: "Barcelona"
+        tickets_sold:
+          type: integer
+          example: 1250
+        total_revenue:
+          type: number
+          format: decimal
+          example: 56875.00
+        trip_count:
+          type: integer
+          example: 35
+        average_occupancy_rate:
+          type: number
+          format: decimal
+          example: 82.5
+        rank:
+          type: integer
+          example: 1
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Mensaje de error
+        code:
+          type: string
+          description: Código de error
+        timestamp:
+          type: string
+          format: date-time
+        details:
+          type: object
+          description: Detalles adicionales del error
+
+  responses:
+    NotFound:
+      description: Recurso no encontrado
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: "Passenger not found"
+            code: "NOT_FOUND"
+            timestamp: "2024-01-15T10:30:00Z"
+
+    InternalError:
+      description: Error interno del servidor
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: "Internal server error"
+            code: "INTERNAL_ERROR"
+            timestamp: "2024-01-15T10:30:00Z"
+
+    ServiceUnavailable:
+      description: Servicio no disponible
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: "One or more dependent services are unavailable"
+            code: "SERVICE_UNAVAILABLE"
+            timestamp: "2024-01-15T10:30:00Z"
+            details:
+              unavailable_services: ["ms-trips", "ms-tickets"]
+
+tags:
+  - name: Health
+    description: Endpoints de salud del servicio
+  - name: Passenger History
+    description: Historial de pasajeros
+  - name: Trip History
+    description: Historial de viajes
+  - name: Route History
+    description: Historial de rutas
+  - name: Dashboard
+    description: Métricas para dashboard
+  - name: Analytics
+    description: Análisis y reportes

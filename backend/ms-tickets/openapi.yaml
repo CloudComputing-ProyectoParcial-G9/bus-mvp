@@ -1,0 +1,535 @@
+openapi: 3.0.3
+info:
+  title: Tickets Microservice API
+  description: |
+    Microservicio para gestión de boletos y reservas del sistema Bus MVP.
+    Maneja la compra, cancelación y consulta de boletos de viaje.
+    
+    **Base de datos**: NoSQL DB (motor a definir)
+    **Puerto**: 8003
+  version: 1.0.0
+  contact:
+    name: Backend Team 2 (@B2)
+    email: backend2@busmvp.com
+
+servers:
+  - url: http://localhost:8003
+    description: Servidor de desarrollo local
+  - url: http://localhost:8088/api/tickets
+    description: A través del Load Balancer
+
+paths:
+  /health:
+    get:
+      summary: Health Check
+      description: Endpoint para verificar el estado del servicio
+      tags:
+        - Health
+      responses:
+        '200':
+          description: Servicio funcionando correctamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "healthy"
+                  timestamp:
+                    type: string
+                    format: date-time
+                    example: "2024-01-15T10:30:00Z"
+                  version:
+                    type: string
+                    example: "1.0.0"
+                  database:
+                    type: string
+                    example: "connected"
+
+  /tickets:
+    get:
+      summary: Listar boletos
+      description: Obtiene una lista paginada de boletos (filtrado por usuario si aplica)
+      tags:
+        - Tickets
+      parameters:
+        - name: page
+          in: query
+          description: Número de página (empezando en 1)
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: limit
+          in: query
+          description: Número de elementos por página
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+        - name: passenger_id
+          in: query
+          description: Filtrar por ID de pasajero
+          required: false
+          schema:
+            type: string
+        - name: trip_id
+          in: query
+          description: Filtrar por ID de viaje
+          required: false
+          schema:
+            type: string
+        - name: status
+          in: query
+          description: Filtrar por estado del boleto
+          required: false
+          schema:
+            type: string
+            enum: [confirmed, pending, cancelled, refunded]
+        - name: purchase_date_from
+          in: query
+          description: Fecha de compra desde (YYYY-MM-DD)
+          required: false
+          schema:
+            type: string
+            format: date
+        - name: purchase_date_to
+          in: query
+          description: Fecha de compra hasta (YYYY-MM-DD)
+          required: false
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: Lista de boletos
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Ticket'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+    post:
+      summary: Crear nuevo boleto (comprar)
+      description: Realiza la compra de un boleto para un viaje específico
+      tags:
+        - Tickets
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTicketRequest'
+      responses:
+        '201':
+          description: Boleto creado exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Ticket purchased successfully"
+                  data:
+                    $ref: '#/components/schemas/Ticket'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '409':
+          description: Conflicto - No hay asientos disponibles
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "No seats available for this trip"
+                  code:
+                    type: string
+                    example: "NO_SEATS_AVAILABLE"
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /tickets/{id}:
+    get:
+      summary: Obtener boleto por ID
+      description: Retorna la información detallada de un boleto específico
+      tags:
+        - Tickets
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID único del boleto
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Información del boleto
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Ticket'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+    put:
+      summary: Actualizar boleto
+      description: Actualiza el estado o información de un boleto existente
+      tags:
+        - Tickets
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID único del boleto
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateTicketRequest'
+      responses:
+        '200':
+          description: Boleto actualizado exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Ticket updated successfully"
+                  data:
+                    $ref: '#/components/schemas/Ticket'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /tickets/{id}/cancel:
+    post:
+      summary: Cancelar boleto
+      description: Cancela un boleto y procesa el reembolso si aplica
+      tags:
+        - Tickets
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID único del boleto
+          schema:
+            type: string
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                reason:
+                  type: string
+                  description: Motivo de la cancelación
+                  example: "Change of plans"
+                refund_requested:
+                  type: boolean
+                  description: Si se solicita reembolso
+                  default: true
+      responses:
+        '200':
+          description: Boleto cancelado exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Ticket cancelled successfully"
+                  data:
+                    $ref: '#/components/schemas/Ticket'
+                  refund_info:
+                    type: object
+                    properties:
+                      refund_amount:
+                        type: number
+                        format: decimal
+                        example: 40.95
+                      refund_status:
+                        type: string
+                        example: "pending"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: No se puede cancelar el boleto
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Cannot cancel ticket after departure"
+                  code:
+                    type: string
+                    example: "CANCELLATION_NOT_ALLOWED"
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /tickets/passenger/{passenger_id}/history:
+    get:
+      summary: Historial de boletos por pasajero
+      description: Obtiene el historial completo de boletos de un pasajero específico
+      tags:
+        - Tickets
+      parameters:
+        - name: passenger_id
+          in: path
+          required: true
+          description: ID del pasajero
+          schema:
+            type: string
+        - name: status
+          in: query
+          description: Filtrar por estado
+          required: false
+          schema:
+            type: string
+            enum: [confirmed, pending, cancelled, refunded]
+      responses:
+        '200':
+          description: Historial de boletos del pasajero
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  passenger_id:
+                    type: string
+                    example: "pass_001"
+                  total_tickets:
+                    type: integer
+                    example: 15
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Ticket'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+components:
+  schemas:
+    Ticket:
+      type: object
+      properties:
+        ticket_id:
+          type: string
+          description: Identificador único del boleto
+          example: "ticket_001"
+        passenger_id:
+          type: string
+          description: ID del pasajero
+          example: "pass_001"
+        trip_id:
+          type: string
+          description: ID del viaje
+          example: "trip_001"
+        seat_number:
+          type: string
+          description: Número de asiento asignado
+          example: "12A"
+        purchase_date:
+          type: string
+          format: date-time
+          description: Fecha y hora de compra
+          example: "2024-01-15T10:30:00Z"
+        total_price:
+          type: number
+          format: decimal
+          description: Precio total pagado
+          example: 45.50
+        currency:
+          type: string
+          description: Moneda del precio
+          example: "EUR"
+        payment_method:
+          type: string
+          description: Método de pago utilizado
+          example: "credit_card"
+        booking_status:
+          type: string
+          enum: [confirmed, pending, cancelled, refunded]
+          description: Estado actual del boleto
+          example: "confirmed"
+        special_requirements:
+          type: string
+          description: Requerimientos especiales del pasajero
+          example: "Wheelchair accessible seat"
+        metadata:
+          type: object
+          description: Metadatos adicionales del boleto
+          properties:
+            booking_reference:
+              type: string
+              example: "BK123456"
+            payment_transaction_id:
+              type: string
+              example: "txn_789012"
+            cancellation_reason:
+              type: string
+              example: "Change of plans"
+            refund_amount:
+              type: number
+              format: decimal
+              example: 40.95
+        created_at:
+          type: string
+          format: date-time
+          description: Fecha de creación
+          example: "2024-01-15T10:30:00Z"
+        updated_at:
+          type: string
+          format: date-time
+          description: Fecha de última actualización
+          example: "2024-01-15T10:30:00Z"
+
+    CreateTicketRequest:
+      type: object
+      required:
+        - passenger_id
+        - trip_id
+        - payment_method
+      properties:
+        passenger_id:
+          type: string
+          example: "pass_001"
+        trip_id:
+          type: string
+          example: "trip_001"
+        seat_number:
+          type: string
+          description: Número de asiento preferido (opcional)
+          example: "12A"
+        payment_method:
+          type: string
+          enum: [credit_card, debit_card, paypal, bank_transfer, cash]
+          example: "credit_card"
+        special_requirements:
+          type: string
+          description: Requerimientos especiales
+          example: "Wheelchair accessible seat"
+        promo_code:
+          type: string
+          description: Código promocional (opcional)
+          example: "SUMMER2024"
+
+    UpdateTicketRequest:
+      type: object
+      properties:
+        seat_number:
+          type: string
+          example: "15B"
+        special_requirements:
+          type: string
+          example: "Vegetarian meal"
+        booking_status:
+          type: string
+          enum: [confirmed, pending, cancelled, refunded]
+          example: "confirmed"
+
+    Pagination:
+      type: object
+      properties:
+        page:
+          type: integer
+          example: 1
+        limit:
+          type: integer
+          example: 20
+        total:
+          type: integer
+          example: 150
+        pages:
+          type: integer
+          example: 8
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Mensaje de error
+        code:
+          type: string
+          description: Código de error
+        timestamp:
+          type: string
+          format: date-time
+
+  responses:
+    BadRequest:
+      description: Solicitud incorrecta
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: "Invalid request parameters"
+            code: "BAD_REQUEST"
+            timestamp: "2024-01-15T10:30:00Z"
+
+    NotFound:
+      description: Recurso no encontrado
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: "Ticket not found"
+            code: "NOT_FOUND"
+            timestamp: "2024-01-15T10:30:00Z"
+
+    InternalError:
+      description: Error interno del servidor
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: "Internal server error"
+            code: "INTERNAL_ERROR"
+            timestamp: "2024-01-15T10:30:00Z"
+
+tags:
+  - name: Health
+    description: Endpoints de salud del servicio
+  - name: Tickets
+    description: Operaciones relacionadas con boletos y reservas

@@ -1,0 +1,280 @@
+# External APIs Collector Dependencies
+# ========================================
+#
+# Dependencias optimizadas para recolección de APIs externas
+# Incluye librerías para web scraping, APIs REST y normalización
+#
+# TODO (@A): Ajustar versiones según APIs específicas
+
+# ========================================
+# CORE DEPENDENCIES
+# ========================================
+
+# HTTP clients and API interaction
+requests==2.31.0
+httpx==0.25.2
+aiohttp==3.9.1
+urllib3==2.1.0
+
+# Rate limiting and retry logic
+ratelimit==2.2.1
+backoff==2.2.1
+tenacity==8.2.3
+
+# Data processing
+pandas==2.1.4
+numpy==1.25.2
+
+# JSON handling
+ujson==5.9.0
+jsonschema==4.20.0
+
+# ========================================
+# WEB SCRAPING
+# ========================================
+
+# BeautifulSoup for HTML parsing
+beautifulsoup4==4.12.2
+lxml==4.9.4
+html5lib==1.1
+
+# Selenium for dynamic content
+selenium==4.16.0
+webdriver-manager==4.0.1
+
+# Requests extensions
+requests-html==0.10.0
+requests-cache==1.1.1
+
+# CSS selectors
+pyquery==2.0.0
+selectolax==0.3.17
+
+# ========================================
+# API AUTHENTICATION
+# ========================================
+
+# OAuth and authentication
+requests-oauthlib==1.3.1
+authlib==1.2.1
+PyJWT==2.8.0
+
+# API key management
+python-decouple==3.8
+
+# ========================================
+# DATA VALIDATION AND CLEANING
+# ========================================
+
+# Data validation
+cerberus==1.3.5
+marshmallow==3.20.2
+pydantic==2.5.2
+
+# Data cleaning
+ftfy==6.1.1
+unidecode==1.3.7
+
+# Date/time parsing
+python-dateutil==2.8.2
+dateparser==1.2.0
+
+# ========================================
+# CLOUD STORAGE
+# ========================================
+
+# AWS S3
+boto3==1.34.0
+
+# Google Cloud Storage
+google-cloud-storage==2.10.0
+
+# Azure Blob Storage
+azure-storage-blob==12.19.0
+
+# ========================================
+# CACHING AND PERSISTENCE
+# ========================================
+
+# Redis for caching
+redis==5.0.1
+diskcache==5.6.3
+
+# Database connectivity
+sqlalchemy==2.0.25
+sqlite-utils==3.35.2
+
+# ========================================
+# MONITORING AND LOGGING
+# ========================================
+
+# Structured logging
+structlog==23.2.0
+loguru==0.7.2
+
+# Monitoring
+prometheus-client==0.19.0
+psutil==5.9.6
+
+# ========================================
+# WEB FRAMEWORK
+# ========================================
+
+# Flask for health checks
+flask==3.0.0
+flask-cors==4.0.0
+gunicorn==21.2.0
+
+# ========================================
+# FILE FORMATS
+# ========================================
+
+# XML processing
+xmltodict==0.13.0
+
+# CSV processing
+csvkit==1.4.0
+
+# Image processing (for captcha solving)
+Pillow==10.1.0
+pytesseract==0.3.10
+
+# ========================================
+# NETWORK UTILITIES
+# ========================================
+
+# DNS resolution
+dnspython==2.4.2
+
+# IP address handling
+ipaddress==1.0.23
+
+# User agents
+fake-useragent==1.4.0
+user-agent==0.1.10
+
+# ========================================
+# ASYNC AND CONCURRENCY
+# ========================================
+
+# Async utilities
+asyncio==3.4.3
+aiofiles==23.2.1
+
+# Concurrent execution
+concurrent-futures==3.1.1
+
+# ========================================
+# GEOGRAPHIC DATA
+# ========================================
+
+# Geographic processing
+geopy==2.4.1
+geoip2==4.7.0
+pycountry==23.12.11
+
+# ========================================
+# TIME SERIES AND WEATHER
+# ========================================
+
+# Weather APIs
+pyowm==3.3.0
+
+# Time zone handling
+pytz==2023.3
+
+# ========================================
+# CONFIGURATION
+# ========================================
+
+# Environment variables
+python-dotenv==1.0.0
+pyyaml==6.0.1
+configparser==6.0.0
+
+# ========================================
+# SECURITY
+# ========================================
+
+# Secure requests
+certifi==2023.11.17
+cryptography==41.0.8
+
+# Input validation
+bleach==6.1.0
+
+# ========================================
+# TESTING AND DEVELOPMENT
+# ========================================
+
+# Testing frameworks
+pytest==7.4.3
+pytest-asyncio==0.23.2
+pytest-cov==4.1.0
+pytest-mock==3.12.0
+
+# HTTP mocking
+responses==0.24.1
+httpretty==1.1.4
+
+# Code quality
+black==23.12.0
+flake8==6.1.0
+mypy==1.8.0
+
+# ========================================
+# SPECIALIZED APIS
+# ========================================
+
+# Social media APIs (uncomment as needed)
+# tweepy==4.14.0        # Twitter
+# python-instagram==1.3.2  # Instagram
+# facebook-sdk==3.1.0   # Facebook
+
+# Financial APIs (uncomment as needed)
+# yfinance==0.2.12      # Yahoo Finance
+# alpha-vantage==2.3.1  # Alpha Vantage
+
+# News APIs (uncomment as needed)
+# newsapi-python==0.2.7  # News API
+# feedparser==6.0.10     # RSS feeds
+
+# Government APIs (uncomment as needed)
+# sodapy==2.2.0         # Socrata Open Data
+
+# ========================================
+# BROWSER AUTOMATION
+# ========================================
+
+# Playwright (alternative to Selenium)
+# playwright==1.40.0    # Uncomment if preferred over Selenium
+
+# ========================================
+# DATA SCIENCE (optional)
+# ========================================
+
+# Machine learning (for data classification)
+# scikit-learn==1.3.2
+# scipy==1.11.4
+
+# Text processing
+# nltk==3.8.1
+# spacy==3.7.2
+
+# ========================================
+# VERSION PINNING NOTES
+# ========================================
+
+# Dependencies are organized by functionality:
+# - Core: HTTP clients and basic utilities
+# - Scraping: Web scraping and parsing tools
+# - Auth: Authentication and security
+# - Storage: Cloud and local storage
+# - Monitoring: Observability tools
+# - Specialized: Domain-specific APIs
+# 
+# Optional dependencies are commented to reduce image size
+# Uncomment based on specific API requirements
+# 
+# Always test dependency updates in staging first
+# Some APIs may require specific library versions
