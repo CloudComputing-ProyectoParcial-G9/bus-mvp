@@ -34,11 +34,11 @@ Este MVP (Minimum Viable Product) implementa un sistema distribuido para la gest
 
 ## División del Equipo y Ownership
 
-- **@B1** – Backend Developer 1 (ms-passengers, ms-history)
-- **@B2** – Backend Developer 2 (ms-trips, ms-tickets)
-- **@A** – Analytics & Data Science (data-ingestion/, ms-analytics, docs/analytics/)
-- **@F** – Frontend Developer (frontend/web-portal)
-- **@PM** – Project Manager (infra/, .github/, docs/, coordinación)
+- **@B1** – Backend Developer 1 (ms-passengers, ms-history) Joel
+- **@B2** – Backend Developer 2 (ms-trips, ms-tickets) Leonardo
+- **@A** – Analytics & Data Science (data-ingestion/, ms-analytics, docs/analytics/) Luis
+- **@F** – Frontend Developer (frontend/web-portal) Karolay
+- **@DevOps** – Project Manager (infra/) Nayeli
 
 ## Arquitectura de Microservicios
 
