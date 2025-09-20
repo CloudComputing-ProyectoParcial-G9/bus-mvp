@@ -1,0 +1,24 @@
+version: '3.8'
+
+networks:
+  bus-mvp-network:
+    driver: bridge
+
+services:
+  ms-passengers:
+    image: "${ECR_ACCOUNT_ID}.dkr.ecr.${ECR_REGION}.amazonaws.com/${ECR_REPO_MS_PASSENGERS}:${ECR_TAG}"
+    container_name: bus-mvp-ms-passengers
+    environment:
+      - SQL1_HOST=${SQL1_HOST}
+      - SQL1_PORT=${SQL1_PORT}
+      - SQL1_DB=${SQL1_DB}
+      - SQL1_USER=${SQL1_USER}
+      - SQL1_PASSWORD=${SQL1_PASSWORD}
+      - MS_PASSENGERS_PORT=${MS_PASSENGERS_PORT}
+      - ENVIRONMENT=${ENVIRONMENT}
+      - LOG_LEVEL=${LOG_LEVEL}
+    ports:
+      - "${MS_PASSENGERS_PORT}:${MS_PASSENGERS_PORT}"
+    restart: unless-stopped
+    networks:
+      - bus-mvp-network

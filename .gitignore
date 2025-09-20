@@ -1,0 +1,35 @@
+# Global gitignore for the repo
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.Python
+env/
+.venv/
+venv/
+/.venv
+
+# pytest
+.pytest_cache/
+
+# Local sqlite DBs and test DBs
+backend/ms-passengers/dev_passengers.db
+backend/ms-passengers/test_dev_passengers.db
+
+# Docker
+**/docker-compose.override.yml
+**/.env
+infra/.env
+
+# Logs
+*.log
+logs/
+
+# VSCode
+.vscode/
+
+# macOS
+.DS_Store
+
+backend/ms-passengers/tests/test_dev_passengers.db
