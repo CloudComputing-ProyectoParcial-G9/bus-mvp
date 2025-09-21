@@ -1,3 +1,27 @@
+# Multi-stage Dockerfile for ms-tickets (Spring Boot, Java 17)
+FROM maven:3.9.4-eclipse-temurin-17 AS build
+WORKDIR /workspace
+
+# Cache dependencies
+COPY pom.xml ./
+COPY src ./src
+
+# Build the application and create an executable jar
+RUN mvn -B -DskipTests package spring-boot:repackage
+
+FROM eclipse-temurin:17-jre-alpine
+WORKDIR /app
+
+# Create non-root user
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+
+# Copy jar from build stage
+COPY --from=build /workspace/target/*.jar app.jar
+
+EXPOSE 8003
+
+USER appuser
+ENTRYPOINT ["java","-jar","/app/app.jar"]
 # TODO: Completar según stack elegido
 # Este Dockerfile será completado cuando el equipo elija el lenguaje y framework
 

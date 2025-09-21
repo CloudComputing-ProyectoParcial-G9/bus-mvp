@@ -1,0 +1,62 @@
+# IDEs and editors
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+env/
+venv/
+.venv/
+
+# Node
+node_modules/
+dist/
+build/
+
+# Java / Maven
+target/
+*.jar
+*.war
+*.ear
+.mvn/
+*.class
+
+# Go
+bin/
+
+# Docker
+env
+.env
+infra/.env
+docker-compose.override.yml
+**/docker-compose.override.yml
+
+# Database / volumes
+nosql_data/
+data/
+
+# IDE specific
+/.idea
+/.vscode
+
+# Misc
+*.swp
+*.tmp
+

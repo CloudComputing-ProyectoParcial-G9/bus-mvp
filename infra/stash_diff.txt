@@ -1,0 +1,929 @@
+diff --git a/README.md b/README.md
+index 8430e6c..9be7f42 100644
+--- a/README.md
++++ b/README.md
+@@ -169,16 +169,35 @@ bus-mvp/
+ 
+ ## Tecnolog├¡as a Definir
+ 
+-Este proyecto est├í dise├▒ado para ser agn├│stico de tecnolog├¡as espec├¡ficas. Cada equipo debe elegir:
+ 
+-### Backend
+-- **Lenguajes**: 3 diferentes para los MS con DB (ej: Node.js, Python, Java/Go)
+-- **Frameworks**: Express, FastAPI, Spring Boot, etc.
+-- **Bases de Datos**: 2 SQL (MySQL, PostgreSQL) + 1 NoSQL (MongoDB, Redis)
++## Tecnolog├¡as Definidas para Backend y Bases de Datos
++
++### Lenguajes y Frameworks Backend
++- **Python + FastAPI**
++- **Node.js + Express**
++- **Java + Spring Boot**
++- **Go + Gin**
++
++
++### Bases de Datos
++- **Relacionales (SQL):**
++    - PostgreSQL
++    - MySQL
++- **No Relacional (NoSQL):**
++    - Redis
++
++### Asignaci├│n de Stacks por Microservicio
++| Microservicio      | Lenguaje/Framework     | Base de Datos   |
++|--------------------|-----------------------|-----------------|
++| ms-passengers      | Python + FastAPI      | PostgreSQL      |
++| ms-trips           | Node.js + express     | MySQL           |
++| ms-tickets         | Go + Gin              | Redis           |
++| ms-history         | Node.js + Express     | (Sin DB)        |
++| ms-analytics       | Python + FastAPI      | (Object Storage)|
+ 
+ ### Frontend
+-- **Framework**: React, Vue, Angular, Svelte, etc.
+-- **Estado**: Redux, Vuex, Context API, etc.
++- **Framework**: React
++- **Estado**: Context API
+ 
+ ### Cloud Provider
+ - **AWS**: S3, Glue, Athena
+diff --git a/backend/ms-analytics/Dockerfile b/backend/ms-analytics/Dockerfile
+index 1c5adb1..dc15459 100644
+--- a/backend/ms-analytics/Dockerfile
++++ b/backend/ms-analytics/Dockerfile
+@@ -1,3 +1,4 @@
++FROM scratch
+ # TODO: Completar seg├║n stack elegido
+ # Este Dockerfile ser├í completado cuando el equipo elija el lenguaje y framework
+ 
+diff --git a/backend/ms-analytics/src/README.md b/backend/ms-analytics/src/README.md
+index e86b327..3b73350 100644
+--- a/backend/ms-analytics/src/README.md
++++ b/backend/ms-analytics/src/README.md
+@@ -30,6 +30,55 @@ Ver especificaci├│n completa en `openapi.yaml`
+ - `GET /analytics/route-performance` - Performance de rutas
+ - `POST /analytics/query/custom` - Consultas SQL personalizadas (solo nube)
+ 
++
++## Request/Response examples
++Definiciones de request/response para los endpoints principales de `ms-analytics`.
++
++1) GET /health
++Response (200):
++```json
++{ "status": "healthy", "timestamp": "2025-09-20T10:00:00Z", "version": "1.0.0", "environment": "local", "cloud_services": { "object_storage": "connected", "data_catalog": "connected", "query_engine": "connected" } }
++```
++
++2) GET /analytics/revenue-by-route
++Request params: date_from, date_to, route_code, group_by, limit
++Response (200):
++```json
++{ "data": [ { "route": "Lima-Cusco", "revenue": 12000 }, { "route": "Cusco-Arequipa", "revenue": 8000 } ], "summary": { "total_revenue": 20000 }, "query_info": { "engine": "mock" } }
++```
++
++3) GET /analytics/occupancy-trends
++Request params: date_from, date_to, route_code, day_of_week, include_cancelled
++Response (200):
++```json
++{ "route": "Lima-Cusco", "occupancy_trends": [ { "date": "2025-09-01", "occupancy": 0.75 }, { "date": "2025-09-02", "occupancy": 0.82 } ], "summary": { "average_occupancy_rate": 0.785 } }
++```
++
++4) GET /analytics/customer-segmentation
++Request params: segment, min_trips, date_from, date_to
++Response (200):
++```json
++{ "data": [ { "segment": "Frecuentes", "count": 120 }, { "segment": "Ocasionales", "count": 340 } ], "summary": { "total_customers_analyzed": 460 } }
++```
++
++5) GET /analytics/route-performance
++Request params: sort_by, limit, date_from, date_to, include_inactive
++Response (200):
++```json
++{ "data": [ { "route_code": "RT001", "on_time_percentage": 0.92, "average_delay_minutes": 3.5, "total_trips": 50 } ], "summary": { "total_routes_analyzed": 1 } }
++```
++
++6) POST /analytics/query/custom
++Request body:
++```json
++{ "sql": "SELECT route, SUM(revenue) FROM tickets GROUP BY route" }
++```
++Response (200):
++```json
++{ "columns": ["route","sum_revenue"], "rows": [ ["Lima-Cusco", 12000], ["Cusco-Arequipa", 8000] ], "query_info": { "engine": "mock" } }
++```
++
++
+ ## Variables de Entorno Requeridas
+ 
+ ### Configuraci├│n General
+diff --git a/backend/ms-history/Dockerfile b/backend/ms-history/Dockerfile
+index 40131f9..799685a 100644
+--- a/backend/ms-history/Dockerfile
++++ b/backend/ms-history/Dockerfile
+@@ -1,3 +1,4 @@
++FROM scratch
+ # TODO: Completar seg├║n stack elegido
+ # Este Dockerfile ser├í completado cuando el equipo elija el lenguaje y framework
+ 
+diff --git a/backend/ms-history/src/README.md b/backend/ms-history/src/README.md
+index f8ed7ae..7b8def4 100644
+--- a/backend/ms-history/src/README.md
++++ b/backend/ms-history/src/README.md
+@@ -29,6 +29,50 @@ Ver especificaci├│n completa en `openapi.yaml`
+ - `GET /history/dashboard/summary` - M├®tricas para dashboard
+ - `GET /history/analytics/popular-routes` - An├ílisis de rutas populares
+ 
++
++## Request/Response examples
++Ejemplos de request/response para `ms-history` (agregador).
++
++1) GET /health
++Response (200):
++```json
++{ "status": "healthy", "timestamp": "2025-09-20T10:00:00Z", "version": "1.0.0", "dependencies": { "ms_passengers": "connected", "ms_trips": "connected", "ms_tickets": "connected" } }
++```
++
++2) GET /history/passenger/{passenger_id}
++Request params: include_cancelled (bool), date_from, date_to
++Response (200):
++```json
++{
++  "passenger_info": { "passenger_id": "pass_001", "full_name": "Juan P├®rez", "email": "juan@mail.com" },
++  "travel_statistics": { "total_trips": 3, "total_spent": 150.5, "favorite_route": "Lima-Cusco" },
++  "ticket_history": [ { "ticket_id": "ticket_001", "trip_info": { "trip_id": "trip_001", "origin_city": "Lima", "destination_city": "Cusco", "departure_time": "2025-09-01T08:00:00Z" }, "purchase_date": "2025-09-01T10:00:00Z", "total_price": 50.5 } ]
++}
++```
++
++3) GET /history/trip/{trip_id}
++Response (200):
++```json
++{
++  "trip_info": { "trip_id": "trip_001", "route_code": "RT001", "origin_city": "Lima", "destination_city": "Cusco", "departure_time": "2025-09-01T08:00:00Z" },
++  "passengers": [ { "passenger_id": "pass_001", "full_name": "Juan P├®rez" } ],
++  "occupancy_stats": { "capacity": 50, "booked": 45, "occupancy_rate": 0.9 }
++}
++```
++
++4) GET /history/route/{route_code}/summary
++Response (200):
++```json
++{ "route_code": "RT001", "total_trips": 120, "average_occupancy": 0.78, "total_revenue": 45000 }
++```
++
++5) GET /history/dashboard/summary
++Response (200):
++```json
++{ "total_passengers": 1500, "total_trips": 320, "total_tickets": 4500, "total_revenue": 125000, "top_routes": ["RT001","RT002"] }
++```
++
++
+ ## Variables de Entorno Requeridas
+ 
+ ```bash
+diff --git a/backend/ms-passengers/Dockerfile b/backend/ms-passengers/Dockerfile
+index ed251dc..191e98f 100644
+--- a/backend/ms-passengers/Dockerfile
++++ b/backend/ms-passengers/Dockerfile
+@@ -1,3 +1,4 @@
++FROM scratch
+ # TODO: Completar seg├║n stack elegido
+ # Este Dockerfile ser├í completado cuando el equipo elija el lenguaje y framework
+ 
+diff --git a/backend/ms-tickets/Dockerfile b/backend/ms-tickets/Dockerfile
+index 756463c..a7d3ee4 100644
+--- a/backend/ms-tickets/Dockerfile
++++ b/backend/ms-tickets/Dockerfile
+@@ -1,38 +1,22 @@
+ # TODO: Completar seg├║n stack elegido
+ # Este Dockerfile ser├í completado cuando el equipo elija el lenguaje y framework
++# Build stage
++FROM maven:3.9.0-eclipse-temurin-17 AS build
++WORKDIR /workspace
++COPY pom.xml .
++COPY src ./src
++RUN mvn -DskipTests package spring-boot:repackage -B
+ 
+-# Ejemplo para Node.js:
+-# FROM node:18-alpine
+-# WORKDIR /app
+-# COPY package*.json ./
+-# RUN npm ci --only=production
+-# COPY . .
+-# EXPOSE 8003
+-# CMD ["npm", "start"]
++# Run stage
++FROM eclipse-temurin:17-jre-alpine
++RUN addgroup -S app && adduser -S app -G app
++WORKDIR /app
++COPY --from=build /workspace/target/*.jar app.jar
++RUN chown -R app:app /app
++USER app
++EXPOSE 8003
+ 
+-# Ejemplo para Python:
+-# FROM python:3.11-slim
+-# WORKDIR /app
+-# COPY requirements.txt .
+-# RUN pip install --no-cache-dir -r requirements.txt
+-# COPY . .
+-# EXPOSE 8003
+-# CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8003"]
++HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
++	CMD wget --no-verbose --tries=1 --spider http://localhost:8003/tickets/health || exit 1
+ 
+-# Ejemplo para Java:
+-# FROM openjdk:17-jre-slim
+-# WORKDIR /app
+-# COPY target/*.jar app.jar
+-# EXPOSE 8003
+-# ENTRYPOINT ["java", "-jar", "app.jar"]
+-
+-# Variables de entorno requeridas:
+-# - NOSQL_URL
+-# - NOSQL_DB
+-
+-# TODO:
+-# 1. Elegir imagen base seg├║n lenguaje
+-# 2. Configurar instalaci├│n de dependencias
+-# 3. Configurar health check
+-# 4. Configurar multi-stage build si es necesario
+-# 5. Configurar usuario no-root para seguridad
++ENTRYPOINT ["java","-jar","/app/app.jar"]
+diff --git a/backend/ms-tickets/src/README.md b/backend/ms-tickets/src/README.md
+index df31192..6ec254f 100644
+--- a/backend/ms-tickets/src/README.md
++++ b/backend/ms-tickets/src/README.md
+@@ -53,256 +53,297 @@ TEST_NOSQL_URL=mongodb://localhost:27017/tickets_test
+ ```
+ 
+ ## Estructura del C├│digo (Placeholder)
++````markdown
++# Microservicio de Boletos (ms-tickets)
+ 
+-```
+-src/
+-Ôö£ÔöÇÔöÇ controllers/
+-Ôöé   Ôö£ÔöÇÔöÇ healthController.go
+-Ôöé   ÔööÔöÇÔöÇ ticketsController.go
+-Ôö£ÔöÇÔöÇ models/
+-Ôöé   ÔööÔöÇÔöÇ ticket.go
+-Ôö£ÔöÇÔöÇ routes/
+-Ôöé   Ôö£ÔöÇÔöÇ health.go
+-Ôöé   ÔööÔöÇÔöÇ tickets.go
+-Ôö£ÔöÇÔöÇ middleware/
+-Ôöé   Ôö£ÔöÇÔöÇ validation.go
+-Ôöé   Ôö£ÔöÇÔöÇ errorHandler.go
+-Ôöé   ÔööÔöÇÔöÇ logger.go
+-Ôö£ÔöÇÔöÇ services/
+-Ôöé   Ôö£ÔöÇÔöÇ ticketService.go
+-Ôöé   Ôö£ÔöÇÔöÇ paymentService.go
+-Ôöé   ÔööÔöÇÔöÇ externalApiService.go
+-Ôö£ÔöÇÔöÇ config/
+-Ôöé   Ôö£ÔöÇÔöÇ database.go
+-Ôöé   ÔööÔöÇÔöÇ server.go
+-Ôö£ÔöÇÔöÇ utils/
+-Ôöé   ÔööÔöÇÔöÇ helpers.go
+-ÔööÔöÇÔöÇ main.go
++## Resumen breve
++Decidimos que `ms-tickets` ser├í implementado en Java usando Spring Boot y Redis como datastore para manejar reservas at├│micas y alta consistencia en el contador de asientos. Esto evita repetir el stack de ms-trips (Node.js) y mantiene diversidad tecnol├│gica en el proyecto.
++
++Stack elegido:
++- Lenguaje: Java 17+
++- Framework: Spring Boot (Web)
++- Redis client: Spring Data Redis (Lettuce)
++- Build: Maven (o Gradle si el equipo prefiere)
++
++Motivo: Spring Boot ofrece un marco robusto para servicios empresariales (validaci├│n, configuraci├│n, testing, health checks). Con Spring Data Redis y los scripts Lua podemos garantizar reservas at├│micas y usar patrones de idempotencia y retries.
++
++## Qu├® usaremos exactamente
++
++- Redis para:
++  - contador de asientos por viaje: `trip:<trip_id>:available_seats` (integer)
++  - tickets como Hashes: `ticket:<ticket_id>` (hash)
++  - ├¡ndices por pasajero: `tickets:by_passenger:<passenger_id>` (Set)
++  - idempotency keys: `idemp:<idempotency_key>` (string -> ticket_id)
++- Spring Boot (spring-boot-starter-web) para la API
++- Spring Data Redis (Lettuce) para conexi├│n a Redis y ejecuci├│n de scripts Lua
++- spring-boot-starter-validation para validaciones de payload
++- junit + spring-test para tests
++
++## API contract (m├¡nimo implementable hoy)
++
++- GET /health
++  - 200: { status, timestamp, version, database }
++
++- POST /tickets
++  - body: { passenger_id, trip_id, seat_number?, payment_method, idempotency_key? }
++  - flow:
++    1. check idempotency -> if exists return existing ticket
++    2. validate passenger: GET `${MS_PASSENGERS_URL}/passengers/{passenger_id}` (optional retries)
++    3. validate trip: GET `${MS_TRIPS_URL}/trips/{trip_id}` -> must return base_price/currency (and optionally available_seats)
++    4. call Redis Lua script to atomically: check seats >0, decr seats, create ticket hash, add to passenger set, set idemp mapping
++    5. process payment mock (optional), set booking_status confirmed
++  - success 201: { message: 'Ticket purchased successfully', data: { ticket_id, passenger_id, trip_id } }
++  - errors: 400 invalid input, 404 passenger/trip not found, 409 no seats, 503 external service error
++
++- GET /tickets/{id}
++- POST /tickets/{id}/cancel
++- GET /tickets/passenger/{passenger_id}/history
++
++## Redis data model (summary)
++
++- Key: `trip:<trip_id>:available_seats` => integer
++- Key: `ticket:<ticket_id>` => hash fields: ticket_id, passenger_id, trip_id, seat_number, total_price, currency, booking_status, created_at, updated_at, idempotency_key
++- Key: `tickets:by_passenger:<passenger_id>` => set of ticket ids
++- Key: `idemp:<idempotency_key>` => ticket_id (optional TTL)
++
++## Atomic Lua script (ejemplo) y uso con Spring
++
++Ejemplo Lua (reservar y crear ticket):
++
++```lua
++-- KEYS[1] = trip:<trip_id>:available_seats
++-- KEYS[2] = ticket:<ticket_id>
++-- KEYS[3] = tickets:by_passenger:<passenger_id>
++-- ARGV: ticket_id, passenger_id, trip_id, seat_number, total_price, currency, booking_status, created_at, idempotency_key
++
++local seats = tonumber(redis.call('get', KEYS[1]) or '0')
++if seats <= 0 then return {err='NO_SEATS'} end
++if redis.call('exists', KEYS[2]) == 1 then return {err='TICKET_EXISTS'} end
++redis.call('decr', KEYS[1])
++redis.call('hmset', KEYS[2], 'ticket_id', ARGV[1], 'passenger_id', ARGV[2], 'trip_id', ARGV[3], 'seat_number', ARGV[4], 'total_price', ARGV[5], 'currency', ARGV[6], 'booking_status', ARGV[7], 'created_at', ARGV[8])
++redis.call('sadd', KEYS[3], ARGV[1])
++if ARGV[9] and ARGV[9] ~= '' then redis.call('set', 'idemp:'..ARGV[9], ARGV[1]) end
++return {ok='OK'}
+ ```
+ 
+-## Tareas Pendientes
+-
+-### Base de Datos
+-- [ ] Definir motor NoSQL espec├¡fico (MongoDB, CouchDB, etc.)
+-- [ ] Dise├▒ar esquema de documentos JSON
+-- [ ] Configurar ├¡ndices para consultas frecuentes
+-- [ ] Implementar connection pooling
+-- [ ] Implementar health check de DB
+-
+-### API
+-- [ ] Implementar todos los endpoints seg├║n OpenAPI spec
+-- [ ] Configurar validaci├│n de input
+-- [ ] Implementar paginaci├│n y filtros avanzados
+-- [ ] A├▒adir b├║squeda por m├║ltiples criterios
+-- [ ] Configurar rate limiting
+-- [ ] Implementar logging estructurado
+-
+-### Business Logic
+-- [ ] Validar disponibilidad de asientos
+-- [ ] Integrar con ms-trips para verificar viajes
+-- [ ] Integrar con ms-passengers para validar pasajeros
+-- [ ] Implementar l├│gica de cancelaci├│n y reembolsos
+-- [ ] Gestionar c├│digos promocionales
+-- [ ] Validar m├®todos de pago
+-
+-### Integraciones
+-- [ ] Cliente para ms-trips (verificar viaje y actualizar asientos)
+-- [ ] Cliente para ms-passengers (validar pasajero)
+-- [ ] Mock de payment gateway
+-- [ ] Manejo de errores de servicios externos
+-
+-### Testing
+-- [ ] Unit tests para controllers y services
+-- [ ] Integration tests para endpoints
+-- [ ] Tests de base de datos NoSQL
+-- [ ] Tests de integraci├│n con otros microservicios
+-- [ ] Setup de CI/CD testing
+-
+-### Monitoring & Observability
+-- [ ] Configurar health checks detallados
+-- [ ] M├®tricas de performance y ventas
+-- [ ] Logging de transacciones
+-- [ ] Tracing distribuido
+-- [ ] Alertas de monitoreo
+-
+-## Comandos de Desarrollo
+-
+-### Local Development
+-```bash
+-# TODO: Completar seg├║n stack elegido
++En Spring Boot puedes usar `StringRedisTemplate` o `RedisTemplate<String, String>` y `DefaultRedisScript<Long>` para ejecutar este script (o cargarlo con `LettuceConnection` y `evalsha`).
++
++## Variables de entorno (recomendadas)
+ 
+-# Ejemplo Go:
+-# go mod tidy
+-# go run main.go
++```properties
++# Redis
++SPRING_REDIS_URL=redis://nosql-db:6379
+ 
+-# Ejemplo Java:
+-# ./mvnw spring-boot:run
++# Servicio
++MS_TICKETS_PORT=8003
+ 
+-# Ejemplo C#:
+-# dotnet run
++# Otros servicios (internal hostnames en docker-compose)
++MS_TRIPS_URL=http://ms-trips:8002
++MS_PASSENGERS_URL=http://ms-passengers:8001
+ 
+-# Ejemplo Python:
+-# pip install -r requirements.txt
+-# uvicorn main:app --reload --port 8003
++# Idempotency
++IDEMPOTENCY_TTL_SECONDS=3600
+ ```
+ 
+-### Docker
+-```bash
+-# Build
+-docker build -t ms-tickets .
+-
+-# Run
+-docker run -p 8003:8003 --env-file .env ms-tickets
++## Dockerfile (multi-stage Maven)
++
++```dockerfile
++# Build stage
++FROM maven:3.9.0-eclipse-temurin-17 AS build
++WORKDIR /workspace
++COPY pom.xml mvnw .
++COPY .mvn .mvn
++COPY src src
++RUN mvn -DskipTests package -Pnative -e -B || mvn -DskipTests package -B
++
++# Run stage
++FROM eclipse-temurin:17-jre-alpine
++WORKDIR /app
++COPY --from=build /workspace/target/*.jar app.jar
++EXPOSE 8003
++ENTRYPOINT ["java","-jar","/app/app.jar"]
++```
+ 
+-# Con Docker Compose (desde ra├¡z del proyecto)
+-cd ../../infra
+-docker-compose up ms-tickets
++Nota: ajusta el `mvn` command si usas Spring Boot Starter normal (sin perfil native). El contenedor final ejecuta el JAR.
++
++## Dependencias Maven (pom.xml snippet)
++
++```xml
++<dependencies>
++  <dependency>
++    <groupId>org.springframework.boot</groupId>
++    <artifactId>spring-boot-starter-web</artifactId>
++  </dependency>
++  <dependency>
++    <groupId>org.springframework.boot</groupId>
++    <artifactId>spring-boot-starter-data-redis</artifactId>
++  </dependency>
++  <dependency>
++    <groupId>org.springframework.boot</groupId>
++    <artifactId>spring-boot-starter-validation</artifactId>
++  </dependency>
++  <dependency>
++    <groupId>org.springframework.boot</groupId>
++    <artifactId>spring-boot-starter-test</artifactId>
++    <scope>test</scope>
++  </dependency>
++</dependencies>
+ ```
+ 
+-### Testing
+-```bash
+-# TODO: Completar seg├║n stack elegido
++## Controller skeleton (Java)
+ 
+-# Ejemplo Go:
+-# go test ./...
++```java
++@RestController
++@RequestMapping("/tickets")
++public class TicketController {
+ 
+-# Ejemplo Java:
+-# ./mvnw test
++  private final TicketService ticketService;
+ 
+-# Ejemplo C#:
+-# dotnet test
++  public TicketController(TicketService ticketService) { this.ticketService = ticketService; }
+ 
+-# Ejemplo Python:
+-# pytest
+-```
++  @GetMapping("/health")
++  public ResponseEntity<?> health() { return ResponseEntity.ok(Map.of("status","healthy","timestamp",Instant.now().toString())); }
+ 
+-## Integraci├│n con otros Microservicios
+-
+-### Consumido por:
+-- **ms-history** - Para obtener historial de compras
+-- **Frontend** - Para gesti├│n de boletos en UI
+-
+-### Consume:
+-- **ms-trips** - Para verificar disponibilidad y actualizar asientos
+-- **ms-passengers** - Para validar informaci├│n del pasajero
+-
+-## Esquema NoSQL (MongoDB - Ejemplo)
+-
+-### Colecci├│n: tickets
+-```json
+-{
+-  "_id": "ticket_001",
+-  "passenger_id": "pass_001",
+-  "trip_id": "trip_001",
+-  "seat_number": "12A",
+-  "purchase_date": "2024-01-15T10:30:00Z",
+-  "total_price": 45.50,
+-  "currency": "EUR",
+-  "payment_method": "credit_card",
+-  "booking_status": "confirmed",
+-  "special_requirements": "Wheelchair accessible seat",
+-  "metadata": {
+-    "booking_reference": "BK123456",
+-    "payment_transaction_id": "txn_789012",
+-    "promo_code": "SUMMER2024",
+-    "discount_applied": 5.00,
+-    "cancellation_reason": null,
+-    "refund_amount": null,
+-    "refund_status": null,
+-    "passenger_info": {
+-      "full_name": "Juan P├®rez Garc├¡a",
+-      "email": "juan.perez@email.com",
+-      "phone": "+1234567890"
+-    },
+-    "trip_info": {
+-      "route_code": "RT001",
+-      "origin_city": "Madrid",
+-      "destination_city": "Barcelona",
+-      "departure_time": "2024-01-20T08:00:00Z",
+-      "arrival_time": "2024-01-20T14:30:00Z"
++  @PostMapping
++  public ResponseEntity<?> create(@Valid @RequestBody CreateTicketRequest req) {
++    try {
++      TicketDto dto = ticketService.createTicket(req);
++      return ResponseEntity.status(HttpStatus.CREATED).body(Map.of("message","Ticket purchased successfully","data",dto));
++    } catch(NoSeatsException e) {
++      return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("error","no_seats"));
+     }
+-  },
+-  "created_at": "2024-01-15T10:30:00Z",
+-  "updated_at": "2024-01-15T10:30:00Z"
++  }
+ }
+ ```
+ 
+-### ├ìndices Recomendados
+-```javascript
+-// MongoDB ├¡ndices
+-db.tickets.createIndex({ "passenger_id": 1 })
+-db.tickets.createIndex({ "trip_id": 1 })
+-db.tickets.createIndex({ "booking_status": 1 })
+-db.tickets.createIndex({ "purchase_date": 1 })
+-db.tickets.createIndex({ "passenger_id": 1, "booking_status": 1 })
+-db.tickets.createIndex({ "trip_id": 1, "booking_status": 1 })
+-
+-// ├ìndice compuesto para b├║squedas frecuentes
+-db.tickets.createIndex({ 
+-  "passenger_id": 1, 
+-  "purchase_date": -1, 
+-  "booking_status": 1 
+-})
+-
+-// ├ìndice de texto para b├║squeda
+-db.tickets.createIndex({ 
+-  "metadata.passenger_info.full_name": "text",
+-  "metadata.booking_reference": "text"
+-})
+-```
++El `TicketService` usar├í `StringRedisTemplate` para llamar al script Lua.
+ 
+-## L├│gica de Negocio
+-
+-### Estados de Boletos
+-- **pending**: Boleto en proceso de compra
+-- **confirmed**: Boleto confirmado y pagado
+-- **cancelled**: Boleto cancelado por el usuario
+-- **refunded**: Boleto cancelado con reembolso procesado
+-
+-### Reglas de Negocio
+-- Verificar disponibilidad de asientos antes de crear boleto
+-- Validar que el pasajero existe en ms-passengers
+-- Validar que el viaje existe y est├í disponible en ms-trips
+-- Actualizar asientos disponibles en ms-trips al confirmar/cancelar
+-- Aplicar pol├¡ticas de cancelaci├│n seg├║n tiempo restante
+-- Calcular reembolsos seg├║n pol├¡ticas establecidas
+-
+-### Flujo de Compra
+-1. Validar pasajero (llamada a ms-passengers)
+-2. Validar viaje y disponibilidad (llamada a ms-trips)
+-3. Crear boleto en estado "pending"
+-4. Procesar pago (mock payment gateway)
+-5. Confirmar boleto y actualizar asientos en ms-trips
+-6. Enviar confirmaci├│n
+-
+-## API Calls a Otros Microservicios
+-
+-### ms-trips Integration
+-```bash
+-# Verificar viaje y disponibilidad
+-GET http://localhost:8002/trips/{trip_id}
+-
+-# Actualizar asientos disponibles
+-PUT http://localhost:8002/trips/{trip_id}
+-Content-Type: application/json
+-{
+-  "available_seats": 34
+-}
++## Ejemplo de ejecuci├│n del script con Spring (sincr├│nico)
++
++```java
++DefaultRedisScript<String> script = new DefaultRedisScript<>();
++script.setScriptText(luaScriptString);
++script.setResultType(String.class);
++String result = stringRedisTemplate.execute(script, Arrays.asList(seatsKey, ticketKey, passengerSetKey), ticketId, passengerId, tripId, seatNumber, String.valueOf(price), currency, "confirmed", createdAt, idempotencyKey);
+ ```
+ 
+-### ms-passengers Integration
+-```bash
+-# Verificar pasajero
+-GET http://localhost:8001/passengers/{passenger_id}
++## Testing y mocks
++
++- Mientras `ms-trips` y `ms-passengers` completan sus endpoints, implementa mocks HTTP (por ejemplo con WireMock o un simple Spring MockMVC during tests) para simular respuestas.
++- Tests: unitarios con `@WebMvcTest` y de integraci├│n con `@SpringBootTest` y un contenedor Redis (testcontainers) o servicio Redis en Compose.
++
++## Docker Compose notes
++
++- Reemplaza `nosql-db` por Redis en `infra/docker-compose.yml` y configura `ms-tickets` para usar `SPRING_REDIS_URL=redis://nosql-db:6379`.
++
++## Siguientes pasos si confirmas Spring Boot
++
++1. Yo puedo crear el scaffold inicial de Spring Boot en `backend/ms-tickets` (pom.xml, src/main/java/... TicketController, TicketService skeleton, application.properties, Dockerfile) y commit/push a `feat/ms-tickets`.
++2. Luego creo una prueba r├ípida que levante la app contra un Redis en Docker Compose y ejecute un `POST /tickets` con un mock de ms-trips/ms-passengers.
++
++┬┐Confirmas que prefieres Spring Boot (Java) para `ms-tickets`? Responde "s├¡, haz el scaffold en Java" o ind├¡came otra preferencia.
++
++## Ownership
++**Responsable**: @B2 (Backend Developer 2)
++
++````
++const axios = require('axios');
++const { v4: uuidv4 } = require('uuid');
++const Redis = require('ioredis');
++
++const app = express();
++app.use(express.json());
++
++const redis = new Redis(process.env.REDIS_URL);
++
++const MS_TRIPS = process.env.MS_TRIPS_URL;
++const MS_PASSENGERS = process.env.MS_PASSENGERS_URL;
++const PORT = process.env.MS_TICKETS_PORT || 8003;
++
++app.get('/health', async (req, res) => {
++  let db = 'disconnected';
++  try { await redis.ping(); db = 'connected'; } catch (e) { db = 'error'; }
++  res.json({ status: 'healthy', timestamp: new Date().toISOString(), version: '1.0.0', database: db });
++});
++
++// Minimal POST /tickets flow (sync, simplified)
++app.post('/tickets', async (req, res) => {
++  const { passenger_id, trip_id, seat_number, payment_method, idempotency_key } = req.body;
++  if (!passenger_id || !trip_id) return res.status(400).json({ error: 'passenger_id and trip_id required' });
++
++  // Idempotency check
++  if (idempotency_key) {
++    const existing = await redis.get('idemp:' + idempotency_key);
++    if (existing) {
++      const ticket = await redis.hgetall('ticket:' + existing);
++      return res.status(200).json({ message: 'Idempotent: returning existing', data: ticket });
++    }
++  }
++
++  // Validate passenger (best-effort)
++  try { await axios.get(`${MS_PASSENGERS}/passengers/${passenger_id}`, { timeout: 2000 }); } catch (err) { /* handle or continue */ }
++
++  // Validate trip
++  let trip;
++  try { const r = await axios.get(`${MS_TRIPS}/trips/${trip_id}`); trip = r.data.data || r.data; } catch (err) { return res.status(503).json({ error: 'ms_trips_unavailable' }); }
++
++  // Atomic reservation will be done with Lua script (not shown here).
++  const ticket_id = 'ticket_' + uuidv4();
++  const ticketKey = `ticket:${ticket_id}`;
++
++  const ticket = {
++    ticket_id,
++    passenger_id,
++    trip_id,
++    seat_number: seat_number || null,
++    total_price: trip.base_price || 0,
++    currency: trip.currency || 'EUR',
++    booking_status: 'confirmed',
++    created_at: new Date().toISOString()
++  };
++
++  // Simplified (non-atomic) fallback: try decr and create
++  const seatsKey = `trip:${trip_id}:available_seats`;
++  const seats = await redis.get(seatsKey);
++  if (!seats || parseInt(seats, 10) <= 0) return res.status(409).json({ error: 'no_seats' });
++
++  const decremented = await redis.decr(seatsKey);
++  if (decremented < 0) {
++    // revert
++    await redis.incr(seatsKey);
++    return res.status(409).json({ error: 'no_seats' });
++  }
++
++  await redis.hset(ticketKey, ticket);
++  await redis.sadd(`tickets:by_passenger:${passenger_id}`, ticket_id);
++  if (idempotency_key) await redis.setex(`idemp:${idempotency_key}`, parseInt(process.env.IDEMPOTENCY_TTL_SECONDS||3600,10), ticket_id);
++
++  return res.status(201).json({ message: 'Ticket purchased successfully', data: ticket });
++});
++
++app.listen(PORT, '0.0.0.0', () => console.log(`ms-tickets listening ${PORT}`));
+ ```
+ 
+-## Notas de Implementaci├│n
++Nota: el bloque anterior es un skeleton para pruebas r├ípidas; la implementaci├│n final usar├í el script Lua para atomicidad y manejo de fallos.
++
++## Docker Compose notes
++
++- Reemplazar `nosql-db` por Redis en `infra/docker-compose.yml` y exponer `6379` para dev.
++- En ms-tickets setear `REDIS_URL=redis://:${NOSQL_PASSWORD}@nosql-db:6379/0` o usar `REDIS_URL=redis://nosql-db:6379` sin password en dev.
+ 
+-- **Transacciones**: Usar transacciones NoSQL cuando est├® disponible
+-- **Consistencia Eventual**: Manejar fallos en updates a ms-trips
+-- **Idempotencia**: Operaciones de compra deben ser idempotentes
+-- **Performance**: Cache de informaci├│n de viajes frecuentemente consultados
+-- **Audit Trail**: Guardar todos los cambios de estado en metadata
++## Testing y mocks
++
++- Mientras `ms-trips` y `ms-passengers` no est├ín completos, crea mocks HTTP que respondan a los endpoints requeridos (GET /trips/{id}, GET /passengers/{id}).
++- A├▒ade tests unitarios que sustituyan axios con nock o msw-node para simular respuestas externas.
++
++## Next steps (prioridad)
++
++1. Implementar y cargar el script Lua en `ioredis` al iniciar.
++2. Reemplazar el fallback de `decr` por `evalsha` del script at├│mico.
++3. A├▒adir soporte de idempotency header y TTLs.
++4. Agregar tests de integraci├│n con Redis en memory (redis-server en docker-compose) y mocks de ms-trips/ms-passengers.
+ 
+ ## Ownership
+ **Responsable**: @B2 (Backend Developer 2)
++
++````
+diff --git a/backend/ms-trips/Dockerfile b/backend/ms-trips/Dockerfile
+index 91b1ebe..4d79f5d 100644
+--- a/backend/ms-trips/Dockerfile
++++ b/backend/ms-trips/Dockerfile
+@@ -1,3 +1,4 @@
++FROM scratch
+ # TODO: Completar seg├║n stack elegido
+ # Este Dockerfile ser├í completado cuando el equipo elija el lenguaje y framework
+ 
+diff --git a/backend/ms-trips/src/README.md b/backend/ms-trips/src/README.md
+index e95971c..a0b1640 100644
+--- a/backend/ms-trips/src/README.md
++++ b/backend/ms-trips/src/README.md
+@@ -178,6 +178,46 @@ docker-compose up ms-trips
+ ### Consume:
+ - Ninguno (microservicio base con DB)
+ 
++
++## Request/Response examples
++Definici├│n de request/response para los endpoints principales de `ms-trips`.
++
++1) GET /health
++Response (200):
++```json
++{ "status": "healthy", "timestamp": "2025-09-20T10:00:00Z", "version": "1.0.0", "database": "connected" }
++```
++
++2) GET /trips
++Request: query params (page, limit, origin, destination, date, status)
++Response (200):
++```json
++{ "data": [ { "trip_id": "trip_001", "route_code": "RT001", "origin_city": "Lima", "destination_city": "Cusco", "departure_time": "2025-09-01T08:00:00Z" } ], "pagination": { "page":1, "limit":20, "total":50, "pages":3 } }
++```
++
++3) POST /trips
++Request body:
++```json
++{ "route_code": "RT001", "departure_time": "2025-10-01T08:00:00Z", "arrival_time": "2025-10-01T14:00:00Z", "bus_capacity": 50, "base_price": 45.5 }
++```
++Response (201):
++```json
++{ "message":"Trip created successfully", "data": { "trip_id":"trip_002", "route_code":"RT001" } }
++```
++
++4) GET /trips/{id}
++Response (200):
++```json
++{ "data": { "trip_id": "trip_001", "route_code": "RT001", "available_seats": 35 } }
++```
++
++5) GET /routes
++Response (200):
++```json
++{ "data": [ { "route_code":"RT001", "name":"Lima-Cusco" } ] }
++```
++
++
+ ## Schema de Base de Datos (Preliminar)
+ 
+ ### Tabla: routes
+diff --git a/infra/docker-compose.yml b/infra/docker-compose.yml
+index 8cff1d5..861e012 100644
+--- a/infra/docker-compose.yml
++++ b/infra/docker-compose.yml
+@@ -133,49 +133,23 @@ services:
+       timeout: 10s
+       retries: 3
+ 
+-  # NoSQL Database (para ms-tickets)
+-  # TODO: Elegir motor NoSQL espec├¡fico
++  # NoSQL Database (para ms-tickets) - Redis
+   nosql-db:
+-    # Opci├│n MongoDB:
+-    image: mongo:7.0
++    image: redis:7-alpine
+     container_name: bus-mvp-nosql-db
+-    environment:
+-      MONGO_INITDB_ROOT_USERNAME: ${NOSQL_USER}
+-      MONGO_INITDB_ROOT_PASSWORD: ${NOSQL_PASSWORD}
+-      MONGO_INITDB_DATABASE: ${NOSQL_DB}
++    command: ["redis-server", "--save", "60", "1"]
+     ports:
+-      - "27017:27017"
+-    
+-    # Opci├│n CouchDB:
+-    # image: couchdb:3.3
+-    # container_name: bus-mvp-nosql-db
+-    # environment:
+-    #   COUCHDB_USER: ${NOSQL_USER}
+-    #   COUCHDB_PASSWORD: ${NOSQL_PASSWORD}
+-    # ports:
+-    #   - "5984:5984"
+-    
+-    # Opci├│n Redis:
+-    # image: redis:7-alpine
+-    # container_name: bus-mvp-nosql-db
+-    # command: redis-server --requirepass ${NOSQL_PASSWORD}
+-    # ports:
+-    #   - "6379:6379"
+-    
++      - "6379:6379"
+     volumes:
+-      - nosql_data:/data/db
+-      # CouchDB: - nosql_data:/opt/couchdb/data
+-      # Redis: - nosql_data:/data
++      - nosql_data:/data
+     networks:
+       - bus-mvp-network
+     restart: unless-stopped
+     healthcheck:
+-      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+-      # CouchDB: test: ["CMD", "curl", "-f", "http://localhost:5984/_up"]
+-      # Redis: test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+-      interval: 30s
+-      timeout: 10s
+-      retries: 3
++      test: ["CMD", "redis-cli", "ping"]
++      interval: 10s
++      timeout: 5s
++      retries: 5
+ 
+   # ========================================
+   # MICROSERVICIOS
+@@ -248,8 +222,8 @@ services:
+       dockerfile: Dockerfile
+     container_name: bus-mvp-ms-tickets
+     environment:
+-      - NOSQL_URL=mongodb://${NOSQL_USER}:${NOSQL_PASSWORD}@nosql-db:27017/${NOSQL_DB}?authSource=admin
+-      - NOSQL_DB=${NOSQL_DB}
++      - SPRING_REDIS_HOST=nosql-db
++      - SPRING_REDIS_PORT=6379
+       - MS_TICKETS_PORT=${MS_TICKETS_PORT}
+       - MS_TRIPS_URL=http://ms-trips:${MS_TRIPS_PORT}
+       - MS_PASSENGERS_URL=http://ms-passengers:${MS_PASSENGERS_PORT}
+@@ -260,15 +234,15 @@ services:
+     depends_on:
+       nosql-db:
+         condition: service_healthy
+-      ms-trips:
+-        condition: service_healthy
+-      ms-passengers:
+-        condition: service_healthy
++      # Temporarily removed ms-trips and ms-passengers dependencies so we can
++      # start and test ms-tickets independently while those services are under
++      # development. Re-add these when ms-trips and ms-passengers provide
++      # healthy endpoints.
+     networks:
+       - bus-mvp-network
+     restart: unless-stopped
+     healthcheck:
+-      test: ["CMD", "curl", "-f", "http://localhost:${MS_TICKETS_PORT}/health"]
++      test: ["CMD", "curl", "-f", "http://localhost:${MS_TICKETS_PORT}/tickets/health"]
+       interval: 30s
+       timeout: 10s
+       retries: 3

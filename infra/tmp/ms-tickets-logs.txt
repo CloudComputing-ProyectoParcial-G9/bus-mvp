@@ -1,0 +1,51 @@
+bus-mvp-ms-tickets  | 
+bus-mvp-ms-tickets  |   .   ____          _            __ _ _
+bus-mvp-ms-tickets  |  /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+bus-mvp-ms-tickets  | ( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+bus-mvp-ms-tickets  |  \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+bus-mvp-ms-tickets  |   '  |____| .__|_| |_|_| |_\__, | / / / /
+bus-mvp-ms-tickets  |  =========|_|==============|___/=/_/_/_/
+bus-mvp-ms-tickets  |  :: Spring Boot ::                (v3.1.4)
+bus-mvp-ms-tickets  | 
+bus-mvp-ms-tickets  | 2025-09-21T01:47:40.957Z  INFO 1 --- [           main] c.busmvp.mstickets.MsTicketsApplication  : Starting MsTicketsApplication using Java 17.0.16 with PID 1 (/app/app.jar started by appuser in /app)
+bus-mvp-ms-tickets  | 2025-09-21T01:47:40.961Z  INFO 1 --- [           main] c.busmvp.mstickets.MsTicketsApplication  : No active profile set, falling back to 1 default profile: "default"
+bus-mvp-ms-tickets  | 2025-09-21T01:47:42.817Z  INFO 1 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Multiple Spring Data modules found, entering strict repository configuration mode
+bus-mvp-ms-tickets  | 2025-09-21T01:47:42.821Z  INFO 1 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data Redis repositories in DEFAULT mode.
+bus-mvp-ms-tickets  | 2025-09-21T01:47:42.893Z  INFO 1 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 22 ms. Found 0 Redis repository interfaces.
+bus-mvp-ms-tickets  | 2025-09-21T01:47:43.823Z  INFO 1 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port(s): 8003 (http)
+bus-mvp-ms-tickets  | 2025-09-21T01:47:43.841Z  INFO 1 --- [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+bus-mvp-ms-tickets  | 2025-09-21T01:47:43.842Z  INFO 1 --- [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.13]
+bus-mvp-ms-tickets  | 2025-09-21T01:47:43.959Z  INFO 1 --- [           main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+bus-mvp-ms-tickets  | 2025-09-21T01:47:43.961Z  INFO 1 --- [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 2910 ms
+bus-mvp-ms-tickets  | 2025-09-21T01:47:46.386Z  INFO 1 --- [           main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 1 endpoint(s) beneath base path '/actuator'
+bus-mvp-ms-tickets  | 2025-09-21T01:47:46.481Z  INFO 1 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port(s): 8003 (http) with context path ''
+bus-mvp-ms-tickets  | 2025-09-21T01:47:46.496Z  INFO 1 --- [           main] c.busmvp.mstickets.MsTicketsApplication  : Started MsTicketsApplication in 6.345 seconds (process running for 7.423)
+bus-mvp-ms-tickets  | 2025-09-21T01:57:22.287Z  INFO 1 --- [nio-8003-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+bus-mvp-ms-tickets  | 2025-09-21T01:57:22.288Z  INFO 1 --- [nio-8003-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+bus-mvp-ms-tickets  | 2025-09-21T01:57:22.292Z  INFO 1 --- [nio-8003-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 4 ms
+bus-mvp-ms-tickets  | 2025-09-21T02:12:58.347Z  WARN 1 --- [nio-8003-exec-8] o.s.web.servlet.PageNotFound             : Request method 'GET' is not supported
+bus-mvp-ms-tickets  | 
+bus-mvp-ms-tickets  |   .   ____          _            __ _ _
+bus-mvp-ms-tickets  |  /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+bus-mvp-ms-tickets  | ( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+bus-mvp-ms-tickets  |  \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+bus-mvp-ms-tickets  |   '  |____| .__|_| |_|_| |_\__, | / / / /
+bus-mvp-ms-tickets  |  =========|_|==============|___/=/_/_/_/
+bus-mvp-ms-tickets  |  :: Spring Boot ::                (v3.1.4)
+bus-mvp-ms-tickets  | 
+bus-mvp-ms-tickets  | 2025-09-21T02:17:45.009Z  INFO 1 --- [           main] c.busmvp.mstickets.MsTicketsApplication  : Starting MsTicketsApplication using Java 17.0.16 with PID 1 (/app/app.jar started by appuser in /app)
+bus-mvp-ms-tickets  | 2025-09-21T02:17:45.012Z  INFO 1 --- [           main] c.busmvp.mstickets.MsTicketsApplication  : No active profile set, falling back to 1 default profile: "default"
+bus-mvp-ms-tickets  | 2025-09-21T02:17:46.646Z  INFO 1 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Multiple Spring Data modules found, entering strict repository configuration mode
+bus-mvp-ms-tickets  | 2025-09-21T02:17:46.652Z  INFO 1 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data Redis repositories in DEFAULT mode.
+bus-mvp-ms-tickets  | 2025-09-21T02:17:46.705Z  INFO 1 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 26 ms. Found 0 Redis repository interfaces.
+bus-mvp-ms-tickets  | 2025-09-21T02:17:47.497Z  INFO 1 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port(s): 8003 (http)
+bus-mvp-ms-tickets  | 2025-09-21T02:17:47.514Z  INFO 1 --- [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+bus-mvp-ms-tickets  | 2025-09-21T02:17:47.515Z  INFO 1 --- [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.13]
+bus-mvp-ms-tickets  | 2025-09-21T02:17:47.670Z  INFO 1 --- [           main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+bus-mvp-ms-tickets  | 2025-09-21T02:17:47.673Z  INFO 1 --- [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 2564 ms
+bus-mvp-ms-tickets  | 2025-09-21T02:17:49.713Z  INFO 1 --- [           main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 1 endpoint(s) beneath base path '/actuator'
+bus-mvp-ms-tickets  | 2025-09-21T02:17:49.823Z  INFO 1 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port(s): 8003 (http) with context path ''
+bus-mvp-ms-tickets  | 2025-09-21T02:17:49.839Z  INFO 1 --- [           main] c.busmvp.mstickets.MsTicketsApplication  : Started MsTicketsApplication in 5.601 seconds (process running for 6.674)
+bus-mvp-ms-tickets  | 2025-09-21T02:17:51.897Z  INFO 1 --- [nio-8003-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+bus-mvp-ms-tickets  | 2025-09-21T02:17:51.899Z  INFO 1 --- [nio-8003-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+bus-mvp-ms-tickets  | 2025-09-21T02:17:51.902Z  INFO 1 --- [nio-8003-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 2 ms
