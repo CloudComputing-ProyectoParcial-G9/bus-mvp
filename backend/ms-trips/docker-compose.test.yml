@@ -1,0 +1,103 @@
+# ========================================
+# Docker Compose para Testing ms-trips
+# ========================================
+# Archivo específico para probar ms-trips como contenedor
+# 
+# Uso: 
+# cd /home/leonardo/Cursos/Cloud/proyecto-parcial/bus-mvp/backend/ms-trips
+# docker-compose -f docker-compose.test.yml up --build
+
+version: '3.8'
+
+networks:
+  ms-trips-test:
+    driver: bridge
+
+volumes:
+  mysql_test_data:
+    driver: local
+
+services:
+  # Base de datos MySQL para ms-trips
+  mysql-trips:
+    image: mysql:8.0
+    container_name: ms-trips-mysql-test
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: trips_db
+      MYSQL_USER: trips_user
+      MYSQL_PASSWORD: trips_secure_pass
+    ports:
+      - "3307:3306"  # Usar puerto diferente para no conflictar
+    volumes:
+      - mysql_test_data:/var/lib/mysql
+    networks:
+      - ms-trips-test
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "trips_user", "-ptrips_secure_pass"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  # Microservicio ms-trips
+  ms-trips:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ms-trips-test
+    environment:
+      # Variables para el contenedor (nombres del docker-compose principal)
+      SQL2_HOST: mysql-trips
+      SQL2_PORT: 3306
+      SQL2_DB: trips_db
+      SQL2_USER: trips_user
+      SQL2_PASSWORD: trips_secure_pass
+      
+      # Variables adicionales
+      NODE_ENV: production
+      PORT: 8002
+      LOG_LEVEL: info
+      SWAGGER_ENABLED: true
+      PROJECT_NAME: ms-trips
+      PROJECT_VERSION: 1.0.0
+      API_VERSION: v1
+    ports:
+      - "8002:8002"
+    depends_on:
+      mysql-trips:
+        condition: service_healthy
+    networks:
+      - ms-trips-test
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8002/api/v1/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+# ========================================
+# Comandos útiles:
+# ========================================
+# 
+# # Construir y levantar
+# docker-compose -f docker-compose.test.yml up --build -d
+# 
+# # Ver logs
+# docker-compose -f docker-compose.test.yml logs -f ms-trips
+# 
+# # Poblar datos de prueba
+# curl -X POST "http://localhost:8002/api/v1/admin/seed" \
+#   -H "Content-Type: application/json" \
+#   -d '{"clearData": true, "testData": true}'
+# 
+# # Probar búsqueda
+# curl "http://localhost:8002/api/v1/trips/search?origin=Lima&destination=Cusco&departureDate=2025-09-22"
+# 
+# # Swagger UI
+# open http://localhost:8002/docs/
+# 
+# # Detener todo
+# docker-compose -f docker-compose.test.yml down -v

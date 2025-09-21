@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  mysql-trips:
+    image: mysql:8.0
+    container_name: ms-trips-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: trips_db
+      MYSQL_USER: trips_user
+      MYSQL_PASSWORD: secure_password
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_trips_data:/var/lib/mysql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    command: --default-authentication-plugin=mysql_native_password
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "trips_user", "-psecure_password"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  mysql_trips_data:
