@@ -1,0 +1,107 @@
+version: '3.8'
+
+services:
+  # Base de datos MySQL para ms-trips
+  mysql-trips:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: trips_db
+      MYSQL_USER: trips_user
+      MYSQL_PASSWORD: trips_password
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_trips_data:/var/lib/mysql
+
+  # Base de datos PostgreSQL para ms-passengers  
+  postgres-passengers:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: passengers_db
+      POSTGRES_USER: passengers_user
+      POSTGRES_PASSWORD: passengers_password
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_passengers_data:/var/lib/postgresql/data
+
+  # Base de datos MongoDB para ms-tickets
+  mongo-tickets:
+    image: mongo:7
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: tickets_user
+      MONGO_INITDB_ROOT_PASSWORD: tickets_password
+      MONGO_INITDB_DATABASE: tickets_db
+    ports:
+      - "27018:27017"
+    volumes:
+      - mongo_tickets_data:/data/db
+
+  # Microservicio ms-trips (Node.js)
+  ms-trips:
+    build: 
+      context: ./backend/ms-trips
+      dockerfile: Dockerfile
+    ports:
+      - "8002:8002"
+    environment:
+      - DB_HOST=mysql-trips
+      - DB_PORT=3306
+      - DB_USER=trips_user
+      - DB_PASSWORD=trips_password
+      - DB_NAME=trips_db
+      - NODE_ENV=production
+    depends_on:
+      - mysql-trips
+    restart: unless-stopped
+
+  # Microservicio ms-passengers (Python)
+  ms-passengers:
+    build:
+      context: ./backend/ms-passengers
+      dockerfile: Dockerfile
+    ports:
+      - "8001:8001"
+    environment:
+      - DATABASE_URL=postgresql://passengers_user:passengers_password@postgres-passengers:5432/passengers_db
+      - ENVIRONMENT=production
+    depends_on:
+      - postgres-passengers
+    restart: unless-stopped
+
+  # Microservicio ms-tickets (Java)
+  ms-tickets:
+    build:
+      context: ./backend/ms-tickets
+      dockerfile: Dockerfile
+    ports:
+      - "8003:8003"
+    environment:
+      - SPRING_DATA_MONGODB_URI=mongodb://tickets_user:tickets_password@mongo-tickets:27017/tickets_db
+      - SPRING_PROFILES_ACTIVE=production
+      - MS_TRIPS_URL=http://ms-trips:8002
+      - MS_PASSENGERS_URL=http://ms-passengers:8001
+    depends_on:
+      - mongo-tickets
+      - ms-trips
+      - ms-passengers
+    restart: unless-stopped
+
+  # Load Balancer (Nginx)
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./infra/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - ms-trips
+      - ms-passengers
+      - ms-tickets
+    restart: unless-stopped
+
+volumes:
+  mysql_trips_data:
+  postgres_passengers_data:
+  mongo_tickets_data:
