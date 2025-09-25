@@ -235,7 +235,7 @@ services:
       - bus-mvp-network
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:${MS_TRIPS_PORT}/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:${MS_TRIPS_PORT}/api/v1/health"]
       interval: 30s
       timeout: 10s
       retries: 3
