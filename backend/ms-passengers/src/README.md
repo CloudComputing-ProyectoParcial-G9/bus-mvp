@@ -98,6 +98,70 @@ src/
 - [ ] Validación y sanitización de inputs
 - [ ] Protección contra SQL injection
 - [ ] Configurar CORS apropiadamente
+
+
+## Request/Response examples
+Estas son las definiciones de request y response para los endpoints principales del servicio `ms-passengers`. Mantener consistencia con `openapi.yaml`.
+
+1) GET /health
+Request: ninguno
+Response (200):
+```json
+{
+    "status": "healthy",
+    "timestamp": "2025-09-20T10:00:00Z",
+    "version": "1.0.0",
+    "database": "connected"
+}
+```
+
+2) GET /passengers
+Request (query params opcionales): page, limit, status, search
+Ejemplo: GET /passengers?page=1&limit=20&status=active
+Response (200):
+```json
+{
+    "data": [ { "passenger_id": "pass_001", "full_name": "Juan Pérez", "email": "juan@mail.com" } ],
+    "pagination": { "page": 1, "limit": 20, "total": 150, "pages": 8 }
+}
+```
+
+3) POST /passengers
+Request body (application/json):
+```json
+{
+    "full_name": "María López",
+    "email": "maria@mail.com",
+    "phone": "+51987654321",
+    "document_type": "DNI",
+    "document_number": "87654321",
+    "date_of_birth": "1995-04-10"
+}
+```
+Response (201):
+```json
+{
+    "message": "Passenger created successfully",
+    "data": { "passenger_id": "pass_123", "full_name": "María López", "email": "maria@mail.com" }
+}
+```
+
+4) GET /passengers/{id}
+Request: path param `id` (ej: pass_123)
+Response (200):
+```json
+{ "data": { "passenger_id": "pass_123", "full_name": "María López", "email": "maria@mail.com", "status": "active" } }
+```
+
+5) PUT /passengers/{id}
+Request body (application/json):
+```json
+{ "phone": "+51911122233", "status": "active" }
+```
+Response (200):
+```json
+{ "message": "Passenger updated successfully", "data": { "passenger_id": "pass_123", "phone": "+51911122233" } }
+```
 - [ ] Implementar authentication/authorization (si requerido)
 - [ ] Configurar HTTPS en producción
 
