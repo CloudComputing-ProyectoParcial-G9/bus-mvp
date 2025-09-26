@@ -7,8 +7,6 @@
 # cd /home/leonardo/Cursos/Cloud/proyecto-parcial/bus-mvp/backend/ms-trips
 # docker-compose -f docker-compose.test.yml up --build
 
-version: '3.8'
-
 networks:
   ms-trips-test:
     driver: bridge
@@ -56,7 +54,7 @@ services:
       SQL2_PASSWORD: trips_secure_pass
       
       # Variables adicionales
-      NODE_ENV: production
+      NODE_ENV: development
       PORT: 8002
       LOG_LEVEL: info
       SWAGGER_ENABLED: true
