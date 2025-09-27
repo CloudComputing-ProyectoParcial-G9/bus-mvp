@@ -13,27 +13,22 @@ public class CorsConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
-        // Para desarrollo - puertos comunes del frontend
-        configuration.addAllowedOrigin("http://localhost:3000");
-        configuration.addAllowedOrigin("http://localhost:5173");
-        configuration.addAllowedOrigin("http://localhost:5174");
-        configuration.addAllowedOrigin("http://localhost:5175");
-        configuration.addAllowedOrigin("http://localhost:5176");
-        configuration.addAllowedOrigin("http://localhost:5177");
-        configuration.addAllowedOrigin("http://localhost:8080");
+        // Para desarrollo - permitir todos los orígenes de localhost
+        configuration.setAllowedOriginPatterns(java.util.Arrays.asList("http://localhost:*"));
+        configuration.addAllowedOrigin("http://127.0.0.1:5176");
+        configuration.addAllowedOrigin("http://127.0.0.1:5173");
 
         // Métodos HTTP permitidos
-        configuration.addAllowedMethod("GET");
-        configuration.addAllowedMethod("POST");
-        configuration.addAllowedMethod("PUT");
-        configuration.addAllowedMethod("DELETE");
-        configuration.addAllowedMethod("OPTIONS");
+        configuration.setAllowedMethods(java.util.Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD"));
 
         // Headers permitidos
-        configuration.addAllowedHeader("*");
+        configuration.setAllowedHeaders(java.util.Arrays.asList("*"));
 
-        // Permitir credenciales si es necesario
-        configuration.setAllowCredentials(true);
+        // Headers expuestos
+        configuration.setExposedHeaders(java.util.Arrays.asList("*"));
+
+        // NO permitir credenciales para evitar problemas con wildcard
+        configuration.setAllowCredentials(false);
 
         // Configurar tiempo de cache para preflight requests
         configuration.setMaxAge(3600L);
