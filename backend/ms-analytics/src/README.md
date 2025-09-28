@@ -1,155 +1,174 @@
 # Microservicio Analítico (ms-analytics)
 
 ## Descripción
-Este microservicio ejecuta consultas analíticas sobre datos almacenados en object storage (S3/GCS/Blob) usando un motor de consulta serverless (Athena/BigQuery/Synapse). En entorno local retorna datos mock para desarrollo.
+Este microservicio ejecuta consultas analíticas sobre datos almacenados en Amazon S3 usando Amazon Athena como motor de consulta serverless. Utiliza AWS Glue como catálogo de datos para gestionar metadata de las tablas. En entorno local retorna datos mock para desarrollo.
 
 ## Tecnología Stack
-**TODO**: Definir según elección del equipo de desarrollo
+- **Framework**: FastAPI (Python)
+- **AWS SDK**: boto3
+- **HTTP Client**: httpx
+- **Validation**: Pydantic
+- **Testing**: pytest
+- **Documentation**: OpenAPI/Swagger integrado con FastAPI
 
-### Opciones sugeridas:
-- **Python** + FastAPI + boto3/google-cloud/azure-sdk
-- **Node.js** + Express + AWS SDK/GCP SDK/Azure SDK
-- **Java** + Spring Boot + AWS SDK/GCP SDK/Azure SDK
-- **Go** + Gin + cloud SDKs
-- **C#** + ASP.NET Core + Azure SDK
-
-## Infraestructura Cloud
-- **Object Storage**: S3 (AWS) / Cloud Storage (GCP) / Blob Storage (Azure)
-- **Data Catalog**: Glue (AWS) / Data Catalog (GCP) / Purview (Azure)
-- **Query Engine**: Athena (AWS) / BigQuery (GCP) / Synapse (Azure)
-- **Resultados**: S3/GCS/Blob bucket para outputs de consultas
+## Infraestructura AWS
+- **Object Storage**: Amazon S3 - Almacenamiento del data lake
+- **Data Catalog**: AWS Glue - Catálogo de metadata y esquemas
+- **Query Engine**: Amazon Athena - Motor de consultas SQL serverless
+- **Results Storage**: S3 bucket dedicado para outputs de consultas
+- **Authentication**: AWS IAM roles y políticas
 
 ## Endpoints Principales
 Ver especificación completa en `openapi.yaml`
 
-### Analytics Endpoints
-- `GET /health` - Health check + estado de servicios cloud
+### Analytics Endpoints (FastAPI)
+- `GET /` - Redirect a documentación interactiva de FastAPI
+- `GET /health` - Health check + estado de servicios AWS
+- `GET /docs` - Documentación Swagger UI generada automáticamente por FastAPI
+- `GET /redoc` - Documentación alternativa ReDoc
 - `GET /analytics/revenue-by-route` - Ingresos por ruta y período
-- `GET /analytics/occupancy-trends` - Tendencias de ocupación
+- `GET /analytics/occupancy-trends` - Tendencias de ocupación por día/hora
 - `GET /analytics/customer-segmentation` - Segmentación de clientes
-- `GET /analytics/route-performance` - Performance de rutas
-- `POST /analytics/query/custom` - Consultas SQL personalizadas (solo nube)
+- `GET /analytics/route-performance` - Performance y métricas de rutas
+- `POST /analytics/query/custom` - Consultas SQL personalizadas (solo AWS cloud mode)
 
 ## Variables de Entorno Requeridas
 
-### Configuración General
+### Configuración General (FastAPI)
 ```bash
-# Configuración del servicio
+# Configuración del servicio FastAPI
 MS_ANALYTICS_PORT=8010
-NODE_ENV=development
+FASTAPI_HOST=0.0.0.0
+FASTAPI_RELOAD=true
+FASTAPI_DEBUG=true
 LOG_LEVEL=info
 
-# Entorno (local = mock data, cloud = real queries)
-ENVIRONMENT=local  # o 'cloud'
+# Entorno (local = mock data, aws = real AWS queries)
+ENVIRONMENT=local  # o 'aws'
 ```
 
-### Variables Cloud (Provider-Agnostic)
+### Variables AWS
 ```bash
-# Almacenamiento de objetos
-CLOUD_REGION=us-east-1
-OBJECT_STORE_BUCKET=bus-mvp-data-lake
-QUERY_OUTPUT_PATH=s3://bus-mvp-data-lake/results/query-outputs/
-
-# Catálogo de datos
-CATALOG_DATABASE=bus_mvp_catalog
-
-# Query Engine
-QUERY_ENGINE_WORKGROUP=bus-mvp-analytics
-QUERY_TIMEOUT_SECONDS=300
-MAX_QUERY_RESULTS=10000
-```
-
-### Variables específicas por proveedor
-
-#### AWS
-```bash
+# Configuración AWS
 AWS_ACCESS_KEY_ID=your_access_key
 AWS_SECRET_ACCESS_KEY=your_secret_key
 AWS_REGION=us-east-1
-AWS_GLUE_CATALOG_DATABASE=bus_mvp_catalog
-AWS_ATHENA_WORKGROUP=bus-mvp-analytics
+AWS_PROFILE=default  # Opcional, para desarrollo local
+
+# Amazon S3
 AWS_S3_BUCKET=bus-mvp-data-lake
+AWS_S3_RESULTS_BUCKET=bus-mvp-query-results
+QUERY_OUTPUT_PATH=s3://bus-mvp-query-results/athena-outputs/
+
+# AWS Glue Data Catalog
+AWS_GLUE_CATALOG_DATABASE=bus_mvp_catalog
+AWS_GLUE_TABLE_PREFIX=bus_mvp_
+
+# Amazon Athena
+AWS_ATHENA_WORKGROUP=bus-mvp-analytics
+AWS_ATHENA_QUERY_TIMEOUT_SECONDS=300
+AWS_ATHENA_MAX_RESULTS=10000
+AWS_ATHENA_RESULT_LOCATION=s3://bus-mvp-query-results/athena-outputs/
 ```
 
-#### Google Cloud
-```bash
-GOOGLE_APPLICATION_CREDENTIALS=/path/to/service-account.json
-GCP_PROJECT_ID=bus-mvp-project
-GCP_DATASET_ID=bus_mvp_catalog
-GCP_BUCKET=bus-mvp-data-lake
-BIGQUERY_LOCATION=US
 ```
 
-#### Azure
-```bash
-AZURE_TENANT_ID=your_tenant_id
-AZURE_CLIENT_ID=your_client_id
-AZURE_CLIENT_SECRET=your_client_secret
-AZURE_STORAGE_ACCOUNT=busmvpdatalake
-AZURE_CONTAINER=raw-data
-AZURE_SYNAPSE_WORKSPACE=bus-mvp-analytics
-```
-
-## Estructura del Código (Placeholder)
+## Estructura del Código (FastAPI)
 
 ```
 src/
-├── controllers/
-│   ├── healthController.py
-│   ├── revenueAnalyticsController.py
-│   ├── occupancyAnalyticsController.py
-│   ├── customerAnalyticsController.py
-│   ├── routeAnalyticsController.py
-│   └── customQueryController.py
-├── services/
-│   ├── queryEngineService.py
-│   ├── dataCatalogService.py
-│   ├── objectStorageService.py
-│   └── mockDataService.py
-├── clients/
-│   ├── awsClient.py
-│   ├── gcpClient.py
-│   └── azureClient.py
-├── queries/
-│   ├── revenue_queries.sql
-│   ├── occupancy_queries.sql
-│   ├── customer_queries.sql
-│   └── route_queries.sql
-├── routes/
-│   ├── health.py
-│   ├── analytics.py
-│   └── custom_query.py
-├── middleware/
-│   ├── authMiddleware.py
-│   ├── errorHandler.py
-│   └── logger.py
-├── utils/
-│   ├── queryBuilder.py
-│   ├── dataTransformers.py
-│   └── validators.py
-├── config/
-│   ├── cloudConfig.py
-│   └── server.py
-└── main.py
+├── main.py                          # Punto de entrada FastAPI
+├── app/
+│   ├── __init__.py
+│   ├── api/
+│   │   ├── __init__.py
+│   │   ├── deps.py                  # Dependencias FastAPI (AWS clients, etc.)
+│   │   └── v1/
+│   │       ├── __init__.py
+│   │       ├── api.py               # Router principal
+│   │       └── endpoints/
+│   │           ├── __init__.py
+│   │           ├── health.py        # Health check endpoints
+│   │           ├── analytics.py     # Analytics endpoints
+│   │           └── custom_query.py  # Custom SQL queries
+│   ├── core/
+│   │   ├── __init__.py
+│   │   ├── config.py                # Configuración Pydantic Settings
+│   │   ├── logging.py               # Configuración logging
+│   │   └── security.py              # Autenticación y autorización
+│   ├── models/
+│   │   ├── __init__.py
+│   │   ├── analytics.py             # Modelos Pydantic para analytics
+│   │   ├── requests.py              # Request models
+│   │   └── responses.py             # Response models
+│   ├── services/
+│   │   ├── __init__.py
+│   │   ├── aws_service.py           # Servicio AWS (Athena, S3, Glue)
+│   │   ├── athena_service.py        # Cliente Amazon Athena
+│   │   ├── s3_service.py            # Cliente Amazon S3
+│   │   ├── glue_service.py          # Cliente AWS Glue
+│   │   ├── analytics_service.py     # Lógica de negocio analytics
+│   │   └── mock_service.py          # Mock data para desarrollo local
+│   ├── queries/
+│   │   ├── __init__.py
+│   │   ├── templates/
+│   │   │   ├── revenue_queries.sql
+│   │   │   ├── occupancy_queries.sql
+│   │   │   ├── customer_queries.sql
+│   │   │   └── route_queries.sql
+│   │   └── query_builder.py         # Constructor de queries SQL
+│   └── utils/
+│       ├── __init__.py
+│       ├── aws_helpers.py           # Helpers específicos para AWS
+│       ├── data_transformers.py     # Transformaciones de datos
+│       └── validators.py            # Validadores custom
+├── tests/
+│   ├── __init__.py
+│   ├── conftest.py                  # Configuración pytest
+│   ├── test_main.py                 # Tests FastAPI app
+│   ├── test_analytics.py            # Tests endpoints analytics
+│   ├── test_aws_services.py         # Tests servicios AWS
+│   └── test_mock_services.py        # Tests mock services
+└── requirements.txt                 # Dependencias Python
 ```
 
 ## Tareas Pendientes
 
-### Configuración Cloud
-- [ ] Elegir proveedor cloud (AWS/GCP/Azure)
-- [ ] Configurar acceso a object storage
-- [ ] Configurar acceso a data catalog
-- [ ] Configurar acceso a query engine
-- [ ] Implementar autenticación cloud
-- [ ] Configurar permisos IAM/RBAC
+### Configuración AWS
+- [x] **Proveedor cloud elegido**: AWS
+- [ ] Configurar bucket S3 para data lake
+- [ ] Configurar bucket S3 para resultados de Athena
+- [ ] Configurar AWS Glue Data Catalog
+- [ ] Configurar workgroup de Amazon Athena
+- [ ] Implementar autenticación AWS (IAM roles)
+- [ ] Configurar políticas IAM para acceso a S3, Athena y Glue
 
-### Query Engine Integration
-- [ ] Implementar cliente para motor de consulta elegido
-- [ ] Crear plantillas SQL reutilizables
-- [ ] Configurar gestión de resultados de consultas
-- [ ] Implementar cache de resultados frecuentes
-- [ ] Configurar timeouts y retry logic
-- [ ] Implementar monitoring de costos
+### FastAPI Implementation
+- [ ] Configurar aplicación FastAPI base
+- [ ] Implementar modelos Pydantic para requests/responses
+- [ ] Configurar Pydantic Settings para variables de entorno
+- [ ] Implementar dependency injection para servicios AWS
+- [ ] Configurar middleware de logging y error handling
+- [ ] Implementar validación automática de schemas
+- [ ] Configurar documentación OpenAPI automática
+
+### AWS Services Integration
+- [ ] Implementar cliente Amazon Athena con boto3
+- [ ] Implementar cliente Amazon S3 para lectura de resultados
+- [ ] Implementar cliente AWS Glue para metadata
+- [ ] Crear service layer para abstracción de AWS
+- [ ] Configurar gestión de resultados de consultas Athena
+- [ ] Implementar retry logic y manejo de errores AWS
+- [ ] Configurar monitoring de costos Athena
+
+### Query Engine (Amazon Athena)
+- [ ] Implementar ejecución de queries en Athena
+- [ ] Crear plantillas SQL optimizadas para Athena
+- [ ] Configurar gestión de query execution IDs
+- [ ] Implementar polling de resultados asíncrono
+- [ ] Configurar cache de resultados frecuentes (Redis opcional)
+- [ ] Implementar timeouts y limits para queries
+- [ ] Implementar logging de costos por query
 
 ### Mock Data (Local)
 - [ ] Generar datasets mock realistas
@@ -158,56 +177,55 @@ src/
 - [ ] Configurar variabilidad en datos mock
 - [ ] Implementar delays simulados
 
-### API Implementation
+### API Implementation (FastAPI)
 - [ ] Implementar todos los endpoints según OpenAPI spec
-- [ ] Configurar validación de parámetros de consulta
-- [ ] Implementar transformación de resultados
+- [ ] Configurar validación automática con Pydantic
+- [ ] Implementar transformación de resultados Athena
 - [ ] Añadir paginación para resultados grandes
-- [ ] Configurar rate limiting
-- [ ] Implementar logging estructurado
+- [ ] Configurar rate limiting (slowapi)
+- [ ] Implementar logging estructurado con FastAPI
+- [ ] Configurar CORS para frontend integration
 
 ### Security & Performance
-- [ ] Implementar autenticación para consultas custom
-- [ ] Validar consultas SQL para prevenir inyección
+- [ ] Implementar autenticación JWT para consultas custom
+- [ ] Validar y sanitizar consultas SQL para Athena
 - [ ] Configurar límites de recursos por consulta
-- [ ] Implementar whitelist de tablas accesibles
-- [ ] Configurar monitoring de performance
-- [ ] Implementar alertas de costos
+- [ ] Implementar whitelist de tablas Glue accesibles
+- [ ] Configurar monitoring de performance FastAPI
+- [ ] Implementar alertas de costos AWS
+- [ ] Configurar circuit breakers para servicios AWS
 
-### Testing
-- [ ] Unit tests para controllers y services
-- [ ] Integration tests con mocks de cloud services
-- [ ] Tests de validación de consultas SQL
-- [ ] Tests de performance con datasets grandes
-- [ ] Setup de CI/CD testing
+### Testing (pytest)
+- [ ] Unit tests para endpoints FastAPI
+- [ ] Unit tests para services AWS
+- [ ] Integration tests con mocks de boto3
+- [ ] Tests de validación de consultas SQL Athena
+- [ ] Tests de performance con datasets mock grandes
+- [ ] Setup de CI/CD testing con GitHub Actions
 
 ### Monitoring & Observability
-- [ ] Health checks de servicios cloud
-- [ ] Métricas de performance de consultas
-- [ ] Logging de costos de consultas
-- [ ] Tracing distribuido
-- [ ] Alertas de fallos de consulta
+- [ ] Health checks de servicios AWS (Athena, S3, Glue)
+- [ ] Métricas de performance de consultas Athena
+- [ ] Logging de costos de consultas AWS
+- [ ] Tracing distribuido (opcional: AWS X-Ray)
+- [ ] Alertas de fallos de consulta Athena
+- [ ] Dashboard de métricas FastAPI + AWS
 
 ## Comandos de Desarrollo
 
-### Local Development
+### Local Development (FastAPI)
 ```bash
-# TODO: Completar según stack elegido
+# Instalación de dependencias
+pip install -r requirements.txt
 
-# Ejemplo Python:
-# pip install -r requirements.txt
-# uvicorn main:app --reload --port 8010
+# Desarrollo local con reload automático
+uvicorn main:app --reload --host 0.0.0.0 --port 8010
 
-# Ejemplo Node.js:
-# npm install
-# npm run dev
+# Con variables de entorno para modo local
+ENVIRONMENT=local uvicorn main:app --reload --port 8010
 
-# Ejemplo Java:
-# ./mvnw spring-boot:run
-
-# Ejemplo Go:
-# go mod tidy
-# go run main.go
+# Con variables de entorno para AWS
+ENVIRONMENT=aws uvicorn main:app --reload --port 8010
 ```
 
 ### Docker
@@ -226,35 +244,39 @@ cd ../../infra
 docker-compose up ms-analytics
 ```
 
-### Testing
+### Testing (pytest)
 ```bash
-# TODO: Completar según stack elegido
+# Ejecutar todos los tests
+pytest
 
-# Ejemplo Python:
-# pytest
-# pytest tests/integration/
+# Tests con coverage
+pytest --cov=src
 
-# Ejemplo Node.js:
-# npm test
-# npm run test:integration
+# Tests de integración
+pytest tests/integration/
 
-# Ejemplo Java:
-# ./mvnw test
+# Tests específicos
+pytest tests/test_analytics.py -v
 
-# Ejemplo Go:
-# go test ./...
+# Tests con mock de AWS
+pytest tests/test_aws_services.py --mock-aws
 ```
 
 ## Integración con otros Microservicios
 
 ### Consumido por:
-- **Frontend** - Para mostrar dashboards y reportes analíticos
-- **ms-history** - Puede consumir análisis para enriquecer historiales
+- **Frontend Web Portal** - Para mostrar dashboards y reportes analíticos
+- **ms-history** - Puede consumir análisis para enriquecer historiales de viajes
 
-### Consume:
-- **Object Storage** - Lee datos CSV/JSON depositados por data ingestion
-- **Data Catalog** - Consulta metadata de tablas disponibles
-- **Query Engine** - Ejecuta consultas SQL sobre datos
+### Consume datos de:
+- **Amazon S3** - Lee datos CSV/JSON depositados por data ingestion pipeline
+- **AWS Glue Data Catalog** - Consulta metadata y esquemas de tablas
+- **Amazon Athena** - Ejecuta consultas SQL sobre datos del data lake
+
+### Interacciones API:
+- **Expone**: REST API con FastAPI para consultas analíticas
+- **Autentica**: Via JWT tokens (para consultas custom)
+- **Formato**: JSON responses con modelos Pydantic validados
 
 ## Queries SQL Base (Ver docs/analytics/queries_and_views.sql)
 
@@ -313,100 +335,222 @@ mock_revenue_data = [
 ]
 ```
 
-## Cloud Provider Integration
+## AWS Implementation Details
 
-### AWS Implementation
+### Amazon Athena Integration
 ```python
 import boto3
+from botocore.exceptions import ClientError
 
-# Athena client
-athena_client = boto3.client('athena', region_name=AWS_REGION)
-
-# S3 client for results
-s3_client = boto3.client('s3', region_name=AWS_REGION)
-
-# Execute query
-def execute_athena_query(sql_query):
-    response = athena_client.start_query_execution(
-        QueryString=sql_query,
-        QueryExecutionContext={'Database': CATALOG_DATABASE},
-        ResultConfiguration={'OutputLocation': QUERY_OUTPUT_PATH}
-    )
-    return response['QueryExecutionId']
+class AthenaService:
+    def __init__(self):
+        self.athena_client = boto3.client('athena', region_name=AWS_REGION)
+        self.s3_client = boto3.client('s3', region_name=AWS_REGION)
+    
+    async def execute_query(self, sql_query: str) -> str:
+        """Ejecuta query en Athena y retorna execution ID"""
+        try:
+            response = self.athena_client.start_query_execution(
+                QueryString=sql_query,
+                QueryExecutionContext={'Database': AWS_GLUE_CATALOG_DATABASE},
+                ResultConfiguration={'OutputLocation': AWS_ATHENA_RESULT_LOCATION},
+                WorkGroup=AWS_ATHENA_WORKGROUP
+            )
+            return response['QueryExecutionId']
+        except ClientError as e:
+            # Handle AWS errors
+            raise HTTPException(status_code=500, detail=f"Athena error: {e}")
+    
+    async def get_query_results(self, execution_id: str) -> List[Dict]:
+        """Obtiene resultados de query ejecutada"""
+        try:
+            # Wait for query completion
+            waiter = self.athena_client.get_waiter('query_succeeded')
+            waiter.wait(QueryExecutionId=execution_id)
+            
+            # Get results
+            response = self.athena_client.get_query_results(
+                QueryExecutionId=execution_id,
+                MaxResults=AWS_ATHENA_MAX_RESULTS
+            )
+            return self._format_results(response)
+        except ClientError as e:
+            raise HTTPException(status_code=500, detail=f"Error retrieving results: {e}")
 ```
 
-### Google Cloud Implementation
+### FastAPI Main Application
 ```python
-from google.cloud import bigquery
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from app.api.v1.api import api_router
+from app.core.config import settings
 
-# BigQuery client
-client = bigquery.Client(project=GCP_PROJECT_ID)
+app = FastAPI(
+    title="MS Analytics - Bus MVP",
+    description="Microservicio de análisis de datos usando AWS Athena",
+    version="1.0.0",
+    docs_url="/docs",
+    redoc_url="/redoc"
+)
 
-# Execute query
-def execute_bigquery_query(sql_query):
-    query_job = client.query(sql_query)
-    results = query_job.result()
-    return [dict(row) for row in results]
+# CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Configure properly for production
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Include API routes
+app.include_router(api_router, prefix="/api/v1")
+
+@app.get("/")
+async def root():
+    return {"message": "MS Analytics - FastAPI + AWS", "docs": "/docs"}
 ```
 
-### Azure Implementation
+### Pydantic Configuration
 ```python
-import pyodbc
-from azure.identity import DefaultAzureCredential
+from pydantic import BaseSettings
 
-# Synapse connection
-def execute_synapse_query(sql_query):
-    conn_string = f"Driver={{ODBC Driver 17 for SQL Server}};Server={SYNAPSE_ENDPOINT};Database={DATABASE};Authentication=ActiveDirectoryDefault"
-    with pyodbc.connect(conn_string) as conn:
-        cursor = conn.cursor()
-        cursor.execute(sql_query)
-        return cursor.fetchall()
+class Settings(BaseSettings):
+    # FastAPI
+    app_name: str = "ms-analytics"
+    debug: bool = False
+    
+    # AWS
+    aws_access_key_id: str
+    aws_secret_access_key: str
+    aws_region: str = "us-east-1"
+    aws_s3_bucket: str
+    aws_athena_workgroup: str
+    aws_glue_catalog_database: str
+    
+    # Environment
+    environment: str = "local"  # local or aws
+    
+    class Config:
+        env_file = ".env"
+
+settings = Settings()
 ```
 
 ## Patterns Implementados
 
-### Query Template Pattern
+### Query Template Pattern (Athena Optimized)
 ```python
-# Plantillas SQL parametrizables
-REVENUE_BY_ROUTE_QUERY = """
+from string import Template
+
+# Plantillas SQL optimizadas para Athena
+REVENUE_BY_ROUTE_QUERY = Template("""
 SELECT 
     t.route_code,
+    t.origin_city,
+    t.destination_city,
     SUM(tk.total_price) as total_revenue,
-    COUNT(tk.ticket_id) as total_tickets
-FROM trips_raw t
-JOIN tickets_raw tk ON t.trip_id = tk.trip_id
-WHERE t.year >= {year_from}
-    AND t.month >= {month_from}
-    {route_filter}
-    {date_filter}
-GROUP BY t.route_code
+    COUNT(tk.ticket_id) as total_tickets,
+    AVG(tk.total_price) as avg_ticket_price
+FROM ${catalog_db}.trips_raw t
+JOIN ${catalog_db}.tickets_raw tk ON t.trip_id = tk.trip_id
+WHERE t.year >= ${year_from}
+    AND t.month >= ${month_from}
+    AND tk.booking_status = 'confirmed'
+    ${route_filter}
+    ${date_filter}
+GROUP BY t.route_code, t.origin_city, t.destination_city
 ORDER BY total_revenue DESC
-LIMIT {limit}
-"""
+LIMIT ${limit}
+""")
+
+class QueryBuilder:
+    def __init__(self):
+        self.catalog_db = AWS_GLUE_CATALOG_DATABASE
+    
+    def build_revenue_query(self, year_from: int, month_from: int = 1, 
+                           route_codes: List[str] = None, limit: int = 100):
+        filters = []
+        if route_codes:
+            route_list = "', '".join(route_codes)
+            filters.append(f"AND t.route_code IN ('{route_list}')")
+        
+        return REVENUE_BY_ROUTE_QUERY.substitute(
+            catalog_db=self.catalog_db,
+            year_from=year_from,
+            month_from=month_from,
+            route_filter=' '.join(filters),
+            date_filter='',
+            limit=limit
+        )
 ```
 
-### Result Caching
+### FastAPI Dependency Injection
 ```python
-# Cache de resultados para consultas frecuentes
+from fastapi import Depends
+from app.services.aws_service import AthenaService
+from app.services.mock_service import MockAnalyticsService
+from app.core.config import settings
+
+def get_analytics_service():
+    """Dependency que retorna el servicio apropiado según environment"""
+    if settings.environment == "aws":
+        return AthenaService()
+    else:
+        return MockAnalyticsService()
+
+# Usage in endpoints
+@router.get("/revenue-by-route")
+async def get_revenue_by_route(
+    service: AnalyticsService = Depends(get_analytics_service)
+):
+    return await service.get_revenue_by_route()
+```
+
+### Result Caching (Optional - Redis)
+```python
 import redis
+import json
+from typing import Optional
 
-redis_client = redis.Redis(host='localhost', port=6379, db=0)
-
-def get_cached_result(query_hash):
-    cached = redis_client.get(query_hash)
-    return json.loads(cached) if cached else None
-
-def cache_result(query_hash, result, ttl=300):
-    redis_client.setex(query_hash, ttl, json.dumps(result))
+class CacheService:
+    def __init__(self):
+        self.redis_client = redis.Redis(
+            host=settings.redis_host, 
+            port=settings.redis_port, 
+            db=0,
+            decode_responses=True
+        )
+    
+    async def get_cached_result(self, query_hash: str) -> Optional[Dict]:
+        """Obtiene resultado cacheado"""
+        try:
+            cached = self.redis_client.get(f"analytics:{query_hash}")
+            return json.loads(cached) if cached else None
+        except (redis.RedisError, json.JSONDecodeError):
+            return None
+    
+    async def cache_result(self, query_hash: str, result: Dict, ttl: int = 300):
+        """Cachea resultado de query"""
+        try:
+            self.redis_client.setex(
+                f"analytics:{query_hash}", 
+                ttl, 
+                json.dumps(result, default=str)
+            )
+        except redis.RedisError:
+            pass  # Log error but don't fail
 ```
 
 ## Notas de Implementación
 
-- **Dual Mode**: Debe funcionar en local (mock) y nube (real queries)
-- **Cost Control**: Implementar límites de costo y time-out
-- **Security**: Validar y sanitizar todas las consultas SQL
-- **Performance**: Cache resultados frecuentes, optimizar consultas
-- **Monitoring**: Track costos, performance y errores de consultas
+- **FastAPI Framework**: Aprovecha validación automática, documentación OpenAPI y async/await
+- **Dual Mode**: Funciona en modo local (mock data) y AWS (real Athena queries)  
+- **AWS Cost Control**: Implementa límites de costo, timeouts y workgroups Athena
+- **Security**: Validación Pydantic, sanitización SQL, JWT auth para custom queries
+- **Performance**: Resultados cacheados, queries optimizadas para Athena, async processing
+- **Monitoring**: Health checks AWS, logging estructurado, métricas de performance
+- **Error Handling**: Circuit breakers, retry logic con exponential backoff
+- **Documentation**: OpenAPI docs automáticas con FastAPI, ejemplos de request/response
 
 ## Documentación Cloud
 
