@@ -15,10 +15,17 @@ WORKDIR /app
 # Create non-root user
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 
+# Install curl for health checks
+RUN apk add --no-cache curl
+
 # Copy jar from build stage
 COPY --from=build /workspace/target/*.jar app.jar
 
 EXPOSE 8003
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+  CMD curl -f http://localhost:8003/health || exit 1
 
 USER appuser
 ENTRYPOINT ["java","-jar","/app/app.jar"]

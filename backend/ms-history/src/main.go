@@ -22,9 +22,9 @@ func main() {
 	}
 
 	// Inicializar clientes HTTP
-	passengersClient := clients.NewPassengersClient(cfg.PassengersServiceURL)
-	tripsClient := clients.NewTripsClient(cfg.TripsServiceURL)
-	ticketsClient := clients.NewTicketsClient(cfg.TicketsServiceURL)
+	passengersClient := clients.NewPassengersClient(cfg)
+	tripsClient := clients.NewTripsClient(cfg)
+	ticketsClient := clients.NewTicketsClient(cfg)
 
 	// Inicializar servicios
 	aggregationService := services.NewAggregationService(
@@ -43,9 +43,9 @@ func main() {
 	// Log de inicio
 	log.Printf("🚌 MS-History starting on port %s", cfg.Port)
 	log.Printf("📊 Environment: %s", cfg.Environment)
-	log.Printf("🔗 Passengers Service: %s", cfg.PassengersServiceURL)
-	log.Printf("🚐 Trips Service: %s", cfg.TripsServiceURL)
-	log.Printf("🎫 Tickets Service: %s", cfg.TicketsServiceURL)
+	log.Printf("🔗 Passengers Service: %s", cfg.PassengersURL)
+	log.Printf("🚐 Trips Service: %s", cfg.TripsURL)
+	log.Printf("🎫 Tickets Service: %s", cfg.TicketsURL)
 
 	// Iniciar servidor
 	serverAddr := fmt.Sprintf(":%s", cfg.Port)
