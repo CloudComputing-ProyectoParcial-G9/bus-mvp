@@ -4,6 +4,9 @@ FROM golang:1.21-alpine AS builder
 # Instalar dependencias de compilación
 RUN apk add --no-cache git ca-certificates tzdata
 
+# Instalar swag CLI para generar documentación
+RUN go install github.com/swaggo/swag/cmd/swag@latest
+
 # Establecer directorio de trabajo
 WORKDIR /app
 
@@ -15,6 +18,9 @@ COPY src/ ./src/
 
 # Descargar dependencias y generar go.sum
 RUN go mod download && go mod tidy
+
+# Generar documentación Swagger
+RUN swag init -g src/main.go --output ./src/docs
 
 # Compilar la aplicación
 RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o main ./src/

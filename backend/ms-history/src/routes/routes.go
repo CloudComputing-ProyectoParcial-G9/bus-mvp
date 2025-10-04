@@ -2,6 +2,8 @@ package routes
 
 import (
 	"github.com/gin-gonic/gin"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 	"ms-history/src/handlers"
 	"ms-history/src/middleware"
 )
@@ -11,6 +13,9 @@ func SetupRoutes(r *gin.Engine, historyHandler *handlers.HistoryHandler) {
 	r.Use(middleware.CORSMiddleware())
 	r.Use(middleware.LoggingMiddleware())
 	r.Use(gin.Recovery())
+
+	// Swagger documentation
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	// Health check básico
 	r.GET("/health", func(c *gin.Context) {
