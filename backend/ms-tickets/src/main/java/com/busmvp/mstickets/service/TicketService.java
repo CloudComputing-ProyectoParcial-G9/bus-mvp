@@ -104,6 +104,11 @@ public class TicketService {
         List<Ticket> list = ticketRepository.findByPassengerId(passengerId);
         return list.stream().map(this::toDto).collect(Collectors.toList());
     }
+    
+    public List<TicketDto> getTicketsByTrip(String tripId) {
+        List<Ticket> list = ticketRepository.findByTripId(tripId);
+        return list.stream().map(this::toDto).collect(Collectors.toList());
+    }
 
     private TicketDto toDto(Ticket t){
         TicketDto dto = new TicketDto();

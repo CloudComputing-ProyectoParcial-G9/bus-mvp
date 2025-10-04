@@ -47,6 +47,15 @@ func (h *HistoryHandler) GetPassengerHistory(c *gin.Context) {
 
 	history, err := h.aggregationService.GetPassengerHistory(ctx, passengerID)
 	if err != nil {
+		// Check if the error is a "not found" error
+		if isNotFoundError(err) {
+			c.JSON(http.StatusNotFound, ErrorResponse{
+				Error:   "Not Found",
+				Message: "Passenger not found",
+			})
+			return
+		}
+		
 		c.JSON(http.StatusInternalServerError, ErrorResponse{
 			Error:   "Internal Server Error",
 			Message: "Failed to retrieve passenger history: " + err.Error(),
@@ -135,4 +144,22 @@ type SystemHealthResponse struct {
 type ServiceHealth struct {
 	Status    string    `json:"status" example:"healthy"`
 	LastCheck time.Time `json:"last_check" example:"2025-10-04T12:00:00Z"`
+}
+// isNotFoundError checks if the error is a 404 Not Found error
+func isNotFoundError(err error) bool {
+if err == nil {
+return false
+}
+errMsg := err.Error()
+return contains(errMsg, "404") || contains(errMsg, "not found") || contains(errMsg, "Not Found")
+}
+
+// contains checks if a string contains a substring
+func contains(s, substr string) bool {
+for i := 0; i <= len(s)-len(substr); i++ {
+if s[i:i+len(substr)] == substr {
+return true
+}
+}
+return false
 }

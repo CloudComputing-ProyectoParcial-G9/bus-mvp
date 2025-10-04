@@ -54,14 +54,26 @@ public class TicketController {
     }
 
     @GetMapping
-    @Operation(summary = "Listar tickets", description = "Obtiene una lista paginada de todos los tickets")
+    @Operation(summary = "Listar tickets", description = "Obtiene una lista paginada de todos los tickets con filtros opcionales")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Lista de tickets obtenida exitosamente")
     })
     public ResponseEntity<?> list(
             @Parameter(description = "Número de página (por defecto: 1)") @RequestParam(name = "page", defaultValue = "1") int page,
-            @Parameter(description = "Límite de resultados por página (por defecto: 20)") @RequestParam(name = "limit", defaultValue = "20") int limit) {
-        List<TicketDto> list = ticketService.listTickets(page, limit);
+            @Parameter(description = "Límite de resultados por página (por defecto: 20)") @RequestParam(name = "limit", defaultValue = "20") int limit,
+            @Parameter(description = "Filtrar por ID de pasajero") @RequestParam(name = "passenger_id", required = false) String passengerId,
+            @Parameter(description = "Filtrar por ID de viaje") @RequestParam(name = "trip_id", required = false) String tripId) {
+        List<TicketDto> list;
+        
+        // Apply filters if provided
+        if (passengerId != null && !passengerId.isEmpty()) {
+            list = ticketService.getTicketsByPassenger(passengerId);
+        } else if (tripId != null && !tripId.isEmpty()) {
+            list = ticketService.getTicketsByTrip(tripId);
+        } else {
+            list = ticketService.listTickets(page, limit);
+        }
+        
         return ResponseEntity.ok(Map.of("data", list, "page", page, "limit", limit));
     }
 

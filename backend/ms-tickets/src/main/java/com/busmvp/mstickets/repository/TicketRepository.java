@@ -10,6 +10,9 @@ import java.util.List;
 public interface TicketRepository extends MongoRepository<Ticket, String> {
     @Query("{ 'passenger_id' : ?0 }")
     List<Ticket> findByPassengerId(String passengerId);
+    
+    @Query("{ 'trip_id' : ?0 }")
+    List<Ticket> findByTripId(String tripId);
 
     Page<Ticket> findAll(Pageable pageable);
 }
