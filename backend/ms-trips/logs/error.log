@@ -1,0 +1,381 @@
+{
+  service: 'ms-trips',
+  version: '1.0.0',
+  name: 'SequelizeDatabaseError',
+  parent: Error: Key column 'originCity' doesn't exist in table
+      at Packet.asError (/home/leonardo/Cursos/Cloud/proyecto-parcial/bus-mvp/backend/ms-trips/node_modules/mysql2/lib/packets/packet.js:740:17)
+      at Query.execute (/home/leonardo/Cursos/Cloud/proyecto-parcial/bus-mvp/backend/ms-trips/node_modules/mysql2/lib/commands/command.js:29:26)
+      at Connection.handlePacket (/home/leonardo/Cursos/Cloud/proyecto-parcial/bus-mvp/backend/ms-trips/node_modules/mysql2/lib/base/connection.js:475:34)
+      at PacketParser.onPacket (/home/leonardo/Cursos/Cloud/proyecto-parcial/bus-mvp/backend/ms-trips/node_modules/mysql2/lib/base/connection.js:93:12)
+      at PacketParser.executeStart (/home/leonardo/Cursos/Cloud/proyecto-parcial/bus-mvp/backend/ms-trips/node_modules/mysql2/lib/packet_parser.js:75:16)
+      at Socket.<anonymous> (/home/leonardo/Cursos/Cloud/proyecto-parcial/bus-mvp/backend/ms-trips/node_modules/mysql2/lib/base/connection.js:100:25)
+      at Socket.emit (node:events:508:28)
+      at addChunk (node:internal/streams/readable:559:12)
+      at readableAddChunkPushByteMode (node:internal/streams/readable:510:3)
+      at Readable.push (node:internal/streams/readable:390:5) {
+    code: 'ER_KEY_COLUMN_DOES_NOT_EXITS',
+    errno: 1072,
+    sqlState: '42000',
+    sqlMessage: "Key column 'originCity' doesn't exist in table",
+    sql: 'ALTER TABLE `routes` ADD INDEX `idx_routes_cities` (`originCity`, `destinationCity`)',
+    parameters: undefined
+  },
+  original: Error: Key column 'originCity' doesn't exist in table
+      at Packet.asError (/home/leonardo/Cursos/Cloud/proyecto-parcial/bus-mvp/backend/ms-trips/node_modules/mysql2/lib/packets/packet.js:740:17)
+      at Query.execute (/home/leonardo/Cursos/Cloud/proyecto-parcial/bus-mvp/backend/ms-trips/node_modules/mysql2/lib/commands/command.js:29:26)
+      at Connection.handlePacket (/home/leonardo/Cursos/Cloud/proyecto-parcial/bus-mvp/backend/ms-trips/node_modules/mysql2/lib/base/connection.js:475:34)
+      at PacketParser.onPacket (/home/leonardo/Cursos/Cloud/proyecto-parcial/bus-mvp/backend/ms-trips/node_modules/mysql2/lib/base/connection.js:93:12)
+      at PacketParser.executeStart (/home/leonardo/Cursos/Cloud/proyecto-parcial/bus-mvp/backend/ms-trips/node_modules/mysql2/lib/packet_parser.js:75:16)
+      at Socket.<anonymous> (/home/leonardo/Cursos/Cloud/proyecto-parcial/bus-mvp/backend/ms-trips/node_modules/mysql2/lib/base/connection.js:100:25)
+      at Socket.emit (node:events:508:28)
+      at addChunk (node:internal/streams/readable:559:12)
+      at readableAddChunkPushByteMode (node:internal/streams/readable:510:3)
+      at Readable.push (node:internal/streams/readable:390:5) {
+    code: 'ER_KEY_COLUMN_DOES_NOT_EXITS',
+    errno: 1072,
+    sqlState: '42000',
+    sqlMessage: "Key column 'originCity' doesn't exist in table",
+    sql: 'ALTER TABLE `routes` ADD INDEX `idx_routes_cities` (`originCity`, `destinationCity`)',
+    parameters: undefined
+  },
+  sql: 'ALTER TABLE `routes` ADD INDEX `idx_routes_cities` (`originCity`, `destinationCity`)',
+  parameters: {},
+  level: 'error',
+  message: "Failed to start server: Key column 'originCity' doesn't exist in table",
+  stack: 'Error\n' +
+    '    at Query.run (/home/leonardo/Cursos/Cloud/proyecto-parcial/bus-mvp/backend/ms-trips/node_modules/sequelize/lib/dialects/mysql/query.js:52:25)\n' +
+    '    at /home/leonardo/Cursos/Cloud/proyecto-parcial/bus-mvp/backend/ms-trips/node_modules/sequelize/lib/sequelize.js:315:28\n' +
+    '    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n' +
+    '    at async MySQLQueryInterface.addIndex (/home/leonardo/Cursos/Cloud/proyecto-parcial/bus-mvp/backend/ms-trips/node_modules/sequelize/lib/dialects/abstract/query-interface.js:250:12)\n' +
+    '    at async Route.sync (/home/leonardo/Cursos/Cloud/proyecto-parcial/bus-mvp/backend/ms-trips/node_modules/sequelize/lib/model.js:999:7)\n' +
+    '    at async Sequelize.sync (/home/leonardo/Cursos/Cloud/proyecto-parcial/bus-mvp/backend/ms-trips/node_modules/sequelize/lib/sequelize.js:377:9)\n' +
+    '    at async startServer (/home/leonardo/Cursos/Cloud/proyecto-parcial/bus-mvp/backend/ms-trips/src/server.js:15:7)',
+  timestamp: '2025-09-20 18:29:09'
+}
+{
+  service: 'ms-trips',
+  version: '1.0.0',
+  name: 'SequelizeDatabaseError',
+  parent: Error: Failed to add the foreign key constraint. Missing column 'routeId' for constraint 'trips_ibfk_1' in the referenced table 'routes'
+      at Packet.asError (/home/leonardo/Cursos/Cloud/proyecto-parcial/bus-mvp/backend/ms-trips/node_modules/mysql2/lib/packets/packet.js:740:17)
+      at Query.execute (/home/leonardo/Cursos/Cloud/proyecto-parcial/bus-mvp/backend/ms-trips/node_modules/mysql2/lib/commands/command.js:29:26)
+      at Connection.handlePacket (/home/leonardo/Cursos/Cloud/proyecto-parcial/bus-mvp/backend/ms-trips/node_modules/mysql2/lib/base/connection.js:475:34)
+      at PacketParser.onPacket (/home/leonardo/Cursos/Cloud/proyecto-parcial/bus-mvp/backend/ms-trips/node_modules/mysql2/lib/base/connection.js:93:12)
+      at PacketParser.executeStart (/home/leonardo/Cursos/Cloud/proyecto-parcial/bus-mvp/backend/ms-trips/node_modules/mysql2/lib/packet_parser.js:75:16)
+      at Socket.<anonymous> (/home/leonardo/Cursos/Cloud/proyecto-parcial/bus-mvp/backend/ms-trips/node_modules/mysql2/lib/base/connection.js:100:25)
+      at Socket.emit (node:events:508:28)
+      at addChunk (node:internal/streams/readable:559:12)
+      at readableAddChunkPushByteMode (node:internal/streams/readable:510:3)
+      at Readable.push (node:internal/streams/readable:390:5) {
+    code: 'ER_FK_NO_COLUMN_PARENT',
+    errno: 3734,
+    sqlState: 'HY000',
+    sqlMessage: "Failed to add the foreign key constraint. Missing column 'routeId' for constraint 'trips_ibfk_1' in the referenced table 'routes'",
+    sql: "CREATE TABLE IF NOT EXISTS `trips` (`trip_id` VARCHAR(50) NOT NULL  COMMENT 'Identificador único del viaje (formato: TRP_YYYYMMDD_ORG_DST_HH)', `route_id` VARCHAR(20) NOT NULL COMMENT 'ID de la ruta asociada', `departure_date_time` DATETIME NOT NULL COMMENT 'Fecha y hora de salida', `arrival_date_time` DATETIME NOT NULL COMMENT 'Fecha y hora de llegada', `bus_capacity` INTEGER NOT NULL COMMENT 'Capacidad total del autobús', `available_seats` INTEGER NOT NULL COMMENT 'Asientos disponibles', `final_price` DECIMAL(10,2) NOT NULL COMMENT 'Precio final del viaje (puede diferir del precio base de la ruta)', `status` ENUM('scheduled', 'in_progress', 'completed', 'cancelled') NOT NULL DEFAULT 'scheduled' COMMENT 'Estado actual del viaje', `driver_name` VARCHAR(100) COMMENT 'Nombre del conductor asignado', `bus_plate` VARCHAR(20) COMMENT 'Placa del autobús asignado', `created_at` DATETIME NOT NULL, `updated_at` DATETIME NOT NULL, PRIMARY KEY (`trip_id`), FOREIGN KEY (`route_id`) REFERENCES `routes` (`routeId`) ON DELETE RESTRICT ON UPDATE CASCADE) ENGINE=InnoDB;",
+    parameters: undefined
+  },
+  original: Error: Failed to add the foreign key constraint. Missing column 'routeId' for constraint 'trips_ibfk_1' in the referenced table 'routes'
+      at Packet.asError (/home/leonardo/Cursos/Cloud/proyecto-parcial/bus-mvp/backend/ms-trips/node_modules/mysql2/lib/packets/packet.js:740:17)
+      at Query.execute (/home/leonardo/Cursos/Cloud/proyecto-parcial/bus-mvp/backend/ms-trips/node_modules/mysql2/lib/commands/command.js:29:26)
+      at Connection.handlePacket (/home/leonardo/Cursos/Cloud/proyecto-parcial/bus-mvp/backend/ms-trips/node_modules/mysql2/lib/base/connection.js:475:34)
+      at PacketParser.onPacket (/home/leonardo/Cursos/Cloud/proyecto-parcial/bus-mvp/backend/ms-trips/node_modules/mysql2/lib/base/connection.js:93:12)
+      at PacketParser.executeStart (/home/leonardo/Cursos/Cloud/proyecto-parcial/bus-mvp/backend/ms-trips/node_modules/mysql2/lib/packet_parser.js:75:16)
+      at Socket.<anonymous> (/home/leonardo/Cursos/Cloud/proyecto-parcial/bus-mvp/backend/ms-trips/node_modules/mysql2/lib/base/connection.js:100:25)
+      at Socket.emit (node:events:508:28)
+      at addChunk (node:internal/streams/readable:559:12)
+      at readableAddChunkPushByteMode (node:internal/streams/readable:510:3)
+      at Readable.push (node:internal/streams/readable:390:5) {
+    code: 'ER_FK_NO_COLUMN_PARENT',
+    errno: 3734,
+    sqlState: 'HY000',
+    sqlMessage: "Failed to add the foreign key constraint. Missing column 'routeId' for constraint 'trips_ibfk_1' in the referenced table 'routes'",
+    sql: "CREATE TABLE IF NOT EXISTS `trips` (`trip_id` VARCHAR(50) NOT NULL  COMMENT 'Identificador único del viaje (formato: TRP_YYYYMMDD_ORG_DST_HH)', `route_id` VARCHAR(20) NOT NULL COMMENT 'ID de la ruta asociada', `departure_date_time` DATETIME NOT NULL COMMENT 'Fecha y hora de salida', `arrival_date_time` DATETIME NOT NULL COMMENT 'Fecha y hora de llegada', `bus_capacity` INTEGER NOT NULL COMMENT 'Capacidad total del autobús', `available_seats` INTEGER NOT NULL COMMENT 'Asientos disponibles', `final_price` DECIMAL(10,2) NOT NULL COMMENT 'Precio final del viaje (puede diferir del precio base de la ruta)', `status` ENUM('scheduled', 'in_progress', 'completed', 'cancelled') NOT NULL DEFAULT 'scheduled' COMMENT 'Estado actual del viaje', `driver_name` VARCHAR(100) COMMENT 'Nombre del conductor asignado', `bus_plate` VARCHAR(20) COMMENT 'Placa del autobús asignado', `created_at` DATETIME NOT NULL, `updated_at` DATETIME NOT NULL, PRIMARY KEY (`trip_id`), FOREIGN KEY (`route_id`) REFERENCES `routes` (`routeId`) ON DELETE RESTRICT ON UPDATE CASCADE) ENGINE=InnoDB;",
+    parameters: undefined
+  },
+  sql: "CREATE TABLE IF NOT EXISTS `trips` (`trip_id` VARCHAR(50) NOT NULL  COMMENT 'Identificador único del viaje (formato: TRP_YYYYMMDD_ORG_DST_HH)', `route_id` VARCHAR(20) NOT NULL COMMENT 'ID de la ruta asociada', `departure_date_time` DATETIME NOT NULL COMMENT 'Fecha y hora de salida', `arrival_date_time` DATETIME NOT NULL COMMENT 'Fecha y hora de llegada', `bus_capacity` INTEGER NOT NULL COMMENT 'Capacidad total del autobús', `available_seats` INTEGER NOT NULL COMMENT 'Asientos disponibles', `final_price` DECIMAL(10,2) NOT NULL COMMENT 'Precio final del viaje (puede diferir del precio base de la ruta)', `status` ENUM('scheduled', 'in_progress', 'completed', 'cancelled') NOT NULL DEFAULT 'scheduled' COMMENT 'Estado actual del viaje', `driver_name` VARCHAR(100) COMMENT 'Nombre del conductor asignado', `bus_plate` VARCHAR(20) COMMENT 'Placa del autobús asignado', `created_at` DATETIME NOT NULL, `updated_at` DATETIME NOT NULL, PRIMARY KEY (`trip_id`), FOREIGN KEY (`route_id`) REFERENCES `routes` (`routeId`) ON DELETE RESTRICT ON UPDATE CASCADE) ENGINE=InnoDB;",
+  parameters: {},
+  level: 'error',
+  message: "Failed to start server: Failed to add the foreign key constraint. Missing column 'routeId' for constraint 'trips_ibfk_1' in the referenced table 'routes'",
+  stack: 'Error\n' +
+    '    at Query.run (/home/leonardo/Cursos/Cloud/proyecto-parcial/bus-mvp/backend/ms-trips/node_modules/sequelize/lib/dialects/mysql/query.js:52:25)\n' +
+    '    at /home/leonardo/Cursos/Cloud/proyecto-parcial/bus-mvp/backend/ms-trips/node_modules/sequelize/lib/sequelize.js:315:28\n' +
+    '    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n' +
+    '    at async MySQLQueryInterface.createTable (/home/leonardo/Cursos/Cloud/proyecto-parcial/bus-mvp/backend/ms-trips/node_modules/sequelize/lib/dialects/abstract/query-interface.js:98:12)\n' +
+    '    at async Trip.sync (/home/leonardo/Cursos/Cloud/proyecto-parcial/bus-mvp/backend/ms-trips/node_modules/sequelize/lib/model.js:942:7)\n' +
+    '    at async Sequelize.sync (/home/leonardo/Cursos/Cloud/proyecto-parcial/bus-mvp/backend/ms-trips/node_modules/sequelize/lib/sequelize.js:377:9)\n' +
+    '    at async startServer (/home/leonardo/Cursos/Cloud/proyecto-parcial/bus-mvp/backend/ms-trips/src/server.js:15:7)',
+  timestamp: '2025-09-20 18:30:58'
+}
+{
+  service: 'ms-trips',
+  version: '1.0.0',
+  name: 'SequelizeDatabaseError',
+  parent: Error: Failed to add the foreign key constraint. Missing column 'routeId' for constraint 'trips_ibfk_1' in the referenced table 'routes'
+      at Packet.asError (/home/leonardo/Cursos/Cloud/proyecto-parcial/bus-mvp/backend/ms-trips/node_modules/mysql2/lib/packets/packet.js:740:17)
+      at Query.execute (/home/leonardo/Cursos/Cloud/proyecto-parcial/bus-mvp/backend/ms-trips/node_modules/mysql2/lib/commands/command.js:29:26)
+      at Connection.handlePacket (/home/leonardo/Cursos/Cloud/proyecto-parcial/bus-mvp/backend/ms-trips/node_modules/mysql2/lib/base/connection.js:475:34)
+      at PacketParser.onPacket (/home/leonardo/Cursos/Cloud/proyecto-parcial/bus-mvp/backend/ms-trips/node_modules/mysql2/lib/base/connection.js:93:12)
+      at PacketParser.executeStart (/home/leonardo/Cursos/Cloud/proyecto-parcial/bus-mvp/backend/ms-trips/node_modules/mysql2/lib/packet_parser.js:75:16)
+      at Socket.<anonymous> (/home/leonardo/Cursos/Cloud/proyecto-parcial/bus-mvp/backend/ms-trips/node_modules/mysql2/lib/base/connection.js:100:25)
+      at Socket.emit (node:events:508:28)
+      at addChunk (node:internal/streams/readable:559:12)
+      at readableAddChunkPushByteMode (node:internal/streams/readable:510:3)
+      at Readable.push (node:internal/streams/readable:390:5) {
+    code: 'ER_FK_NO_COLUMN_PARENT',
+    errno: 3734,
+    sqlState: 'HY000',
+    sqlMessage: "Failed to add the foreign key constraint. Missing column 'routeId' for constraint 'trips_ibfk_1' in the referenced table 'routes'",
+    sql: "CREATE TABLE IF NOT EXISTS `trips` (`trip_id` VARCHAR(50) NOT NULL  COMMENT 'Identificador único del viaje (formato: TRP_YYYYMMDD_ORG_DST_HH)', `route_id` VARCHAR(20) NOT NULL COMMENT 'ID de la ruta asociada', `departure_date_time` DATETIME NOT NULL COMMENT 'Fecha y hora de salida', `arrival_date_time` DATETIME NOT NULL COMMENT 'Fecha y hora de llegada', `bus_capacity` INTEGER NOT NULL COMMENT 'Capacidad total del autobús', `available_seats` INTEGER NOT NULL COMMENT 'Asientos disponibles', `final_price` DECIMAL(10,2) NOT NULL COMMENT 'Precio final del viaje (puede diferir del precio base de la ruta)', `status` ENUM('scheduled', 'in_progress', 'completed', 'cancelled') NOT NULL DEFAULT 'scheduled' COMMENT 'Estado actual del viaje', `driver_name` VARCHAR(100) COMMENT 'Nombre del conductor asignado', `bus_plate` VARCHAR(20) COMMENT 'Placa del autobús asignado', `created_at` DATETIME NOT NULL, `updated_at` DATETIME NOT NULL, PRIMARY KEY (`trip_id`), FOREIGN KEY (`route_id`) REFERENCES `routes` (`routeId`) ON DELETE RESTRICT ON UPDATE CASCADE) ENGINE=InnoDB;",
+    parameters: undefined
+  },
+  original: Error: Failed to add the foreign key constraint. Missing column 'routeId' for constraint 'trips_ibfk_1' in the referenced table 'routes'
+      at Packet.asError (/home/leonardo/Cursos/Cloud/proyecto-parcial/bus-mvp/backend/ms-trips/node_modules/mysql2/lib/packets/packet.js:740:17)
+      at Query.execute (/home/leonardo/Cursos/Cloud/proyecto-parcial/bus-mvp/backend/ms-trips/node_modules/mysql2/lib/commands/command.js:29:26)
+      at Connection.handlePacket (/home/leonardo/Cursos/Cloud/proyecto-parcial/bus-mvp/backend/ms-trips/node_modules/mysql2/lib/base/connection.js:475:34)
+      at PacketParser.onPacket (/home/leonardo/Cursos/Cloud/proyecto-parcial/bus-mvp/backend/ms-trips/node_modules/mysql2/lib/base/connection.js:93:12)
+      at PacketParser.executeStart (/home/leonardo/Cursos/Cloud/proyecto-parcial/bus-mvp/backend/ms-trips/node_modules/mysql2/lib/packet_parser.js:75:16)
+      at Socket.<anonymous> (/home/leonardo/Cursos/Cloud/proyecto-parcial/bus-mvp/backend/ms-trips/node_modules/mysql2/lib/base/connection.js:100:25)
+      at Socket.emit (node:events:508:28)
+      at addChunk (node:internal/streams/readable:559:12)
+      at readableAddChunkPushByteMode (node:internal/streams/readable:510:3)
+      at Readable.push (node:internal/streams/readable:390:5) {
+    code: 'ER_FK_NO_COLUMN_PARENT',
+    errno: 3734,
+    sqlState: 'HY000',
+    sqlMessage: "Failed to add the foreign key constraint. Missing column 'routeId' for constraint 'trips_ibfk_1' in the referenced table 'routes'",
+    sql: "CREATE TABLE IF NOT EXISTS `trips` (`trip_id` VARCHAR(50) NOT NULL  COMMENT 'Identificador único del viaje (formato: TRP_YYYYMMDD_ORG_DST_HH)', `route_id` VARCHAR(20) NOT NULL COMMENT 'ID de la ruta asociada', `departure_date_time` DATETIME NOT NULL COMMENT 'Fecha y hora de salida', `arrival_date_time` DATETIME NOT NULL COMMENT 'Fecha y hora de llegada', `bus_capacity` INTEGER NOT NULL COMMENT 'Capacidad total del autobús', `available_seats` INTEGER NOT NULL COMMENT 'Asientos disponibles', `final_price` DECIMAL(10,2) NOT NULL COMMENT 'Precio final del viaje (puede diferir del precio base de la ruta)', `status` ENUM('scheduled', 'in_progress', 'completed', 'cancelled') NOT NULL DEFAULT 'scheduled' COMMENT 'Estado actual del viaje', `driver_name` VARCHAR(100) COMMENT 'Nombre del conductor asignado', `bus_plate` VARCHAR(20) COMMENT 'Placa del autobús asignado', `created_at` DATETIME NOT NULL, `updated_at` DATETIME NOT NULL, PRIMARY KEY (`trip_id`), FOREIGN KEY (`route_id`) REFERENCES `routes` (`routeId`) ON DELETE RESTRICT ON UPDATE CASCADE) ENGINE=InnoDB;",
+    parameters: undefined
+  },
+  sql: "CREATE TABLE IF NOT EXISTS `trips` (`trip_id` VARCHAR(50) NOT NULL  COMMENT 'Identificador único del viaje (formato: TRP_YYYYMMDD_ORG_DST_HH)', `route_id` VARCHAR(20) NOT NULL COMMENT 'ID de la ruta asociada', `departure_date_time` DATETIME NOT NULL COMMENT 'Fecha y hora de salida', `arrival_date_time` DATETIME NOT NULL COMMENT 'Fecha y hora de llegada', `bus_capacity` INTEGER NOT NULL COMMENT 'Capacidad total del autobús', `available_seats` INTEGER NOT NULL COMMENT 'Asientos disponibles', `final_price` DECIMAL(10,2) NOT NULL COMMENT 'Precio final del viaje (puede diferir del precio base de la ruta)', `status` ENUM('scheduled', 'in_progress', 'completed', 'cancelled') NOT NULL DEFAULT 'scheduled' COMMENT 'Estado actual del viaje', `driver_name` VARCHAR(100) COMMENT 'Nombre del conductor asignado', `bus_plate` VARCHAR(20) COMMENT 'Placa del autobús asignado', `created_at` DATETIME NOT NULL, `updated_at` DATETIME NOT NULL, PRIMARY KEY (`trip_id`), FOREIGN KEY (`route_id`) REFERENCES `routes` (`routeId`) ON DELETE RESTRICT ON UPDATE CASCADE) ENGINE=InnoDB;",
+  parameters: {},
+  level: 'error',
+  message: "Failed to start server: Failed to add the foreign key constraint. Missing column 'routeId' for constraint 'trips_ibfk_1' in the referenced table 'routes'",
+  stack: 'Error\n' +
+    '    at Query.run (/home/leonardo/Cursos/Cloud/proyecto-parcial/bus-mvp/backend/ms-trips/node_modules/sequelize/lib/dialects/mysql/query.js:52:25)\n' +
+    '    at /home/leonardo/Cursos/Cloud/proyecto-parcial/bus-mvp/backend/ms-trips/node_modules/sequelize/lib/sequelize.js:315:28\n' +
+    '    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n' +
+    '    at async MySQLQueryInterface.createTable (/home/leonardo/Cursos/Cloud/proyecto-parcial/bus-mvp/backend/ms-trips/node_modules/sequelize/lib/dialects/abstract/query-interface.js:98:12)\n' +
+    '    at async Trip.sync (/home/leonardo/Cursos/Cloud/proyecto-parcial/bus-mvp/backend/ms-trips/node_modules/sequelize/lib/model.js:942:7)\n' +
+    '    at async Sequelize.sync (/home/leonardo/Cursos/Cloud/proyecto-parcial/bus-mvp/backend/ms-trips/node_modules/sequelize/lib/sequelize.js:377:9)\n' +
+    '    at async startServer (/home/leonardo/Cursos/Cloud/proyecto-parcial/bus-mvp/backend/ms-trips/src/server.js:15:7)',
+  timestamp: '2025-09-20 18:32:59'
+}
+{
+  service: 'ms-trips',
+  version: '1.0.0',
+  name: 'SequelizeDatabaseError',
+  parent: Error: Failed to add the foreign key constraint. Missing column 'routeId' for constraint 'trips_ibfk_1' in the referenced table 'routes'
+      at Packet.asError (/home/leonardo/Cursos/Cloud/proyecto-parcial/bus-mvp/backend/ms-trips/node_modules/mysql2/lib/packets/packet.js:740:17)
+      at Query.execute (/home/leonardo/Cursos/Cloud/proyecto-parcial/bus-mvp/backend/ms-trips/node_modules/mysql2/lib/commands/command.js:29:26)
+      at Connection.handlePacket (/home/leonardo/Cursos/Cloud/proyecto-parcial/bus-mvp/backend/ms-trips/node_modules/mysql2/lib/base/connection.js:475:34)
+      at PacketParser.onPacket (/home/leonardo/Cursos/Cloud/proyecto-parcial/bus-mvp/backend/ms-trips/node_modules/mysql2/lib/base/connection.js:93:12)
+      at PacketParser.executeStart (/home/leonardo/Cursos/Cloud/proyecto-parcial/bus-mvp/backend/ms-trips/node_modules/mysql2/lib/packet_parser.js:75:16)
+      at Socket.<anonymous> (/home/leonardo/Cursos/Cloud/proyecto-parcial/bus-mvp/backend/ms-trips/node_modules/mysql2/lib/base/connection.js:100:25)
+      at Socket.emit (node:events:508:28)
+      at addChunk (node:internal/streams/readable:559:12)
+      at readableAddChunkPushByteMode (node:internal/streams/readable:510:3)
+      at Readable.push (node:internal/streams/readable:390:5) {
+    code: 'ER_FK_NO_COLUMN_PARENT',
+    errno: 3734,
+    sqlState: 'HY000',
+    sqlMessage: "Failed to add the foreign key constraint. Missing column 'routeId' for constraint 'trips_ibfk_1' in the referenced table 'routes'",
+    sql: "CREATE TABLE IF NOT EXISTS `trips` (`trip_id` VARCHAR(50) NOT NULL  COMMENT 'Identificador único del viaje (formato: TRP_YYYYMMDD_ORG_DST_HH)', `route_id` VARCHAR(20) NOT NULL COMMENT 'ID de la ruta asociada', `departure_date_time` DATETIME NOT NULL COMMENT 'Fecha y hora de salida', `arrival_date_time` DATETIME NOT NULL COMMENT 'Fecha y hora de llegada', `bus_capacity` INTEGER NOT NULL COMMENT 'Capacidad total del autobús', `available_seats` INTEGER NOT NULL COMMENT 'Asientos disponibles', `final_price` DECIMAL(10,2) NOT NULL COMMENT 'Precio final del viaje (puede diferir del precio base de la ruta)', `status` ENUM('scheduled', 'in_progress', 'completed', 'cancelled') NOT NULL DEFAULT 'scheduled' COMMENT 'Estado actual del viaje', `driver_name` VARCHAR(100) COMMENT 'Nombre del conductor asignado', `bus_plate` VARCHAR(20) COMMENT 'Placa del autobús asignado', `created_at` DATETIME NOT NULL, `updated_at` DATETIME NOT NULL, PRIMARY KEY (`trip_id`), FOREIGN KEY (`route_id`) REFERENCES `routes` (`routeId`) ON DELETE RESTRICT ON UPDATE CASCADE) ENGINE=InnoDB;",
+    parameters: undefined
+  },
+  original: Error: Failed to add the foreign key constraint. Missing column 'routeId' for constraint 'trips_ibfk_1' in the referenced table 'routes'
+      at Packet.asError (/home/leonardo/Cursos/Cloud/proyecto-parcial/bus-mvp/backend/ms-trips/node_modules/mysql2/lib/packets/packet.js:740:17)
+      at Query.execute (/home/leonardo/Cursos/Cloud/proyecto-parcial/bus-mvp/backend/ms-trips/node_modules/mysql2/lib/commands/command.js:29:26)
+      at Connection.handlePacket (/home/leonardo/Cursos/Cloud/proyecto-parcial/bus-mvp/backend/ms-trips/node_modules/mysql2/lib/base/connection.js:475:34)
+      at PacketParser.onPacket (/home/leonardo/Cursos/Cloud/proyecto-parcial/bus-mvp/backend/ms-trips/node_modules/mysql2/lib/base/connection.js:93:12)
+      at PacketParser.executeStart (/home/leonardo/Cursos/Cloud/proyecto-parcial/bus-mvp/backend/ms-trips/node_modules/mysql2/lib/packet_parser.js:75:16)
+      at Socket.<anonymous> (/home/leonardo/Cursos/Cloud/proyecto-parcial/bus-mvp/backend/ms-trips/node_modules/mysql2/lib/base/connection.js:100:25)
+      at Socket.emit (node:events:508:28)
+      at addChunk (node:internal/streams/readable:559:12)
+      at readableAddChunkPushByteMode (node:internal/streams/readable:510:3)
+      at Readable.push (node:internal/streams/readable:390:5) {
+    code: 'ER_FK_NO_COLUMN_PARENT',
+    errno: 3734,
+    sqlState: 'HY000',
+    sqlMessage: "Failed to add the foreign key constraint. Missing column 'routeId' for constraint 'trips_ibfk_1' in the referenced table 'routes'",
+    sql: "CREATE TABLE IF NOT EXISTS `trips` (`trip_id` VARCHAR(50) NOT NULL  COMMENT 'Identificador único del viaje (formato: TRP_YYYYMMDD_ORG_DST_HH)', `route_id` VARCHAR(20) NOT NULL COMMENT 'ID de la ruta asociada', `departure_date_time` DATETIME NOT NULL COMMENT 'Fecha y hora de salida', `arrival_date_time` DATETIME NOT NULL COMMENT 'Fecha y hora de llegada', `bus_capacity` INTEGER NOT NULL COMMENT 'Capacidad total del autobús', `available_seats` INTEGER NOT NULL COMMENT 'Asientos disponibles', `final_price` DECIMAL(10,2) NOT NULL COMMENT 'Precio final del viaje (puede diferir del precio base de la ruta)', `status` ENUM('scheduled', 'in_progress', 'completed', 'cancelled') NOT NULL DEFAULT 'scheduled' COMMENT 'Estado actual del viaje', `driver_name` VARCHAR(100) COMMENT 'Nombre del conductor asignado', `bus_plate` VARCHAR(20) COMMENT 'Placa del autobús asignado', `created_at` DATETIME NOT NULL, `updated_at` DATETIME NOT NULL, PRIMARY KEY (`trip_id`), FOREIGN KEY (`route_id`) REFERENCES `routes` (`routeId`) ON DELETE RESTRICT ON UPDATE CASCADE) ENGINE=InnoDB;",
+    parameters: undefined
+  },
+  sql: "CREATE TABLE IF NOT EXISTS `trips` (`trip_id` VARCHAR(50) NOT NULL  COMMENT 'Identificador único del viaje (formato: TRP_YYYYMMDD_ORG_DST_HH)', `route_id` VARCHAR(20) NOT NULL COMMENT 'ID de la ruta asociada', `departure_date_time` DATETIME NOT NULL COMMENT 'Fecha y hora de salida', `arrival_date_time` DATETIME NOT NULL COMMENT 'Fecha y hora de llegada', `bus_capacity` INTEGER NOT NULL COMMENT 'Capacidad total del autobús', `available_seats` INTEGER NOT NULL COMMENT 'Asientos disponibles', `final_price` DECIMAL(10,2) NOT NULL COMMENT 'Precio final del viaje (puede diferir del precio base de la ruta)', `status` ENUM('scheduled', 'in_progress', 'completed', 'cancelled') NOT NULL DEFAULT 'scheduled' COMMENT 'Estado actual del viaje', `driver_name` VARCHAR(100) COMMENT 'Nombre del conductor asignado', `bus_plate` VARCHAR(20) COMMENT 'Placa del autobús asignado', `created_at` DATETIME NOT NULL, `updated_at` DATETIME NOT NULL, PRIMARY KEY (`trip_id`), FOREIGN KEY (`route_id`) REFERENCES `routes` (`routeId`) ON DELETE RESTRICT ON UPDATE CASCADE) ENGINE=InnoDB;",
+  parameters: {},
+  level: 'error',
+  message: "Failed to start server: Failed to add the foreign key constraint. Missing column 'routeId' for constraint 'trips_ibfk_1' in the referenced table 'routes'",
+  stack: 'Error\n' +
+    '    at Query.run (/home/leonardo/Cursos/Cloud/proyecto-parcial/bus-mvp/backend/ms-trips/node_modules/sequelize/lib/dialects/mysql/query.js:52:25)\n' +
+    '    at /home/leonardo/Cursos/Cloud/proyecto-parcial/bus-mvp/backend/ms-trips/node_modules/sequelize/lib/sequelize.js:315:28\n' +
+    '    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n' +
+    '    at async MySQLQueryInterface.createTable (/home/leonardo/Cursos/Cloud/proyecto-parcial/bus-mvp/backend/ms-trips/node_modules/sequelize/lib/dialects/abstract/query-interface.js:98:12)\n' +
+    '    at async Trip.sync (/home/leonardo/Cursos/Cloud/proyecto-parcial/bus-mvp/backend/ms-trips/node_modules/sequelize/lib/model.js:942:7)\n' +
+    '    at async Sequelize.sync (/home/leonardo/Cursos/Cloud/proyecto-parcial/bus-mvp/backend/ms-trips/node_modules/sequelize/lib/sequelize.js:377:9)\n' +
+    '    at async startServer (/home/leonardo/Cursos/Cloud/proyecto-parcial/bus-mvp/backend/ms-trips/src/server.js:15:7)',
+  timestamp: '2025-09-20 18:33:41'
+}
+{
+  service: 'ms-trips',
+  version: '1.0.0',
+  code: 'EADDRINUSE',
+  errno: -98,
+  syscall: 'listen',
+  address: '::',
+  port: 8002,
+  level: 'error',
+  message: 'Uncaught Exception thrown: listen EADDRINUSE: address already in use :::8002',
+  stack: 'Error: listen EADDRINUSE: address already in use :::8002\n' +
+    '    at Server.setupListenHandle [as _listen2] (node:net:1940:16)\n' +
+    '    at listenInCluster (node:net:1997:12)\n' +
+    '    at Server.listen (node:net:2102:7)\n' +
+    '    at app.listen (/home/leonardo/Cursos/Cloud/proyecto-parcial/bus-mvp/backend/ms-trips/node_modules/express/lib/application.js:635:24)\n' +
+    '    at startServer (/home/leonardo/Cursos/Cloud/proyecto-parcial/bus-mvp/backend/ms-trips/src/server.js:20:24)\n' +
+    '    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)',
+  timestamp: '2025-09-20 18:52:10'
+}
+{
+  service: 'ms-trips',
+  version: '1.0.0',
+  error: 'Association with alias "trips" does not exist on Route',
+  stack: 'Error: Association with alias "trips" does not exist on Route\n' +
+    '    at Route._transformStringAssociation (/home/leonardo/Cursos/Cloud/proyecto-parcial/bus-mvp/backend/ms-trips/node_modules/sequelize/lib/model.js:275:15)\n' +
+    '    at Route._conformInclude (/home/leonardo/Cursos/Cloud/proyecto-parcial/bus-mvp/backend/ms-trips/node_modules/sequelize/lib/model.js:300:38)\n' +
+    '    at /home/leonardo/Cursos/Cloud/proyecto-parcial/bus-mvp/backend/ms-trips/node_modules/sequelize/lib/model.js:270:61\n' +
+    '    at Array.map (<anonymous>)\n' +
+    '    at Route._conformIncludes (/home/leonardo/Cursos/Cloud/proyecto-parcial/bus-mvp/backend/ms-trips/node_modules/sequelize/lib/model.js:270:39)\n' +
+    '    at Route._baseMerge (/home/leonardo/Cursos/Cloud/proyecto-parcial/bus-mvp/backend/ms-trips/node_modules/sequelize/lib/model.js:622:10)\n' +
+    '    at Route._defaultsOptions (/home/leonardo/Cursos/Cloud/proyecto-parcial/bus-mvp/backend/ms-trips/node_modules/sequelize/lib/model.js:656:17)\n' +
+    '    at Route._injectScope (/home/leonardo/Cursos/Cloud/proyecto-parcial/bus-mvp/backend/ms-trips/node_modules/sequelize/lib/model.js:2053:10)\n' +
+    '    at Route.findAll (/home/leonardo/Cursos/Cloud/proyecto-parcial/bus-mvp/backend/ms-trips/node_modules/sequelize/lib/model.js:1111:10)\n' +
+    '    at Route.findOne (/home/leonardo/Cursos/Cloud/proyecto-parcial/bus-mvp/backend/ms-trips/node_modules/sequelize/lib/model.js:1240:23)',
+  method: 'GET',
+  url: '/api/v1/routes/LIM_CUZ_001',
+  ip: '::1',
+  userAgent: 'curl/8.16.0',
+  level: 'error',
+  message: 'Error occurred:',
+  timestamp: '2025-09-20 18:56:47'
+}
+{
+  service: 'ms-trips',
+  version: '1.0.0',
+  error: 'Association with alias "trips" does not exist on Route',
+  stack: 'Error: Association with alias "trips" does not exist on Route\n' +
+    '    at Route._transformStringAssociation (/home/leonardo/Cursos/Cloud/proyecto-parcial/bus-mvp/backend/ms-trips/node_modules/sequelize/lib/model.js:275:15)\n' +
+    '    at Route._conformInclude (/home/leonardo/Cursos/Cloud/proyecto-parcial/bus-mvp/backend/ms-trips/node_modules/sequelize/lib/model.js:300:38)\n' +
+    '    at /home/leonardo/Cursos/Cloud/proyecto-parcial/bus-mvp/backend/ms-trips/node_modules/sequelize/lib/model.js:270:61\n' +
+    '    at Array.map (<anonymous>)\n' +
+    '    at Route._conformIncludes (/home/leonardo/Cursos/Cloud/proyecto-parcial/bus-mvp/backend/ms-trips/node_modules/sequelize/lib/model.js:270:39)\n' +
+    '    at Route._baseMerge (/home/leonardo/Cursos/Cloud/proyecto-parcial/bus-mvp/backend/ms-trips/node_modules/sequelize/lib/model.js:622:10)\n' +
+    '    at Route._defaultsOptions (/home/leonardo/Cursos/Cloud/proyecto-parcial/bus-mvp/backend/ms-trips/node_modules/sequelize/lib/model.js:656:17)\n' +
+    '    at Route._injectScope (/home/leonardo/Cursos/Cloud/proyecto-parcial/bus-mvp/backend/ms-trips/node_modules/sequelize/lib/model.js:2053:10)\n' +
+    '    at Route.findAll (/home/leonardo/Cursos/Cloud/proyecto-parcial/bus-mvp/backend/ms-trips/node_modules/sequelize/lib/model.js:1111:10)\n' +
+    '    at Route.findOne (/home/leonardo/Cursos/Cloud/proyecto-parcial/bus-mvp/backend/ms-trips/node_modules/sequelize/lib/model.js:1240:23)',
+  method: 'GET',
+  url: '/api/v1/routes/LIM_CUZ_001',
+  ip: '::1',
+  userAgent: 'curl/8.16.0',
+  level: 'error',
+  message: 'Error occurred:',
+  timestamp: '2025-09-20 18:57:10'
+}
+{
+  service: 'ms-trips',
+  version: '1.0.0',
+  error: 'Route is not associated to Trip!',
+  stack: 'SequelizeEagerLoadingError: Route is not associated to Trip!\n' +
+    '    at Trip._getIncludedAssociation (/home/leonardo/Cursos/Cloud/proyecto-parcial/bus-mvp/backend/ms-trips/node_modules/sequelize/lib/model.js:565:13)\n' +
+    '    at Trip._validateIncludedElement (/home/leonardo/Cursos/Cloud/proyecto-parcial/bus-mvp/backend/ms-trips/node_modules/sequelize/lib/model.js:502:53)\n' +
+    '    at /home/leonardo/Cursos/Cloud/proyecto-parcial/bus-mvp/backend/ms-trips/node_modules/sequelize/lib/model.js:421:37\n' +
+    '    at Array.map (<anonymous>)\n' +
+    '    at Trip._validateIncludedElements (/home/leonardo/Cursos/Cloud/proyecto-parcial/bus-mvp/backend/ms-trips/node_modules/sequelize/lib/model.js:417:39)\n' +
+    '    at Trip.aggregate (/home/leonardo/Cursos/Cloud/proyecto-parcial/bus-mvp/backend/ms-trips/node_modules/sequelize/lib/model.js:1252:12)\n' +
+    '    at Trip.count (/home/leonardo/Cursos/Cloud/proyecto-parcial/bus-mvp/backend/ms-trips/node_modules/sequelize/lib/model.js:1306:31)\n' +
+    '    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n' +
+    '    at async Promise.all (index 0)\n' +
+    '    at async Trip.findAndCountAll (/home/leonardo/Cursos/Cloud/proyecto-parcial/bus-mvp/backend/ms-trips/node_modules/sequelize/lib/model.js:1322:27)',
+  method: 'GET',
+  url: '/api/v1/trips/search?origin=Lima&destination=Cusco&departureDate=2025-09-21',
+  ip: '::1',
+  userAgent: 'curl/8.16.0',
+  level: 'error',
+  message: 'Error occurred:',
+  timestamp: '2025-09-20 19:07:58'
+}
+{
+  service: 'ms-trips',
+  version: '1.0.0',
+  error: 'Route is not associated to Trip!',
+  stack: 'SequelizeEagerLoadingError: Route is not associated to Trip!\n' +
+    '    at Trip._getIncludedAssociation (/home/leonardo/Cursos/Cloud/proyecto-parcial/bus-mvp/backend/ms-trips/node_modules/sequelize/lib/model.js:565:13)\n' +
+    '    at Trip._validateIncludedElement (/home/leonardo/Cursos/Cloud/proyecto-parcial/bus-mvp/backend/ms-trips/node_modules/sequelize/lib/model.js:502:53)\n' +
+    '    at /home/leonardo/Cursos/Cloud/proyecto-parcial/bus-mvp/backend/ms-trips/node_modules/sequelize/lib/model.js:421:37\n' +
+    '    at Array.map (<anonymous>)\n' +
+    '    at Trip._validateIncludedElements (/home/leonardo/Cursos/Cloud/proyecto-parcial/bus-mvp/backend/ms-trips/node_modules/sequelize/lib/model.js:417:39)\n' +
+    '    at Trip.aggregate (/home/leonardo/Cursos/Cloud/proyecto-parcial/bus-mvp/backend/ms-trips/node_modules/sequelize/lib/model.js:1252:12)\n' +
+    '    at Trip.count (/home/leonardo/Cursos/Cloud/proyecto-parcial/bus-mvp/backend/ms-trips/node_modules/sequelize/lib/model.js:1306:31)\n' +
+    '    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n' +
+    '    at async Promise.all (index 0)\n' +
+    '    at async Trip.findAndCountAll (/home/leonardo/Cursos/Cloud/proyecto-parcial/bus-mvp/backend/ms-trips/node_modules/sequelize/lib/model.js:1322:27)',
+  method: 'GET',
+  url: '/api/v1/trips/search?origin=Lima&destination=Cusco&departureDate=2025-09-21',
+  ip: '::1',
+  userAgent: 'curl/8.16.0',
+  level: 'error',
+  message: 'Error occurred:',
+  timestamp: '2025-09-20 19:08:06'
+}
+{
+  service: 'ms-trips',
+  version: '1.0.0',
+  error: 'Route with ID ARE_LIM_006 not found',
+  stack: 'Error: Route with ID ARE_LIM_006 not found\n' +
+    '    at createTrip (/home/leonardo/Cursos/Cloud/proyecto-parcial/bus-mvp/backend/ms-trips/src/controllers/tripController.js:148:21)\n' +
+    '    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)',
+  method: 'POST',
+  url: '/api/v1/trips',
+  ip: '::1',
+  userAgent: 'curl/8.16.0',
+  level: 'error',
+  message: 'Error occurred:',
+  timestamp: '2025-09-20 19:11:08'
+}
+{
+  service: 'ms-trips',
+  version: '1.0.0',
+  error: "Data truncated for column 'status' at row 1",
+  stack: 'Error\n' +
+    '    at Query.run (/home/leonardo/Cursos/Cloud/proyecto-parcial/bus-mvp/backend/ms-trips/node_modules/sequelize/lib/dialects/mysql/query.js:52:25)\n' +
+    '    at /home/leonardo/Cursos/Cloud/proyecto-parcial/bus-mvp/backend/ms-trips/node_modules/sequelize/lib/sequelize.js:315:28\n' +
+    '    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n' +
+    '    at async MySQLQueryInterface.update (/home/leonardo/Cursos/Cloud/proyecto-parcial/bus-mvp/backend/ms-trips/node_modules/sequelize/lib/dialects/abstract/query-interface.js:355:12)\n' +
+    '    at async Trip.save (/home/leonardo/Cursos/Cloud/proyecto-parcial/bus-mvp/backend/ms-trips/node_modules/sequelize/lib/model.js:2490:35)\n' +
+    '    at async Trip.update (/home/leonardo/Cursos/Cloud/proyecto-parcial/bus-mvp/backend/ms-trips/node_modules/sequelize/lib/model.js:2598:12)\n' +
+    '    at async updateTrip (/home/leonardo/Cursos/Cloud/proyecto-parcial/bus-mvp/backend/ms-trips/src/controllers/tripController.js:192:5)',
+  method: 'PUT',
+  url: '/api/v1/trips/TRP_20250923_LIM_ICA_06',
+  ip: '::1',
+  userAgent: 'curl/8.16.0',
+  level: 'error',
+  message: 'Error occurred:',
+  timestamp: '2025-09-20 19:11:59'
+}
+{
+  service: 'ms-trips',
+  version: '1.0.0',
+  code: 'EADDRINUSE',
+  errno: -98,
+  syscall: 'listen',
+  address: '::',
+  port: 8002,
+  level: 'error',
+  message: 'Uncaught Exception thrown: listen EADDRINUSE: address already in use :::8002',
+  stack: 'Error: listen EADDRINUSE: address already in use :::8002\n' +
+    '    at Server.setupListenHandle [as _listen2] (node:net:1940:16)\n' +
+    '    at listenInCluster (node:net:1997:12)\n' +
+    '    at Server.listen (node:net:2102:7)\n' +
+    '    at app.listen (/home/leonardo/Cursos/Cloud/proyecto-parcial/bus-mvp/backend/ms-trips/node_modules/express/lib/application.js:635:24)\n' +
+    '    at startServer (/home/leonardo/Cursos/Cloud/proyecto-parcial/bus-mvp/backend/ms-trips/src/server.js:20:24)\n' +
+    '    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)',
+  timestamp: '2025-09-20 19:21:15'
+}
