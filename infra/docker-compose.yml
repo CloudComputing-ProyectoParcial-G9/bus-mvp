@@ -103,10 +103,8 @@ services:
     image: mysql:8.0
     container_name: bus-mvp-sql-db2
     environment:
-      MYSQL_ROOT_PASSWORD: ${SQL2_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${SQL2_ROOT_PASSWORD}
       MYSQL_DATABASE: ${SQL2_DB}
-      MYSQL_USER: ${SQL2_USER}
-      MYSQL_PASSWORD: ${SQL2_PASSWORD}
     ports:
       - "${SQL2_PORT}:3306"
     

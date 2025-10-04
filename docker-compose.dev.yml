@@ -52,6 +52,12 @@ services:
     volumes:
       - mongo_tickets_data:/data/db
       - ./backend/ms-tickets/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
 
   # Microservicio ms-trips (Node.js)
   ms-trips:
@@ -107,9 +113,32 @@ services:
       - MS_TRIPS_URL=http://ms-trips:8002
       - MS_PASSENGERS_URL=http://ms-passengers:8001
     depends_on:
-      - mongo-tickets
-      - ms-trips
+      mongo-tickets:
+        condition: service_healthy
+      ms-trips:
+        condition: service_started
+      ms-passengers:
+        condition: service_started
+    restart: unless-stopped
+
+  # Microservicio ms-history (Go) - Agregador sin DB
+  ms-history:
+    build:
+      context: ./backend/ms-history
+      dockerfile: Dockerfile
+    container_name: ms-history
+    ports:
+      - "8004:8004"
+    environment:
+      - PORT=8004
+      - ENVIRONMENT=development
+      - MS_PASSENGERS_URL=http://ms-passengers:8001
+      - MS_TRIPS_URL=http://ms-trips:8002
+      - MS_TICKETS_URL=http://ms-tickets:8003
+    depends_on:
       - ms-passengers
+      - ms-trips
+      - ms-tickets
     restart: unless-stopped
 
 volumes:

@@ -8,13 +8,13 @@ RUN apk add --no-cache git ca-certificates tzdata
 WORKDIR /app
 
 # Copiar archivos de dependencias
-COPY go.mod go.sum ./
+COPY go.mod ./
 
-# Descargar dependencias
-RUN go mod download
-
-# Copiar código fuente
+# Copiar código fuente (necesario para go mod tidy)
 COPY src/ ./src/
+
+# Descargar dependencias y generar go.sum
+RUN go mod download && go mod tidy
 
 # Compilar la aplicación
 RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o main ./src/
