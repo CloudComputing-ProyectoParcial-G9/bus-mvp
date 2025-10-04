@@ -4,14 +4,24 @@
 Este microservicio es un **agregador** que NO tiene base de datos propia. Su función es consumir datos de otros microservicios para generar vistas consolidadas, reportes históricos y métricas del sistema Bus MVP.
 
 ## Tecnología Stack
-**TODO**: Definir según elección del equipo de desarrollo
+**Go + Gin Framework** - Elegido por su excelente concurrencia y performance para HTTP clients
 
-### Opciones sugeridas:
-- **Node.js** + Express + Axios (para HTTP requests)
-- **Python** + FastAPI + httpx/requests (async HTTP)
-- **Java** + Spring Boot + WebClient/RestTemplate
-- **Go** + Gin + net/http
-- **C#** + ASP.NET Core + HttpClient
+### Stack Seleccionado:
+- **Go 1.21+** - Lenguaje base
+- **Gin** - Framework web ligero y rápido
+- **net/http** - Cliente HTTP nativo con timeout y retry
+- **goroutines** - Concurrencia para llamadas paralelas a microservicios
+- **sync.WaitGroup** - Sincronización de goroutines
+- **context.Context** - Manejo de timeouts y cancelación
+- **encoding/json** - Serialización/deserialización JSON
+- **Redis** (opcional) - Cache en memoria para respuestas
+
+### Ventajas del Stack:
+- **Concurrencia nativa**: Goroutines para llamadas HTTP paralelas
+- **Performance**: Excelente para agregación de datos en tiempo real
+- **HTTP client robusto**: Manejo nativo de timeouts, retries y circuit breaker
+- **Tipado fuerte**: Evita errores en runtime
+- **Memoria eficiente**: Ideal para microservicios agregadores
 
 ## Base de Datos
 - **Tipo**: Ninguna (Microservicio agregador)
@@ -56,92 +66,93 @@ TEST_MODE=false
 MOCK_EXTERNAL_SERVICES=false
 ```
 
-## Estructura del Código (Placeholder)
+## Estructura del Código (Go + Gin)
 
 ```
 src/
-├── controllers/
-│   ├── healthController.js
-│   ├── passengerHistoryController.js
-│   ├── tripHistoryController.js
-│   ├── routeHistoryController.js
-│   ├── dashboardController.js
-│   └── analyticsController.js
+├── main.go                          # Entry point y servidor
+├── handlers/
+│   ├── health.go                    # Health check + dependencias
+│   ├── passenger_history.go         # Historial de pasajeros
+│   ├── trip_history.go             # Historial de viajes
+│   ├── route_analytics.go          # Análisis de rutas
+│   └── dashboard.go                # Métricas para dashboard
 ├── services/
-│   ├── externalApiService.js
-│   ├── dataAggregationService.js
-│   ├── cacheService.js
-│   └── statisticsService.js
+│   ├── aggregation_service.go      # Lógica de agregación de datos
+│   ├── statistics_service.go       # Cálculos y métricas
+│   └── cache_service.go            # Cache opcional (Redis)
 ├── clients/
-│   ├── passengersClient.js
-│   ├── tripsClient.js
-│   └── ticketsClient.js
-├── routes/
-│   ├── health.js
-│   ├── passengerHistory.js
-│   ├── tripHistory.js
-│   ├── routeHistory.js
-│   ├── dashboard.js
-│   └── analytics.js
+│   ├── passengers_client.go        # HTTP client para ms-passengers
+│   ├── trips_client.go             # HTTP client para ms-trips
+│   ├── tickets_client.go           # HTTP client para ms-tickets
+│   └── http_client.go              # Cliente HTTP base con retry
+├── models/
+│   ├── passenger.go                # Structs para datos de passenger
+│   ├── trip.go                     # Structs para datos de trip
+│   ├── ticket.go                   # Structs para datos de ticket
+│   ├── aggregated_data.go          # Structs para respuestas agregadas
+│   └── responses.go                # Structs para API responses
 ├── middleware/
-│   ├── errorHandler.js
-│   ├── logger.js
-│   ├── circuitBreaker.js
-│   └── rateLimiter.js
+│   ├── error_handler.go            # Manejo centralizado de errores
+│   ├── logger.go                   # Logging estructurado
+│   ├── circuit_breaker.go          # Circuit breaker pattern
+│   └── rate_limiter.go             # Rate limiting
 ├── utils/
-│   ├── httpClient.js
-│   ├── dataTransformers.js
-│   └── validators.js
+│   ├── http_utils.go               # Utilidades HTTP (retry, timeout)
+│   ├── data_transformers.go        # Transformación de datos
+│   └── validators.go               # Validaciones
 ├── config/
-│   └── server.js
-└── app.js
+│   └── config.go                   # Configuración del servidor
+└── routes/
+    └── routes.go                   # Definición de rutas
 ```
 
-## Tareas Pendientes
+## Tareas Pendientes (Go Implementation)
 
-### Clientes HTTP
-- [ ] Implementar cliente para ms-passengers
-- [ ] Implementar cliente para ms-trips  
-- [ ] Implementar cliente para ms-tickets
-- [ ] Configurar timeouts y retry logic
-- [ ] Implementar circuit breaker pattern
-- [ ] Configurar health checks de dependencias
+### HTTP Clients
+- [ ] Implementar `PassengersClient` con net/http
+- [ ] Implementar `TripsClient` con timeout y retry
+- [ ] Implementar `TicketsClient` con circuit breaker
+- [ ] Configurar context.Context para cancelación
+- [ ] Implementar health checks de dependencias
+- [ ] Configurar connection pooling
 
-### API Endpoints
-- [ ] Implementar todos los endpoints según OpenAPI spec
-- [ ] Configurar aggregation logic para cada endpoint
-- [ ] Implementar transformación de datos entre services
-- [ ] Añadir filtros y parámetros de consulta
-- [ ] Configurar paginación donde sea necesario
-- [ ] Implementar logging estructurado
+### API Handlers (Gin)
+- [ ] Implementar health handler con estado de dependencias
+- [ ] Handler para historial de pasajeros con goroutines
+- [ ] Handler para análisis de viajes con cache
+- [ ] Handler para dashboard con datos agregados
+- [ ] Handler para analytics de rutas populares
+- [ ] Middleware de logging y error handling
 
-### Data Aggregation
-- [ ] Lógica para combinar datos de múltiples sources
-- [ ] Cálculos de estadísticas y métricas
-- [ ] Transformaciones de datos para diferentes vistas
-- [ ] Manejo de datos faltantes o inconsistentes
+### Agregación de Datos
+- [ ] Service para combinar datos de múltiples fuentes
+- [ ] Lógica paralela con sync.WaitGroup
+- [ ] Cálculos de estadísticas (total gastado, rutas frecuentes)
+- [ ] Transformaciones de datos entre servicios
+- [ ] Manejo de datos faltantes con valores por defecto
 - [ ] Optimización de consultas paralelas
 
-### Error Handling & Resilience
-- [ ] Manejo de errores de servicios externos
-- [ ] Fallback responses cuando services no están disponibles
-- [ ] Circuit breaker para servicios problemáticos
+### Resilience Patterns
+- [ ] Circuit breaker con github.com/sony/gobreaker
 - [ ] Retry logic con backoff exponencial
-- [ ] Graceful degradation
+- [ ] Timeout handling con context.Context
+- [ ] Graceful degradation cuando servicios fallan
+- [ ] Fallback responses con datos parciales
 
-### Performance & Caching
-- [ ] Implementar cache de respuestas frecuentes
-- [ ] Cache de datos de configuración (rutas, etc.)
-- [ ] Optimizar llamadas HTTP paralelas
-- [ ] Implementar rate limiting
-- [ ] Monitoring de performance
+### Performance & Concurrencia
+- [ ] Cache en memoria con sync.Map
+- [ ] Cache con Redis (go-redis/redis)
+- [ ] Worker pools para procesar requests
+- [ ] Rate limiting con golang.org/x/time/rate
+- [ ] Monitoring con goroutines leak detection
 
 ### Testing
-- [ ] Unit tests para controllers y services
-- [ ] Integration tests con mocks de external APIs
-- [ ] Tests de resilience (circuit breaker, retries)
-- [ ] Tests de performance y carga
-- [ ] Setup de CI/CD testing
+- [ ] Unit tests con testify/assert
+- [ ] HTTP mocks con httptest package
+- [ ] Integration tests con testcontainers
+- [ ] Benchmark tests para concurrencia
+- [ ] Tests de circuit breaker y retry logic
 
 ### Monitoring & Observability
 - [ ] Health checks detallados con estado de dependencias
@@ -154,22 +165,21 @@ src/
 
 ### Local Development
 ```bash
-# TODO: Completar según stack elegido
+# Instalar Go 1.21+
+go mod init ms-history
+go mod tidy
 
-# Ejemplo Node.js:
-# npm install
-# npm run dev
+# Instalar dependencias
+go get github.com/gin-gonic/gin
+go get github.com/go-redis/redis/v8
+go get github.com/sony/gobreaker
 
-# Ejemplo Python:
-# pip install -r requirements.txt
-# uvicorn main:app --reload --port 8004
+# Ejecutar en modo desarrollo
+go run main.go
 
-# Ejemplo Java:
-# ./mvnw spring-boot:run
-
-# Ejemplo Go:
-# go mod tidy
-# go run main.go
+# O compilar y ejecutar
+go build -o ms-history
+./ms-history
 ```
 
 ### Docker
@@ -187,21 +197,20 @@ docker-compose up ms-history
 
 ### Testing
 ```bash
-# TODO: Completar según stack elegido
+# Unit tests
+go test ./...
 
-# Ejemplo Node.js:
-# npm test
-# npm run test:integration
+# Tests con coverage
+go test -cover ./...
 
-# Ejemplo Python:
-# pytest
-# pytest tests/integration/
+# Integration tests
+go test -tags=integration ./tests/integration/
 
-# Ejemplo Java:
-# ./mvnw test
+# Benchmark tests
+go test -bench=. ./...
 
-# Ejemplo Go:
-# go test ./...
+# Tests con verbose output
+go test -v ./...
 ```
 
 ## Integración con otros Microservicios
@@ -214,24 +223,87 @@ docker-compose up ms-history
 - **ms-trips** - Para información de viajes y rutas
 - **ms-tickets** - Para información de boletos y compras
 
-## Flujos de Datos Típicos
+## Flujos de Datos Típicos (Implementación Go)
 
 ### Historial de Pasajero
-1. Recibir request con `passenger_id`
-2. Llamar a `ms-passengers` para obtener info del pasajero
-3. Llamar a `ms-tickets` para obtener historial de boletos
-4. Para cada boleto, llamar a `ms-trips` para obtener info del viaje
-5. Agregar y transformar datos
-6. Calcular estadísticas (total gastado, ruta favorita, etc.)
-7. Retornar respuesta consolidada
+```go
+func (h *HistoryHandler) GetPassengerHistory(c *gin.Context) {
+    passengerID := c.Param("passenger_id")
+    ctx := c.Request.Context()
+    
+    // 1. Llamadas paralelas usando goroutines
+    var wg sync.WaitGroup
+    var passenger *models.Passenger
+    var tickets []models.Ticket
+    var err error
+    
+    wg.Add(2)
+    
+    // Goroutine 1: Obtener datos del pasajero
+    go func() {
+        defer wg.Done()
+        passenger, err = h.passengersClient.GetPassenger(ctx, passengerID)
+    }()
+    
+    // Goroutine 2: Obtener historial de tickets
+    go func() {
+        defer wg.Done()
+        tickets, err = h.ticketsClient.GetTicketsByPassenger(ctx, passengerID)
+    }()
+    
+    wg.Wait()
+    
+    if err != nil {
+        c.JSON(500, gin.H{"error": "Failed to fetch data"})
+        return
+    }
+    
+    // 2. Para cada ticket, obtener detalles del viaje (paralelo)
+    tripDetails := h.fetchTripDetailsParallel(ctx, tickets)
+    
+    // 3. Agregar y calcular estadísticas
+    stats := h.aggregationService.CalculatePassengerStats(tickets, tripDetails)
+    
+    // 4. Retornar respuesta consolidada
+    response := models.PassengerHistoryResponse{
+        Passenger:     passenger,
+        RecentTickets: tickets[:min(5, len(tickets))],
+        Statistics:    stats,
+        TravelHistory: tripDetails,
+    }
+    
+    c.JSON(200, response)
+}
+```
 
-### Dashboard Summary
-1. Llamar en paralelo a los 3 microservicios
-2. `ms-passengers`: total de pasajeros registrados
-3. `ms-trips`: total de viajes, rutas activas
-4. `ms-tickets`: total de boletos, ingresos
-5. Calcular métricas derivadas
-6. Retornar dashboard consolidado
+### Dashboard Summary con Circuit Breaker
+```go
+func (h *HistoryHandler) GetDashboardSummary(c *gin.Context) {
+    ctx := c.Request.Context()
+    
+    // Usar circuit breaker para cada servicio
+    passengerStats, _ := h.passengersBreaker.Execute(func() (interface{}, error) {
+        return h.passengersClient.GetStats(ctx)
+    })
+    
+    tripStats, _ := h.tripsBreaker.Execute(func() (interface{}, error) {
+        return h.tripsClient.GetStats(ctx)
+    })
+    
+    ticketStats, _ := h.ticketsBreaker.Execute(func() (interface{}, error) {
+        return h.ticketsClient.GetStats(ctx)
+    })
+    
+    // Agregar datos con fallback para servicios no disponibles
+    dashboard := h.aggregationService.BuildDashboard(
+        safecast(passengerStats),
+        safecast(tripStats), 
+        safecast(ticketStats),
+    )
+    
+    c.JSON(200, dashboard)
+}
+```
 
 ## API Calls a Otros Microservicios
 
@@ -268,35 +340,94 @@ GET http://localhost:8003/tickets?trip_id={trip_id}
 GET http://localhost:8003/tickets?status=confirmed&purchase_date_from=2024-01-01
 ```
 
-## Patterns Implementados
+## Patterns Implementados (Go)
 
 ### Circuit Breaker
-```javascript
-// Ejemplo conceptual
-const CircuitBreaker = require('opossum');
+```go
+package clients
 
-const options = {
-  timeout: 5000,
-  errorThresholdPercentage: 50,
-  resetTimeout: 30000
-};
+import "github.com/sony/gobreaker"
 
-const passengersBreaker = new CircuitBreaker(passengersClient.get, options);
+func NewPassengersClient() *PassengersClient {
+    cb := gobreaker.NewCircuitBreaker(gobreaker.Settings{
+        Name:        "passengers-service",
+        MaxRequests: 3,
+        Interval:    time.Second * 60,
+        Timeout:     time.Second * 30,
+        ReadyToTrip: func(counts gobreaker.Counts) bool {
+            return counts.ConsecutiveFailures > 3
+        },
+    })
+    
+    return &PassengersClient{breaker: cb}
+}
 ```
 
-### Retry Logic
-```python
-# Ejemplo conceptual Python
-import asyncio
-from tenacity import retry, stop_after_attempt, wait_exponential
+### Retry Logic con Backoff
+```go
+func (c *HTTPClient) DoWithRetry(req *http.Request) (*http.Response, error) {
+    var resp *http.Response
+    var err error
+    
+    for attempt := 0; attempt < c.maxRetries; attempt++ {
+        resp, err = c.client.Do(req)
+        if err == nil && resp.StatusCode < 500 {
+            return resp, nil
+        }
+        
+        if attempt < c.maxRetries-1 {
+            backoff := time.Duration(attempt+1) * c.retryDelay
+            time.Sleep(backoff)
+        }
+    }
+    
+    return resp, err
+}
+```
 
-@retry(
-    stop=stop_after_attempt(3),
-    wait=wait_exponential(multiplier=1, min=4, max=10)
-)
-async def call_external_service(url):
-    # HTTP call logic
-    pass
+### Concurrencia con Context
+```go
+func (s *AggregationService) FetchDataParallel(ctx context.Context, passengerID string) (*AggregatedData, error) {
+    // Canal para recibir resultados
+    type result struct {
+        data interface{}
+        err  error
+        typ  string
+    }
+    
+    resultChan := make(chan result, 3)
+    
+    // Goroutines con context para cancelación
+    go func() {
+        data, err := s.passengersClient.Get(ctx, passengerID)
+        resultChan <- result{data, err, "passenger"}
+    }()
+    
+    go func() {
+        data, err := s.ticketsClient.GetByPassenger(ctx, passengerID)
+        resultChan <- result{data, err, "tickets"}
+    }()
+    
+    go func() {
+        data, err := s.tripsClient.GetRoutes(ctx)
+        resultChan <- result{data, err, "routes"}
+    }()
+    
+    // Recoger resultados con timeout
+    aggregated := &AggregatedData{}
+    for i := 0; i < 3; i++ {
+        select {
+        case res := <-resultChan:
+            if res.err == nil {
+                s.assignResult(aggregated, res.data, res.typ)
+            }
+        case <-ctx.Done():
+            return nil, ctx.Err()
+        }
+    }
+    
+    return aggregated, nil
+}
 ```
 
 ### Cache Strategy
@@ -308,13 +439,57 @@ async def call_external_service(url):
 # - Datos en tiempo real: Sin cache
 ```
 
+## Dependencias Go (go.mod ejemplo)
+
+```go
+module ms-history
+
+go 1.21
+
+require (
+    github.com/gin-gonic/gin v1.9.1
+    github.com/go-redis/redis/v8 v8.11.5
+    github.com/sony/gobreaker v0.5.0
+    golang.org/x/time v0.3.0
+)
+
+require (
+    github.com/bytedance/sonic v1.9.1 // indirect
+    github.com/chenzhuoyu/base64x v0.0.0-20221115062448-fe3a3abad311 // indirect
+    github.com/gabriel-vasile/mimetype v1.4.2 // indirect
+    github.com/gin-contrib/sse v0.1.0 // indirect
+    github.com/go-playground/locales v0.14.1 // indirect
+    github.com/go-playground/universal-translator v0.18.1 // indirect
+    github.com/go-playground/validator/v10 v10.14.0 // indirect
+    github.com/goccy/go-json v0.10.2 // indirect
+    github.com/json-iterator/go v1.1.12 // indirect
+    github.com/klauspost/cpuid/v2 v2.2.4 // indirect
+    github.com/leodido/go-urn v1.2.4 // indirect
+    github.com/mattn/go-isatty v0.0.19 // indirect
+    github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
+    github.com/modern-go/reflect2 v1.0.2 // indirect
+    github.com/pelletier/go-toml/v2 v2.0.8 // indirect
+    github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
+    github.com/ugorji/go/codec v1.2.11 // indirect
+    golang.org/x/arch v0.3.0 // indirect
+    golang.org/x/crypto v0.9.0 // indirect
+    golang.org/x/net v0.10.0 // indirect
+    golang.org/x/sys v0.8.0 // indirect
+    golang.org/x/text v0.9.0 // indirect
+    google.golang.org/protobuf v1.30.0 // indirect
+    gopkg.in/yaml.v3 v3.0.1 // indirect
+)
+```
+
 ## Notas de Implementación
 
-- **Consistencia Eventual**: Los datos pueden estar ligeramente desactualizados
-- **Fault Tolerance**: Debe funcionar aunque algunos servicios estén caídos
-- **Performance**: Optimizar para consultas frecuentes con cache
-- **Idempotencia**: Las consultas deben ser idempotentes
-- **Rate Limiting**: Evitar sobrecargar servicios dependientes
+- **ms-history es un agregador puro**: No tiene base de datos propia
+- **Todas las operaciones son read-only**: Solo consulta, nunca modifica datos
+- **Concurrencia optimizada**: Uso intensivo de goroutines para paralelización
+- **Resilencia crítica**: Debe funcionar aunque servicios estén parcialmente caídos
+- **Cache strategy**: Implementar cache inteligente según frecuencia de consultas
+- **Context propagation**: Usar context.Context para timeouts y cancelación
+- **Monitoring**: Métricas de latencia de cada servicio externo
 
 ## Ownership
-**Responsable**: @B1 (Backend Developer 1)
+**Responsable**: @B4 (Backend Developer 4) - Go Specialist

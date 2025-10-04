@@ -103,10 +103,8 @@ services:
     image: mysql:8.0
     container_name: bus-mvp-sql-db2
     environment:
-      MYSQL_ROOT_PASSWORD: ${SQL2_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${SQL2_ROOT_PASSWORD}
       MYSQL_DATABASE: ${SQL2_DB}
-      MYSQL_USER: ${SQL2_USER}
-      MYSQL_PASSWORD: ${SQL2_PASSWORD}
     ports:
       - "${SQL2_PORT}:3306"
     
@@ -235,7 +233,7 @@ services:
       - bus-mvp-network
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:${MS_TRIPS_PORT}/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:${MS_TRIPS_PORT}/api/v1/health"]
       interval: 30s
       timeout: 10s
       retries: 3

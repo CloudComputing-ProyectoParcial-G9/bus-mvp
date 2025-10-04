@@ -1,39 +1,57 @@
-# TODO: Completar según stack elegido
-# Este Dockerfile será completado cuando el equipo elija el lenguaje y framework
+# Multi-stage build para optimizar la imagen final
+FROM golang:1.21-alpine AS builder
 
-# Ejemplo para Node.js:
-# FROM node:18-alpine
-# WORKDIR /app
-# COPY package*.json ./
-# RUN npm ci --only=production
-# COPY . .
-# EXPOSE 8004
-# CMD ["npm", "start"]
+# Instalar dependencias de compilación
+RUN apk add --no-cache git ca-certificates tzdata
 
-# Ejemplo para Python:
-# FROM python:3.11-slim
-# WORKDIR /app
-# COPY requirements.txt .
-# RUN pip install --no-cache-dir -r requirements.txt
-# COPY . .
-# EXPOSE 8004
-# CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8004"]
+# Instalar swag CLI para generar documentación
+RUN go install github.com/swaggo/swag/cmd/swag@latest
 
-# Ejemplo para Java:
-# FROM openjdk:17-jre-slim
-# WORKDIR /app
-# COPY target/*.jar app.jar
-# EXPOSE 8004
-# ENTRYPOINT ["java", "-jar", "app.jar"]
+# Establecer directorio de trabajo
+WORKDIR /app
 
-# Variables de entorno requeridas:
-# - MS_PASSENGERS_URL
-# - MS_TRIPS_URL
-# - MS_TICKETS_URL
+# Copiar archivos de dependencias
+COPY go.mod ./
 
-# TODO:
-# 1. Elegir imagen base según lenguaje
-# 2. Configurar instalación de dependencias
-# 3. Configurar health check
-# 4. Configurar timeouts para llamadas HTTP
-# 5. Configurar usuario no-root para seguridad
+# Copiar código fuente (necesario para go mod tidy)
+COPY src/ ./src/
+
+# Descargar dependencias y generar go.sum
+RUN go mod download && go mod tidy
+
+# Generar documentación Swagger
+RUN swag init -g src/main.go --output ./src/docs
+
+# Compilar la aplicación
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o main ./src/
+
+# Imagen final mínima
+FROM alpine:3.18
+
+# Instalar certificados SSL y timezone data
+RUN apk --no-cache add ca-certificates tzdata
+
+# Crear usuario no-root
+RUN adduser -D -s /bin/sh appuser
+
+# Establecer directorio de trabajo
+WORKDIR /app/
+
+# Copiar el binario compilado desde la etapa builder
+COPY --from=builder /app/main .
+
+# Cambiar propiedad del archivo al usuario appuser
+RUN chown appuser:appuser main
+
+# Cambiar a usuario no-root
+USER appuser
+
+# Exponer puerto
+EXPOSE 8004
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+  CMD wget --no-verbose --tries=1 --spider http://localhost:8004/health || exit 1
+
+# Comando por defecto
+CMD ["./main"]
