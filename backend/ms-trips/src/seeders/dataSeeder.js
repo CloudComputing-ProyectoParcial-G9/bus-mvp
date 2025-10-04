@@ -237,13 +237,14 @@ class DataSeeder {
       const routesWithTrips = await Route.findAll({
         include: [{
           model: Trip,
+          as: 'trips',  // Agregar alias explícito
           required: false
         }]
       });
       
       console.log('\n📋 Resumen por ruta:');
       for (const route of routesWithTrips) {
-        const tripCount = route.Trips ? route.Trips.length : 0;
+        const tripCount = route.trips ? route.trips.length : 0;
         console.log(`   ${route.routeName}: ${tripCount} viajes`);
       }
       

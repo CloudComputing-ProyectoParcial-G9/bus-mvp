@@ -105,7 +105,11 @@ Trip.init({
     validate: {
       notEmpty: true,
       isDate: true,
-      isAfter: new Date().toISOString() // No permitir viajes en el pasado al crear
+      isAfterNow(value) {
+        if (new Date(value) < new Date()) {
+          throw new Error('Departure date must be in the future');
+        }
+      }
     },
     comment: 'Fecha y hora de salida'
   },

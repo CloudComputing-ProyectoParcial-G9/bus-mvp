@@ -250,10 +250,21 @@ const searchTrips = async (req, res, next) => {
       limit = 20
     } = req.query;
 
-    if (!origin || !destination || !departureDate) {
-      const error = new Error('Origin, destination, and departure date are required for search');
-      error.statusCode = 400;
-      return next(error);
+    // Validar campos requeridos con mensaje claro
+    const missingFields = [];
+    if (!origin) missingFields.push('origin');
+    if (!destination) missingFields.push('destination');
+    if (!departureDate) missingFields.push('departureDate');
+
+    if (missingFields.length > 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'Faltan campos obligatorios para realizar la búsqueda',
+        warning: `Por favor complete los siguientes campos: ${missingFields.join(', ')}`,
+        missingFields: missingFields,
+        data: [],
+        hint: 'Debe especificar ciudad de origen, ciudad de destino y fecha de salida'
+      });
     }
 
     // BÚSQUEDA SIMPLIFICADA SIN ASOCIACIONES (temporalmente)
@@ -283,7 +294,7 @@ const searchTrips = async (req, res, next) => {
           minSeats: parseInt(minSeats),
           maxPrice: maxPrice ? parseFloat(maxPrice) : null
         },
-        message: 'No routes found for the specified origin and destination'
+        message: 'No se encontraron rutas para el origen y destino especificados'
       });
     }
 

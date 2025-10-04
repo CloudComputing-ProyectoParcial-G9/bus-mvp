@@ -6,17 +6,14 @@ import { LoadingSpinner } from './LoadingSpinner';
 import { ErrorMessage } from './ErrorMessage';
 
 export function TripsSection() {
-  // Rutas disponibles basadas en el backend
+  // Rutas disponibles basadas en el seeder del backend
   const availableRoutes = [
-    { id: "LIM_CUS_001", origin: "Lima", destination: "Cusco", name: "Lima → Cusco", price: 85.50 },
-    { id: "LIM_AQP_002", origin: "Lima", destination: "Arequipa", name: "Lima → Arequipa", price: 65.00 },
-    { id: "LIM_TRU_003", origin: "Lima", destination: "Trujillo", name: "Lima → Trujillo", price: 45.00 },
-    { id: "LIM_CHI_004", origin: "Lima", destination: "Chiclayo", name: "Lima → Chiclayo", price: 55.00 },
-    { id: "LIM_ICA_005", origin: "Lima", destination: "Ica", name: "Lima → Ica", price: 25.00 },
-    { id: "LIM_HUC_006", origin: "Lima", destination: "Huancayo", name: "Lima → Huancayo", price: 32.50 },
-    { id: "AQP_CUS_007", origin: "Arequipa", destination: "Cusco", name: "Arequipa → Cusco", price: 42.00 },
-    { id: "TRU_CHI_008", origin: "Trujillo", destination: "Chiclayo", name: "Trujillo → Chiclayo", price: 18.50 },
-    { id: "CUS_PUN_009", origin: "Cusco", destination: "Puno", name: "Cusco → Puno", price: 28.00 }
+    { id: "LIM_CUZ_001", origin: "Lima", destination: "Cusco", name: "Lima → Cusco Express", price: 120.00 },
+    { id: "LIM_ARE_002", origin: "Lima", destination: "Arequipa", name: "Lima → Arequipa Ejecutivo", price: 95.50 },
+    { id: "LIM_TRU_003", origin: "Lima", destination: "Trujillo", name: "Lima → Trujillo Directo", price: 75.00 },
+    { id: "ARE_CUZ_004", origin: "Arequipa", destination: "Cusco", name: "Arequipa → Cusco Turístico", price: 60.00 },
+    { id: "CUZ_PUN_005", origin: "Cusco", destination: "Puno", name: "Cusco → Puno Altiplano", price: 65.00 },
+    { id: "LIM_ICA_006", origin: "Lima", destination: "Ica", name: "Lima → Ica Express", price: 45.00 }
   ];
 
   const [trips, setTrips] = useState<Trip[]>([]);
@@ -97,6 +94,12 @@ export function TripsSection() {
       return;
     }
 
+    // Validar que departureDate esté completo
+    if (!searchParams.departureDate) {
+      setError('⚠️ Por favor selecciona una fecha de salida para buscar');
+      return;
+    }
+
     try {
       setLoading(true);
       setError(null);
@@ -108,6 +111,15 @@ export function TripsSection() {
         searchParams.departureDate
       );
 
+      // Verificar si el backend devolvió una advertencia
+      if (response && response.success === false && response.warning) {
+        setError(`⚠️ ${response.warning}\n${response.hint || ''}`);
+        setTrips([]);
+        setIsSearching(false);
+        setLoading(false);
+        return;
+      }
+
       let tripsData = [];
       if (response && response.data) {
         tripsData = Array.isArray(response.data) ? response.data : [response.data];
@@ -118,10 +130,16 @@ export function TripsSection() {
       }
 
       setTrips(tripsData);
+
+      // Mostrar mensaje si no se encontraron viajes
+      if (tripsData.length === 0) {
+        setError('ℹ️ No se encontraron viajes para los criterios de búsqueda especificados');
+      }
     } catch (err) {
       console.error('Error searching trips:', err);
       const errorMessage = err instanceof Error ? err.message : 'Error desconocido';
-      setError(`Error al buscar viajes: ${errorMessage}`);
+      setError(`❌ Error al buscar viajes: ${errorMessage}`);
+      setTrips([]);
       setIsSearching(false);
     } finally {
       setLoading(false);
