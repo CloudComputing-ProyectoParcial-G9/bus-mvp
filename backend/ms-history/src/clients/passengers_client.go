@@ -38,16 +38,22 @@ func (c *PassengersClient) ListPassengers(ctx context.Context, page, limit int) 
 }
 
 func (c *PassengersClient) GetPassengerStats(ctx context.Context) (map[string]interface{}, error) {
-	var stats map[string]interface{}
-	err := c.GetJSON(ctx, "/passengers?page=1&limit=1", &stats)
+	// Obtener todos los pasajeros para calcular estadísticas
+	passengers, err := c.ListPassengers(ctx, 1, 1000)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get passenger stats: %w", err)
 	}
 	
-	// Simular estadísticas básicas
-	passengers, _ := c.ListPassengers(ctx, 1, 1000)
+	// Contar pasajeros activos
+	activeCount := 0
+	for _, p := range passengers {
+		if p.Status == "active" {
+			activeCount++
+		}
+	}
+	
 	return map[string]interface{}{
 		"total_passengers": len(passengers),
-		"active_passengers": len(passengers), // Simplificado
+		"active_passengers": activeCount,
 	}, nil
 }
