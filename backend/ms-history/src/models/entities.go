@@ -57,27 +57,30 @@ type Passenger struct {
 
 // Trip representa los datos de un viaje
 type Trip struct {
-	TripID            string    `json:"trip_id"`
-	RouteID           string    `json:"route_id"`
-	DepartureDateTime time.Time `json:"departure_datetime"`
-	ArrivalDateTime   time.Time `json:"arrival_datetime"`
-	BusCapacity       int       `json:"bus_capacity"`
-	AvailableSeats    int       `json:"available_seats"`
-	PricePerSeat      float64   `json:"price_per_seat"`
+	TripID            string    `json:"tripId"`
+	RouteID           string    `json:"routeId"`
+	DepartureDateTime time.Time `json:"departureDateTime"`
+	ArrivalDateTime   time.Time `json:"arrivalDateTime"`
+	BusCapacity       int       `json:"busCapacity"`
+	AvailableSeats    int       `json:"availableSeats"`
+	PricePerSeat      float64   `json:"pricePerSeat"`
+	FinalPrice        string    `json:"finalPrice"`
 	Status            string    `json:"status"`
-	DriverName        string    `json:"driver_name"`
-	BusLicensePlate   string    `json:"bus_license_plate"`
+	DriverName        string    `json:"driverName"`
+	BusLicensePlate   string    `json:"busPlate"`
 }
 
 // Route representa los datos de una ruta
 type Route struct {
-	RouteID         string  `json:"route_id"`
-	RouteCode       string  `json:"route_code"`
-	OriginCity      string  `json:"origin_city"`
-	DestinationCity string  `json:"destination_city"`
-	Distance        float64 `json:"distance"`
-	EstimatedDuration int   `json:"estimated_duration"`
-	Status          string  `json:"status"`
+	RouteID           string  `json:"routeId"`
+	RouteCode         string  `json:"routeName"`
+	OriginCity        string  `json:"originCity"`
+	DestinationCity   string  `json:"destinationCity"`
+	Distance          float64 `json:"distanceKm,string"`
+	EstimatedDuration string  `json:"estimatedDuration"`
+	BasePrice         string  `json:"basePrice"`
+	Currency          string  `json:"currency"`
+	Active            bool    `json:"active"`
 }
 
 // Ticket representa los datos de un boleto

@@ -50,10 +50,11 @@ func main() {
 
 	// Inicializar handlers
 	historyHandler := handlers.NewHistoryHandler(aggregationService)
+	analyticsHandler := handlers.NewAnalyticsHandler(aggregationService)
 
 	// Configurar router
 	router := gin.New()
-	routes.SetupRoutes(router, historyHandler)
+	routes.SetupRoutes(router, historyHandler, analyticsHandler)
 
 	// Log de inicio
 	log.Printf("🚌 MS-History starting on port %s", cfg.Port)

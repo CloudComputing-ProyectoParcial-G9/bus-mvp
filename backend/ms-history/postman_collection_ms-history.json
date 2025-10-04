@@ -344,6 +344,217 @@
 				}
 			],
 			"description": "Endpoint para obtener el resumen del dashboard con métricas generales y estadísticas del sistema."
+		},
+		{
+			"name": "Analytics",
+			"item": [
+				{
+					"name": "Get Popular Routes",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/{{api_version}}/analytics/popular-routes?limit=5&period=month",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"{{api_version}}",
+								"analytics",
+								"popular-routes"
+							],
+							"query": [
+								{
+									"key": "limit",
+									"value": "5",
+									"description": "Número máximo de rutas a retornar (default: 10)"
+								},
+								{
+									"key": "period",
+									"value": "month",
+									"description": "Período de análisis: month, week, all (default: month)"
+								}
+							]
+						},
+						"description": "Obtiene las rutas más populares basándose en la cantidad de tickets vendidos.\n\n**Query Parameters:**\n- `limit` (opcional): Número de rutas a retornar (default: 10)\n- `period` (opcional): Período de análisis - month, week, all (default: month)\n\n**Response incluye:**\n- Listado de rutas ordenadas por popularidad\n- Total de tickets vendidos por ruta\n- Revenue total y precio promedio\n- Tasa de ocupación\n- Ranking y tendencia"
+					},
+					"response": [
+						{
+							"name": "Success - Popular Routes",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/{{api_version}}/analytics/popular-routes?limit=5&period=month",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"{{api_version}}",
+										"analytics",
+										"popular-routes"
+									],
+									"query": [
+										{
+											"key": "limit",
+											"value": "5"
+										},
+										{
+											"key": "period",
+											"value": "month"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"popular_routes\": [\n        {\n            \"route_id\": \"LIM_TRU_003\",\n            \"route_code\": \"Lima - Trujillo Directo\",\n            \"origin_city\": \"Lima\",\n            \"destination_city\": \"Trujillo\",\n            \"distance_km\": 561,\n            \"total_tickets\": 1,\n            \"total_revenue\": 0,\n            \"average_price\": 0,\n            \"occupancy_rate\": 2.857142857142857,\n            \"rank\": 1,\n            \"trend\": \"stable\"\n        },\n        {\n            \"route_id\": \"CUZ_PUN_005\",\n            \"route_code\": \"Cusco - Puno Altiplano\",\n            \"origin_city\": \"Cusco\",\n            \"destination_city\": \"Puno\",\n            \"distance_km\": 389,\n            \"total_tickets\": 1,\n            \"total_revenue\": 0,\n            \"average_price\": 0,\n            \"occupancy_rate\": 2.631578947368421,\n            \"rank\": 2,\n            \"trend\": \"stable\"\n        }\n    ],\n    \"period\": \"month\",\n    \"total_routes_analyzed\": 6,\n    \"generated_at\": \"2025-10-04T16:48:25.971621023Z\"\n}"
+						},
+						{
+							"name": "Error - Invalid Parameters",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/{{api_version}}/analytics/popular-routes?limit=-1",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"{{api_version}}",
+										"analytics",
+										"popular-routes"
+									],
+									"query": [
+										{
+											"key": "limit",
+											"value": "-1"
+										}
+									]
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"error\": \"Bad Request\",\n    \"message\": \"Limit must be a positive number\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Get Route Statistics",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/{{api_version}}/analytics/routes/:route_id/stats",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"{{api_version}}",
+								"analytics",
+								"routes",
+								":route_id",
+								"stats"
+							],
+							"variable": [
+								{
+									"key": "route_id",
+									"value": "LIM_TRU_003",
+									"description": "ID de la ruta (formato: ABC_XYZ_123)"
+								}
+							]
+						},
+						"description": "Obtiene estadísticas detalladas de una ruta específica.\n\n**Path Parameter:**\n- `route_id`: ID de la ruta a consultar (ej: LIM_TRU_003)\n\n**Response incluye:**\n- Información básica de la ruta\n- Estadísticas de tickets vendidos y revenue\n- Tasa de ocupación\n- Ranking de popularidad\n- Tendencia de ventas\n- Últimos 5 viajes de la ruta"
+					},
+					"response": [
+						{
+							"name": "Success - Route Stats",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/{{api_version}}/analytics/routes/LIM_TRU_003/stats",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"{{api_version}}",
+										"analytics",
+										"routes",
+										"LIM_TRU_003",
+										"stats"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"route_id\": \"LIM_TRU_003\",\n    \"route_code\": \"Lima - Trujillo Directo\",\n    \"origin_city\": \"Lima\",\n    \"destination_city\": \"Trujillo\",\n    \"distance_km\": 561,\n    \"statistics\": {\n        \"total_trips\": 1,\n        \"total_tickets_sold\": 1,\n        \"total_revenue\": 0,\n        \"average_ticket_price\": 0,\n        \"occupancy_rate\": 2.857142857142857,\n        \"peak_demand_day\": \"N/A\"\n    },\n    \"popularity_rank\": 0,\n    \"trend\": {\n        \"current_month\": 1,\n        \"previous_month\": 0,\n        \"growth_rate\": 0,\n        \"direction\": \"stable\"\n    },\n    \"recent_trips\": [\n        {\n            \"trip_id\": \"TRP_20250921_LIM_TRU_03\",\n            \"departure_date\": \"2025-10-05T06:00:00Z\",\n            \"tickets_sold\": 1,\n            \"seats_available\": 30,\n            \"status\": \"scheduled\"\n        }\n    ]\n}"
+						},
+						{
+							"name": "Error - Route Not Found",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/{{api_version}}/analytics/routes/INVALID_ROUTE/stats",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"{{api_version}}",
+										"analytics",
+										"routes",
+										"INVALID_ROUTE",
+										"stats"
+									]
+								}
+							},
+							"status": "Not Found",
+							"code": 404,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"error\": \"Not Found\",\n    \"message\": \"Route not found\"\n}"
+						}
+					]
+				}
+			],
+			"description": "Endpoints de Analytics para análisis de rutas populares y estadísticas detalladas.\n\nPermite analizar:\n- Rutas más populares por tickets vendidos\n- Revenue y precio promedio por ruta\n- Tasas de ocupación\n- Tendencias de ventas\n- Estadísticas detalladas por ruta"
 		}
 	],
 	"event": [

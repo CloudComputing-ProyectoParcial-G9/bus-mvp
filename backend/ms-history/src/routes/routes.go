@@ -8,7 +8,7 @@ import (
 	"ms-history/src/middleware"
 )
 
-func SetupRoutes(r *gin.Engine, historyHandler *handlers.HistoryHandler) {
+func SetupRoutes(r *gin.Engine, historyHandler *handlers.HistoryHandler, analyticsHandler *handlers.AnalyticsHandler) {
 	// Middleware global
 	r.Use(middleware.CORSMiddleware())
 	r.Use(middleware.LoggingMiddleware())
@@ -35,6 +35,13 @@ func SetupRoutes(r *gin.Engine, historyHandler *handlers.HistoryHandler) {
 		history := v1.Group("/history")
 		{
 			history.GET("/passengers/:passenger_id", historyHandler.GetPassengerHistory)
+		}
+		
+		// Analytics endpoints
+		analytics := v1.Group("/analytics")
+		{
+			analytics.GET("/popular-routes", analyticsHandler.GetPopularRoutes)
+			analytics.GET("/routes/:route_id/stats", analyticsHandler.GetRouteStats)
 		}
 		
 		// System health

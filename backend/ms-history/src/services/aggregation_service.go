@@ -2,6 +2,8 @@ package services
 
 import (
 	"context"
+	"fmt"
+	"sort"
 	"sync"
 	"time"
 
@@ -333,4 +335,332 @@ func (s *AggregationService) getFloatValue(data map[string]interface{}, key stri
 		}
 	}
 	return defaultValue
+}
+// GetPopularRoutes obtiene las rutas más populares basado en ventas de tickets
+func (s *AggregationService) GetPopularRoutes(ctx context.Context, limit int, period string) (*models.PopularRoutesResponse, error) {
+var wg sync.WaitGroup
+var tickets []models.Ticket
+var trips []models.Trip
+var routes []models.Route
+var errs []error
+var mu sync.Mutex
+
+wg.Add(3)
+
+// Obtener todos los tickets
+go func() {
+defer wg.Done()
+t, err := s.ticketsClient.ListTickets(ctx, 1, 10000)
+if err != nil {
+mu.Lock()
+errs = append(errs, err)
+mu.Unlock()
+return
+}
+tickets = t
+}()
+
+// Obtener todos los trips
+go func() {
+defer wg.Done()
+t, err := s.tripsClient.ListTrips(ctx, 1, 10000)
+if err != nil {
+mu.Lock()
+errs = append(errs, err)
+mu.Unlock()
+return
+}
+trips = t
+}()
+
+// Obtener todas las rutas
+go func() {
+defer wg.Done()
+r, err := s.tripsClient.ListRoutes(ctx)
+if err != nil {
+mu.Lock()
+errs = append(errs, err)
+mu.Unlock()
+return
+}
+routes = r
+}()
+
+wg.Wait()
+
+if len(errs) > 0 {
+return nil, fmt.Errorf("failed to fetch data: %w", errs[0])
+}
+
+// Crear mapa de trips por ID para búsqueda rápida
+tripMap := make(map[string]*models.Trip)
+for i := range trips {
+tripMap[trips[i].TripID] = &trips[i]
+}
+
+// Crear mapa de routes por ID
+routeMap := make(map[string]*models.Route)
+for i := range routes {
+routeMap[routes[i].RouteID] = &routes[i]
+}
+
+// Agrupar tickets por route_id
+routeStats := make(map[string]*routeStatsData)
+
+for _, ticket := range tickets {
+if ticket.BookingStatus != "confirmed" {
+continue
+}
+
+trip, exists := tripMap[ticket.TripID]
+if !exists || trip == nil {
+continue
+}
+
+route, exists := routeMap[trip.RouteID]
+if !exists || route == nil {
+continue
+}
+
+if _, exists := routeStats[trip.RouteID]; !exists {
+routeStats[trip.RouteID] = &routeStatsData{
+RouteID:         route.RouteID,
+RouteCode:       route.RouteCode,
+OriginCity:      route.OriginCity,
+DestinationCity: route.DestinationCity,
+Distance:        route.Distance,
+TotalTickets:    0,
+TotalRevenue:    0,
+TotalSeats:      0,
+OccupiedSeats:   0,
+}
+}
+
+routeStats[trip.RouteID].TotalTickets++
+routeStats[trip.RouteID].TotalRevenue += ticket.TotalPrice
+routeStats[trip.RouteID].TotalSeats += trip.BusCapacity
+routeStats[trip.RouteID].OccupiedSeats += 1
+}
+
+// Convertir a slice y ordenar por total de tickets (popularidad)
+popularRoutes := make([]models.PopularRouteResponse, 0, len(routeStats))
+for _, stats := range routeStats {
+avgPrice := 0.0
+if stats.TotalTickets > 0 {
+avgPrice = stats.TotalRevenue / float64(stats.TotalTickets)
+}
+
+occupancyRate := 0.0
+if stats.TotalSeats > 0 {
+occupancyRate = (float64(stats.OccupiedSeats) / float64(stats.TotalSeats)) * 100
+}
+
+popularRoutes = append(popularRoutes, models.PopularRouteResponse{
+RouteID:         stats.RouteID,
+RouteCode:       stats.RouteCode,
+OriginCity:      stats.OriginCity,
+DestinationCity: stats.DestinationCity,
+Distance:        stats.Distance,
+TotalTickets:    stats.TotalTickets,
+TotalRevenue:    stats.TotalRevenue,
+AveragePrice:    avgPrice,
+OccupancyRate:   occupancyRate,
+Trend:           "stable", // Por ahora, simplificado
+})
+}
+
+// Ordenar por total de tickets descendente
+sort.Slice(popularRoutes, func(i, j int) bool {
+return popularRoutes[i].TotalTickets > popularRoutes[j].TotalTickets
+})
+
+// Asignar ranking
+for i := range popularRoutes {
+popularRoutes[i].Rank = i + 1
+}
+
+// Limitar resultados
+if limit > 0 && len(popularRoutes) > limit {
+popularRoutes = popularRoutes[:limit]
+}
+
+return &models.PopularRoutesResponse{
+PopularRoutes:       popularRoutes,
+Period:              period,
+TotalRoutesAnalyzed: len(routes),
+GeneratedAt:         time.Now(),
+}, nil
+}
+
+// GetRouteStatistics obtiene estadísticas detalladas de una ruta específica
+func (s *AggregationService) GetRouteStatistics(ctx context.Context, routeID string) (*models.RouteStatsResponse, error) {
+var wg sync.WaitGroup
+var route *models.Route
+var tickets []models.Ticket
+var trips []models.Trip
+var errs []error
+var mu sync.Mutex
+
+wg.Add(3)
+
+// Obtener información de la ruta
+go func() {
+defer wg.Done()
+r, err := s.tripsClient.GetRoute(ctx, routeID)
+if err != nil {
+mu.Lock()
+errs = append(errs, err)
+mu.Unlock()
+return
+}
+route = r
+}()
+
+// Obtener todos los tickets
+go func() {
+defer wg.Done()
+t, err := s.ticketsClient.ListTickets(ctx, 1, 10000)
+if err != nil {
+mu.Lock()
+errs = append(errs, err)
+mu.Unlock()
+return
+}
+tickets = t
+}()
+
+// Obtener todos los trips
+go func() {
+defer wg.Done()
+t, err := s.tripsClient.ListTrips(ctx, 1, 10000)
+if err != nil {
+mu.Lock()
+errs = append(errs, err)
+mu.Unlock()
+return
+}
+trips = t
+}()
+
+wg.Wait()
+
+if len(errs) > 0 {
+return nil, fmt.Errorf("failed to fetch route data: %w", errs[0])
+}
+
+if route == nil {
+return nil, fmt.Errorf("route not found")
+}
+
+// Filtrar trips de esta ruta
+routeTrips := []models.Trip{}
+tripMap := make(map[string]*models.Trip)
+for i := range trips {
+if trips[i].RouteID == routeID {
+routeTrips = append(routeTrips, trips[i])
+tripMap[trips[i].TripID] = &trips[i]
+}
+}
+
+// Calcular estadísticas
+stats := models.RouteStatistics{
+TotalTrips: len(routeTrips),
+}
+
+totalSeats := 0
+occupiedSeats := 0
+recentTripsMap := make(map[string]*models.TripSummary)
+
+for _, ticket := range tickets {
+if ticket.BookingStatus != "confirmed" {
+continue
+}
+
+trip, exists := tripMap[ticket.TripID]
+if !exists {
+continue
+}
+
+stats.TotalTicketsSold++
+stats.TotalRevenue += ticket.TotalPrice
+
+totalSeats += trip.BusCapacity
+occupiedSeats++
+
+// Agregar a recent trips
+if _, exists := recentTripsMap[trip.TripID]; !exists {
+recentTripsMap[trip.TripID] = &models.TripSummary{
+TripID:         trip.TripID,
+DepartureDate:  trip.DepartureDateTime,
+TicketsSold:    0,
+SeatsAvailable: trip.AvailableSeats,
+Status:         trip.Status,
+}
+}
+recentTripsMap[trip.TripID].TicketsSold++
+}
+
+// Calcular promedios
+if stats.TotalTicketsSold > 0 {
+stats.AveragePrice = stats.TotalRevenue / float64(stats.TotalTicketsSold)
+}
+
+if totalSeats > 0 {
+stats.OccupancyRate = (float64(occupiedSeats) / float64(totalSeats)) * 100
+}
+
+// Simplificado: peak demand (podría mejorarse con análisis real)
+stats.PeakDemandDay = "N/A"
+
+// Convertir recent trips a slice
+recentTrips := make([]models.TripSummary, 0, len(recentTripsMap))
+for _, trip := range recentTripsMap {
+recentTrips = append(recentTrips, *trip)
+}
+
+// Ordenar por fecha descendente
+sort.Slice(recentTrips, func(i, j int) bool {
+return recentTrips[i].DepartureDate.After(recentTrips[j].DepartureDate)
+})
+
+// Limitar a últimos 5 viajes
+if len(recentTrips) > 5 {
+recentTrips = recentTrips[:5]
+}
+
+// Calcular tendencia (simplificado)
+trend := models.RouteTrend{
+CurrentMonth:  stats.TotalTicketsSold,
+PreviousMonth: 0, // Simplificado
+GrowthRate:    0,
+Direction:     "stable",
+}
+
+// Calcular ranking (necesitaríamos comparar con todas las rutas)
+popularityRank := 0
+
+return &models.RouteStatsResponse{
+RouteID:         route.RouteID,
+RouteCode:       route.RouteCode,
+OriginCity:      route.OriginCity,
+DestinationCity: route.DestinationCity,
+Distance:        route.Distance,
+Statistics:      stats,
+PopularityRank:  popularityRank,
+Trend:           trend,
+RecentTrips:     recentTrips,
+}, nil
+}
+
+// routeStatsData estructura auxiliar para calcular estadísticas
+type routeStatsData struct {
+RouteID         string
+RouteCode       string
+OriginCity      string
+DestinationCity string
+Distance        float64
+TotalTickets    int
+TotalRevenue    float64
+TotalSeats      int
+OccupiedSeats   int
 }
