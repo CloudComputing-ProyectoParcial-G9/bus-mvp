@@ -20,7 +20,7 @@ El microservicio `ms-tickets` está **completamente funcional** con documentaci�
 | Manejo de Errores | ✅ Excelente | 10/10 |
 | Validaciones | ✅ Muy Bueno | 9/10 |
 | Completitud API | ✅ Completo | 10/10 |
-| Arquitectura | ✅ Muy Bueno | 8/10 |
+| Arquitectura | ✅ Muy Bueno | 8/10 |do
 
 ---
 

@@ -89,6 +89,8 @@ class DataSeeder {
     const now = new Date();
     const tomorrow = new Date(now.getTime() + 24 * 60 * 60 * 1000);
     const dayAfterTomorrow = new Date(now.getTime() + 48 * 60 * 60 * 1000);
+    const threeDaysLater = new Date(now.getTime() + 72 * 60 * 60 * 1000);
+    const fourDaysLater = new Date(now.getTime() + 96 * 60 * 60 * 1000);
     
     return [
       {
@@ -148,6 +150,66 @@ class DataSeeder {
         driverName: 'Roberto Quispe',
         busCapacity: 38,
         availableSeats: 38,
+        finalPrice: 65.00,
+        status: 'scheduled'
+      },
+      {
+        tripId: 'TRP_20250922_LIM_ICA_06',
+        routeId: 'LIM_ICA_006',
+        departureDateTime: new Date(dayAfterTomorrow.setHours(10, 0, 0, 0)),
+        arrivalDateTime: new Date(dayAfterTomorrow.setHours(10, 0, 0, 0) + 4.5 * 60 * 60 * 1000),
+        busNumber: 'BUS-006',
+        driverName: 'Patricia Flores',
+        busCapacity: 30,
+        availableSeats: 25,
+        finalPrice: 45.00,
+        status: 'scheduled'
+      },
+      {
+        tripId: 'TRP_20250923_LIM_CUZ_07',
+        routeId: 'LIM_CUZ_001',
+        departureDateTime: new Date(threeDaysLater.setHours(21, 30, 0, 0)),
+        arrivalDateTime: new Date(threeDaysLater.setHours(21, 30, 0, 0) + 20 * 60 * 60 * 1000),
+        busNumber: 'BUS-007',
+        driverName: 'Jorge Ramirez',
+        busCapacity: 45,
+        availableSeats: 40,
+        finalPrice: 120.00,
+        status: 'scheduled'
+      },
+      {
+        tripId: 'TRP_20250923_LIM_TRU_08',
+        routeId: 'LIM_TRU_003',
+        departureDateTime: new Date(threeDaysLater.setHours(15, 0, 0, 0)),
+        arrivalDateTime: new Date(threeDaysLater.setHours(15, 0, 0, 0) + 8.75 * 60 * 60 * 1000),
+        busNumber: 'BUS-008',
+        driverName: 'Luis Castillo',
+        busCapacity: 35,
+        availableSeats: 35,
+        finalPrice: 75.00,
+        status: 'scheduled'
+      },
+      {
+        tripId: 'TRP_20250924_LIM_ARE_09',
+        routeId: 'LIM_ARE_002',
+        departureDateTime: new Date(fourDaysLater.setHours(20, 0, 0, 0)),
+        arrivalDateTime: new Date(fourDaysLater.setHours(20, 0, 0, 0) + 16.5 * 60 * 60 * 1000),
+        busNumber: 'BUS-009',
+        driverName: 'Elena Martinez',
+        busCapacity: 40,
+        availableSeats: 32,
+        finalPrice: 95.50,
+        status: 'scheduled'
+      },
+      {
+        tripId: 'TRP_20250924_CUZ_PUN_10',
+        routeId: 'CUZ_PUN_005',
+        departureDateTime: new Date(fourDaysLater.setHours(9, 0, 0, 0)),
+        arrivalDateTime: new Date(fourDaysLater.setHours(9, 0, 0, 0) + 7.5 * 60 * 60 * 1000),
+        busNumber: 'BUS-010',
+        driverName: 'Fernando Silva',
+        busCapacity: 38,
+        availableSeats: 36,
         finalPrice: 65.00,
         status: 'scheduled'
       }

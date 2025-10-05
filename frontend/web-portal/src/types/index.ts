@@ -74,3 +74,96 @@ export interface Analytics {
     count: number;
   }>;
 }
+
+// ============================================================================
+// Analytics Types - MS-Analytics Integration
+// ============================================================================
+
+export interface SummaryMetrics {
+  total_passengers: number;
+  active_trips: number;
+  tickets_sold: number;
+  total_revenue: number;
+  average_occupancy: number;
+  cancellation_rate: number;
+}
+
+export interface SummaryTrends {
+  revenue_growth: number;
+  passenger_growth: number;
+}
+
+export interface DashboardSummaryResponse {
+  timestamp: string;
+  summary: SummaryMetrics;
+  trends?: SummaryTrends;
+}
+
+export interface TopCustomer {
+  passenger_id: string;
+  full_name: string;
+  total_spent: number;
+  tickets_purchased: number;
+  segment: string;
+}
+
+export interface PassengerAnalyticsResponse {
+  total_passengers: number;
+  active_passengers: number;
+  passenger_segments: Record<string, number>;
+  top_customers: TopCustomer[];
+}
+
+export interface RouteRevenue {
+  route_id: string;
+  total_revenue: number;
+  trips_count: number;
+  avg_revenue_per_trip: number;
+}
+
+export interface DailyRevenue {
+  date: string;
+  revenue: number;
+}
+
+export interface RevenueTrend {
+  daily: DailyRevenue[];
+}
+
+export interface RevenueAnalyticsResponse {
+  total_revenue: number;
+  confirmed_revenue: number;
+  cancelled_revenue: number;
+  by_route: RouteRevenue[];
+  trend?: RevenueTrend;
+}
+
+export interface OccupancyByRoute {
+  route_id: string;
+  avg_occupancy: number;
+  trips_count: number;
+}
+
+export interface OccupancyAnalyticsResponse {
+  average_occupancy: number;
+  total_capacity: number;
+  total_seats_sold: number;
+  by_level: Record<string, number>;
+  by_route: OccupancyByRoute[];
+}
+
+export interface TripAnalyticsResponse {
+  total_trips: number;
+  active_trips: number;
+  completed_trips: number;
+  cancelled_trips: number;
+  occupancy_breakdown: Record<string, number>;
+}
+
+export interface AnalyticsHealthResponse {
+  status: string;
+  service: string;
+  version: string;
+  timestamp: string;
+  athena_connection: boolean;
+}

@@ -1,202 +1,447 @@
-# Data Ingestion - Sistema de Ingesta de Datos
+# Bus MVP - Data Ingestion & Analytics# Data Ingestion Pipeline - Bus MVP
 
-## Descripción
-Conjunto de 3 contenedores especializados para la ingesta de datos del sistema Bus MVP, cada uno con un propósito específico dentro del pipeline de datos.
 
-> **TODO (@A, @PM)**: Implementar lógica específica de ingesta según fuentes de datos reales.
 
-## Requisitos del Proyecto
-- ✅ **3 contenedores de ingesta dockerizados**
-- ✅ **Diferentes tipos de fuentes de datos**
-- ✅ **Integración con object storage**
-- ✅ **Procesamiento y transformación de datos**
+Sistema de ingesta y análisis de datos para Bus MVP usando AWS (S3, Glue, Athena).Pipeline de ingesta de datos para extracción desde microservicios hacia AWS S3.
 
-## Arquitectura de Ingesta
+
+
+## 📋 Descripción## 📋 Arquitectura
+
+
+
+Este módulo extrae datos de los microservicios de Bus MVP y los carga a AWS S3 para análisis con Athena.```
+
+Microservicios (MySQL, PostgreSQL, MongoDB)
+
+## 🏗️ Arquitectura    ↓
+
+Contenedores de Ingesta (Python)
+
+```    ↓
+
+Microservicios → Ingestion Services → S3 → Glue Catalog → Athena → Analytics APIAWS S3 Bucket (Data Lake)
+
+```    ↓
+
+AWS Glue Catalog
+
+### Componentes:    ↓
+
+AWS Athena (Consultas SQL)
+
+1. **Servicios de Ingesta**: Extraen datos de los microservicios y los cargan a S3```
+
+   - `passengers-ingestion/`: Extrae datos de pasajeros
+
+   - `trips-ingestion/`: Extrae datos de viajes## 🏗️ Estructura del Proyecto
+
+   - `tickets-ingestion/`: Extrae datos de tickets
 
 ```
-┌─────────────────────┐    ┌─────────────────────┐    ┌─────────────────────┐
-│   real-time-data    │    │   batch-processor   │    │   external-apis     │
-│   (Contenedor 1)    │    │   (Contenedor 2)    │    │   (Contenedor 3)    │
-├─────────────────────┤    ├─────────────────────┤    ├─────────────────────┤
-│ • IoT Sensores      │    │ • Archivos CSV      │    │ • APIs Externas     │
-│ • GPS Tracking      │    │ • Logs del Sistema  │    │ • Web Scraping      │
-│ • Eventos Tiempo    │    │ • Reportes Diarios  │    │ • Feeds RSS         │
-│   Real              │    │ • Data Warehouse    │    │ • APIs de Clima     │
-└─────────┬───────────┘    └─────────┬───────────┘    └─────────┬───────────┘
-          │                          │                          │
-          └──────────────────────────┼──────────────────────────┘
-                                     │
-                          ┌─────────┴───────────┐
-                          │   Object Storage    │
-                          │ (S3/GCS/Azure Blob) │
-                          └─────────────────────┘
-                                     │
-                          ┌─────────┴───────────┐
-                          │   Data Catalog      │
-                          │  (ms-analytics)     │
-                          └─────────────────────┘
+
+2. **AWS S3**: Data Lake para almacenar datos en formato CSV y JSONdata-ingestion/
+
+   - `raw/passengers_csv/`: Datos de pasajeros en CSV├── passengers-ingestion/     # Ingesta desde ms-passengers (Python/Flask)
+
+   - `raw/trips_csv/`: Datos de viajes en CSV├── trips-ingestion/          # Ingesta desde ms-trips (Node.js/PostgreSQL)
+
+   - `raw/tickets_csv/`: Datos de tickets en CSV├── tickets-ingestion/        # Ingesta desde ms-tickets (Java/MongoDB)
+
+├── analytics-service/        # API REST para consultas analíticas
+
+3. **AWS Glue**: Catálogo de datos├── docker-compose.yml        # Orquestación de contenedores
+
+   - Database: `bus_mvp_db`├── .env.example             # Variables de entorno
+
+   - Tablas: `passengers`, `trips`, `tickets`└── scripts/                 # Scripts de utilidad
+
 ```
 
-## Estructura de Contenedores
+4. **AWS Athena**: Motor de consultas SQL sobre S3
 
-### 1. Real-Time Data Ingestion (Contenedor 1)
-**Propósito**: Ingesta de datos en tiempo real desde IoT, GPS, y eventos del sistema.
+## 🔧 Prerequisitos
 
-**Tecnologías sugeridas**:
-- Python + asyncio/aiohttp
-- Apache Kafka (opcional)
-- Redis para buffer temporal
-- WebSocket para datos streaming
+5. **Analytics Service**: API REST para consultas analíticas
 
-**Fuentes de datos**:
-- GPS tracking de autobuses
-- Sensores IoT (temperatura, ocupación)
-- Eventos de sistema en tiempo real
-- Transacciones de boletos en vivo
+1. **AWS Account** con permisos para:
 
-### 2. Batch Data Processor (Contenedor 2)
-**Propósito**: Procesamiento de archivos batch y ETL de sistemas legacy.
+## 🚀 Quick Start   - S3
 
-**Tecnologías sugeridas**:
-- Python + Pandas/Apache Airflow
-- Scheduled jobs (cron)
-- File watchers
-- Data validation
+   - Glue
 
-**Fuentes de datos**:
-- Archivos CSV/Excel diarios
-- Logs de sistema históricos
-- Dumps de bases de datos
-- Reportes financieros
+### Prerequisitos   - Athena
 
-### 3. External APIs Collector (Contenedor 3)
-**Propósito**: Recolección de datos desde APIs externas y web scraping.
+   - EC2 (opcional para MV)
 
-**Tecnologías sugeridas**:
-- Python + requests/aiohttp
-- BeautifulSoup para scraping
-- API rate limiting
-- Data normalization
+- Docker & Docker Compose   
 
-**Fuentes de datos**:
-- APIs de clima y tráfico
-- Precios de combustible
-- Información de rutas externas
-- Datos demográficos
+- AWS CLI   📚 **Para AWS Academy Lab**: Ver [AWS_ACADEMY_SETUP.md](./AWS_ACADEMY_SETUP.md)
 
-## Comandos de Desarrollo
+- Python 3.8+
+
+- Cuenta AWS Academy Lab (con credenciales temporales)2. **Docker & Docker Compose** instalado
+
+
+
+### Paso 1: Configurar credenciales de AWS3. **Microservicios corriendo**:
+
+   - ms-passengers: http://localhost:3001
+
+**Windows:**   - ms-trips: http://localhost:3002
+
+```powershell   - ms-tickets: http://localhost:3003
+
+.\setup_aws_academy.ps1
+
+```## 🚀 Quick Start
+
+
+
+**Linux/Mac:**### 1. Configurar variables de entorno
 
 ```bash
-# Desarrollo individual
-cd data-ingestion/real-time-data
-docker build -t bus-mvp-realtime-ingestion .
-docker run bus-mvp-realtime-ingestion
 
-cd ../batch-processor
-docker build -t bus-mvp-batch-processor .
-docker run bus-mvp-batch-processor
+./setup_aws_academy.sh```bash
 
-cd ../external-apis
-docker build -t bus-mvp-external-collector .
-docker run bus-mvp-external-collector
+```cp .env.example .env
 
-# Desarrollo completo
-cd data-ingestion/
-docker-compose up --build
+# Editar .env con tus credenciales AWS
 
-# Con el sistema completo
-cd ../infra/
-docker-compose up --build
+Este script:```
+
+- ✅ Solicita tus credenciales de AWS Academy
+
+- ✅ Las guarda en `.env`**Para AWS Academy Lab**: Las credenciales incluyen `AWS_SESSION_TOKEN` (ver [AWS_ACADEMY_SETUP.md](./AWS_ACADEMY_SETUP.md))
+
+- ✅ Valida que funcionen correctamente
+
+- ✅ Obtiene automáticamente tu Account ID### 2. Crear bucket S3
+
+
+
+### Paso 2: Crear infraestructura en AWS```bash
+
+aws s3 mb s3://bus-mvp-datalake --region us-east-1
+
+```bash
+
+# Instalar dependencias Python# Crear estructura de carpetas
+
+pip install -r scripts/requirements.txtaws s3api put-object --bucket bus-mvp-datalake --key raw/passengers/
+
+aws s3api put-object --bucket bus-mvp-datalake --key raw/trips/
+
+# Crear bucket S3aws s3api put-object --bucket bus-mvp-datalake --key raw/tickets/
+
+python scripts/setup_s3.pyaws s3api put-object --bucket bus-mvp-datalake --key athena-results/
+
 ```
 
-## Pipeline de Datos
+# Crear base de datos y tablas en Glue/Athena
 
-### Flujo General
-1. **Ingesta** → Cada contenedor recolecta datos de sus fuentes específicas
-2. **Transformación** → Limpieza, validación y normalización de datos
-3. **Storage** → Almacenamiento en object storage con estructura consistente
-4. **Cataloging** → Registro en el data catalog para consultas analíticas
-5. **Availability** → Datos disponibles para ms-analytics y consultas
+python scripts/setup_glue.py### 3. Ejecutar ingesta
 
-### Formato de Datos Estándar
-```json
-{
-  "metadata": {
-    "source": "real-time-data|batch-processor|external-apis",
-    "timestamp": "2024-01-15T10:30:00Z",
-    "data_type": "gps_tracking|financial|weather|etc",
-    "version": "1.0",
-    "ingestion_id": "uuid",
-    "quality_score": 0.95
-  },
-  "payload": {
-    // Datos específicos según tipo
-  },
-  "schema": {
-    "name": "gps_event_v1",
-    "fields": [...],
-    "validation_rules": [...]
-  }
-}
+python scripts/create_athena_tables.py
+
+``````bash
+
+# Construir contenedores
+
+### Paso 3: Ejecutar ingesta de datosdocker-compose build
+
+
+
+```bash# Ejecutar ingesta de todos los microservicios
+
+# Iniciar servicios de ingestadocker-compose up
+
+docker-compose up
+
+# O ejecutar individualmente
+
+# Los datos se cargarán automáticamente a S3docker-compose up passengers-ingestion
+
+```docker-compose up trips-ingestion
+
+docker-compose up tickets-ingestion
+
+### Paso 4: Verificar datos en Athena```
+
+
+
+```bash### 4. Verificar datos en S3
+
+# Ejecutar consultas de prueba
+
+python scripts/test_athena_queries.py```bash
+
+aws s3 ls s3://bus-mvp-datalake/raw/ --recursive
+
+# Ver estado de crawlers```
+
+python scripts/check_crawlers.py
+
+```## 📊 AWS Glue Setup
+
+
+
+## 📊 Estructura de Datos### Crear Database
+
+
+
+### Tabla: passengers```bash
+
+```sqlaws glue create-database \
+
+- full_name: STRING    --database-input '{"Name": "bus_mvp_db", "Description": "Bus MVP Analytics Database"}'
+
+- phone: STRING```
+
+- passenger_id: STRING
+
+- document_number: STRING### Crear Crawlers
+
+- registration_date: STRING
+
+- email: STRING```bash
+
+- document_type: STRING# Passengers Crawler
+
+- date_of_birth: STRINGaws glue create-crawler \
+
+- status: STRING    --name passengers-crawler \
+
+- ingestion_timestamp: STRING    --role AWSGlueServiceRole \
+
+```    --database-name bus_mvp_db \
+
+    --targets '{"S3Targets": [{"Path": "s3://bus-mvp-datalake/raw/passengers/"}]}'
+
+### Tabla: trips
+
+```sql# Trips Crawler
+
+- tripId: STRINGaws glue create-crawler \
+
+- routeId: STRING    --name trips-crawler \
+
+- departureDateTime: STRING    --role AWSGlueServiceRole \
+
+- arrivalDateTime: STRING    --database-name bus_mvp_db \
+
+- busCapacity: INT    --targets '{"S3Targets": [{"Path": "s3://bus-mvp-datalake/raw/trips/"}]}'
+
+- availableSeats: INT
+
+- finalPrice: DOUBLE# Tickets Crawler
+
+- status: STRINGaws glue create-crawler \
+
+- driverName: STRING    --name tickets-crawler \
+
+- busPlate: STRING    --role AWSGlueServiceRole \
+
+- createdAt: STRING    --database-name bus_mvp_db \
+
+- updatedAt: STRING    --targets '{"S3Targets": [{"Path": "s3://bus-mvp-datalake/raw/tickets/"}]}'
+
+- ingestion_timestamp: STRING```
+
 ```
 
-## Configuración de Variables
+### Ejecutar Crawlers
 
-Cada contenedor tiene su propio `.env.example` con configuraciones específicas:
+### Tabla: tickets
 
-- **Object Storage**: Credenciales y configuración cloud
-- **Data Sources**: URLs, API keys, conexiones
-- **Processing**: Intervalos, batch sizes, timeouts
-- **Quality**: Reglas de validación y limpieza
-- **Monitoring**: Logs, métricas, alertas
+```sql```bash
 
-## Monitoreo y Observabilidad
+- ticket_id: STRINGaws glue start-crawler --name passengers-crawler
 
-### Métricas Clave
-- Volumen de datos ingestados por minuto/hora
-- Latencia de procesamiento
-- Tasa de errores y fallos
-- Calidad de datos (completitud, precisión)
-- Uso de recursos (CPU, memoria, red)
+- passenger_id: STRINGaws glue start-crawler --name trips-crawler
 
-### Logs Estructurados
-```json
-{
-  "timestamp": "2024-01-15T10:30:00Z",
-  "level": "INFO",
-  "container": "real-time-data",
-  "event": "data_ingested",
-  "source": "gps_tracker_001",
-  "records_count": 150,
-  "processing_time_ms": 45,
-  "quality_score": 0.98
-}
+- trip_id: STRINGaws glue start-crawler --name tickets-crawler
+
+- seat_number: STRING```
+
+- total_price: DOUBLE
+
+- currency: STRING## 🔍 AWS Athena Queries
+
+- booking_status: STRING
+
+- ingestion_timestamp: STRINGLas consultas SQL están en: `docs/analytics/queries_and_views.sql`
+
 ```
 
-## Integración con el Sistema
+## 📈 Analytics API
 
-### Con Microservicios
-- Los datos ingestados alimentan el data catalog
-- ms-analytics consulta los datos para reportes
-- ms-history puede usar datos históricos
-- ms-trips puede usar datos de tráfico y clima
+## 🔍 Consultas de Ejemplo
 
-### Con Object Storage
-- Estructura de carpetas consistente
-- Particionado por fecha y tipo
-- Compresión y optimización
-- Backup y archivado automático
+```bash
 
-## Próximos Pasos
+```sql# Iniciar servicio de analytics
 
-1. **Definir Fuentes** (@A, @PM): Identificar fuentes de datos reales específicas
-2. **Implementar Contenedores** (@A): Desarrollar lógica de cada contenedor
-3. **Configurar Storage** (@A): Setup de object storage y estructura
-4. **Testing** (@A): Pruebas de integración y performance
-5. **Monitoreo** (@PM): Implementar observabilidad y alertas
-6. **Documentación** (@A): Completar documentación técnica
+-- Total de pasajeroscd analytics-service
 
-## Enlaces Útiles
-- [Object Storage Config](../docs/analytics/catalog_design.md): Diseño del data catalog
-- [Analytics Queries](../docs/analytics/queries_and_views.sql): Consultas sobre datos ingestados
-- [Docker Compose](../infra/docker-compose.yml): Orquestación completa del sistema
+SELECT COUNT(*) as total_passengers FROM passengers;docker build -t analytics-api .
+
+docker run -p 5000:5000 analytics-api
+
+-- Ingresos totales```
+
+SELECT SUM(total_price) as total_revenue FROM tickets;
+
+Endpoints disponibles:
+
+-- Top viajes con más tickets- `GET /api/analytics/top-passengers`
+
+SELECT trip_id, COUNT(*) as total_tickets - `GET /api/analytics/popular-routes`
+
+FROM tickets - `GET /api/analytics/daily-sales`
+
+GROUP BY trip_id - `GET /api/analytics/occupancy-rate`
+
+ORDER BY total_tickets DESC 
+
+LIMIT 5;## 🔄 Automatización (Opcional)
+
+```
+
+### Cronjob para ingesta periódica
+
+## 🔧 Scripts Disponibles
+
+```bash
+
+### `/scripts/`# Ejecutar ingesta cada hora
+
+0 * * * * cd /path/to/data-ingestion && docker-compose up
+
+- **setup_s3.py**: Crea el bucket S3 y la estructura de carpetas```
+
+- **setup_glue.py**: Crea la base de datos en Glue y los crawlers
+
+- **create_athena_tables.py**: Crea las tablas en Athena con esquema correcto## 📝 Notas
+
+- **test_athena_queries.py**: Ejecuta consultas de prueba
+
+- **check_crawlers.py**: Verifica el estado de los crawlers- Los archivos se generan en formato CSV y JSON
+
+- Cada ejecución crea un nuevo archivo con timestamp
+
+## 🌐 Analytics API- Los crawlers de Glue detectan automáticamente el esquema
+
+
+
+Una vez que los datos estén en Athena, puedes iniciar el servicio de Analytics:## 🐛 Troubleshooting
+
+
+
+```bash### Error: No se puede conectar a microservicios
+
+docker-compose up analytics-service- Verificar que los servicios estén corriendo
+
+```- Verificar URLs en variables de entorno
+
+
+
+Endpoints disponibles:### Error: Access Denied S3
+
+- `GET /` - Información del servicio- Verificar credenciales AWS en .env
+
+- `GET /api/analytics/summary` - Resumen general- Verificar IAM role/user tiene permisos S3
+
+- `POST /api/analytics/custom-query` - Query personalizada
+
+### Error: Glue Crawler falla
+
+## ⚙️ Configuración- Verificar que el bucket S3 tenga datos
+
+- Verificar formato de archivos (CSV/JSON)
+
+Las variables de entorno se configuran en `.env`:
+
+## 📚 Referencias
+
+```properties
+
+# AWS Credentials- [AWS Glue Documentation](https://docs.aws.amazon.com/glue/)
+
+AWS_ACCESS_KEY_ID=...- [AWS Athena Documentation](https://docs.aws.amazon.com/athena/)
+
+AWS_SECRET_ACCESS_KEY=...- [Boto3 Documentation](https://boto3.amazonaws.com/v1/documentation/api/latest/index.html)
+
+AWS_SESSION_TOKEN=...
+AWS_DEFAULT_REGION=us-east-1
+AWS_ACCOUNT_ID=...
+
+# S3 Configuration
+S3_BUCKET=bus-mvp-datalake
+
+# Microservices URLs
+PASSENGERS_API_URL=http://host.docker.internal:8001/api/v1
+TRIPS_API_URL=http://host.docker.internal:8002/api/v1
+TICKETS_API_URL=http://host.docker.internal:8003
+
+# Glue Configuration
+GLUE_DATABASE=bus_mvp_db
+
+# Athena Configuration
+ATHENA_OUTPUT_LOCATION=s3://bus-mvp-datalake/athena-results/
+```
+
+## ⚠️ Importante
+
+- Las credenciales de AWS Academy **expiran en 4 horas**
+- Debes ejecutar `setup_aws_academy.ps1` nuevamente cuando expiren
+- Los datos en S3 persisten entre sesiones
+
+## 📝 Notas Técnicas
+
+### Separación de archivos CSV y JSON
+
+Los archivos CSV y JSON se almacenan en carpetas separadas para evitar conflictos:
+- CSV: `raw/passengers_csv/`, `raw/trips_csv/`, `raw/tickets_csv/`
+- JSON: `raw/passengers_json/`, `raw/trips_json/`, `raw/tickets_json/`
+
+Las tablas de Athena solo leen de las carpetas `_csv` para garantizar datos limpios.
+
+### Actualización de datos
+
+Para actualizar los datos:
+1. Ejecuta `docker-compose up` nuevamente
+2. Los nuevos archivos se crearán con timestamp
+3. Athena leerá automáticamente todos los archivos CSV en el directorio
+
+## 🆘 Troubleshooting
+
+**Error: "Unable to locate credentials"**
+- Solución: Ejecuta `setup_aws_academy.ps1` para configurar credenciales
+
+**Error: "Bucket already exists"**
+- Solución: El bucket ya fue creado. Continúa con el siguiente paso.
+
+**Error: "Query timeout"**
+- Solución: Athena puede tardar en la primera consulta. Intenta nuevamente.
+
+**Datos incorrectos en Athena**
+- Solución: Verifica que las tablas apunten a carpetas `_csv` y no mezclen con JSON
+
+## 📚 Documentación Adicional
+
+- [AWS Academy Setup](./QUICKSTART_AWS_ACADEMY.md)
+- [Guía de Implementación](./IMPLEMENTATION_GUIDE.md)
+- [Guía de Testing](./TESTING_GUIDE.md)
+
+## 🤝 Contribuir
+
+1. Fork el proyecto
+2. Crea una rama (`git checkout -b feature/AmazingFeature`)
+3. Commit tus cambios (`git commit -m 'Add some AmazingFeature'`)
+4. Push a la rama (`git push origin feature/AmazingFeature`)
+5. Abre un Pull Request
+
+## 📄 Licencia
+
+Este proyecto es parte del curso de Cloud Computing - UTEC.

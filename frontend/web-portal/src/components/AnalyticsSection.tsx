@@ -1,17 +1,13 @@
-import React, { useState, useEffect } from 'react';
-import { TrendingUp, Users, MapPin, Ticket, DollarSign, Activity } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { TrendingUp, Users, MapPin, Ticket, DollarSign, Activity, AlertCircle } from 'lucide-react';
 import { apiService } from '../services/api';
 import { LoadingSpinner } from './LoadingSpinner';
+import type { DashboardSummaryResponse } from '../types';
 
 export function AnalyticsSection() {
-  const [analytics, setAnalytics] = useState({
-    total_passengers: 0,
-    total_trips: 0,
-    total_tickets: 0,
-    revenue: 0,
-    popular_routes: [],
-  });
+  const [summary, setSummary] = useState<DashboardSummaryResponse | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     fetchAnalytics();
@@ -20,84 +16,123 @@ export function AnalyticsSection() {
   const fetchAnalytics = async () => {
     try {
       setLoading(true);
-      // Simular datos de analytics ya que no tenemos el endpoint específico
-      // En un caso real, esto vendría de tu API de analytics
-      const [passengers, trips, tickets] = await Promise.all([
-        apiService.getPassengers().catch(() => ({ data: [] })),
-        apiService.getTrips().catch(() => ({ data: [] })),
-        apiService.getTickets().catch(() => ({ data: [] })),
-      ]);
-
-      const passengersData = Array.isArray(passengers) ? passengers : passengers.data || [];
-      const tripsData = Array.isArray(trips) ? trips : trips.data || [];
-      const ticketsData = Array.isArray(tickets) ? tickets : tickets.data || [];
-
-      const totalRevenue = ticketsData.reduce((sum: number, ticket: any) => 
-        sum + (ticket.price || 0), 0
-      );
-
-      const routeCounts: { [key: string]: number } = {};
-      tripsData.forEach((trip: any) => {
-        const route = `${trip.origin} → ${trip.destination}`;
-        routeCounts[route] = (routeCounts[route] || 0) + 1;
-      });
-
-      const popularRoutes = Object.entries(routeCounts)
-        .map(([route, count]) => ({ route, count }))
-        .sort((a, b) => b.count - a.count)
-        .slice(0, 5);
-
-      setAnalytics({
-        total_passengers: passengersData.length,
-        total_trips: tripsData.length,
-        total_tickets: ticketsData.length,
-        revenue: totalRevenue,
-        popular_routes: popularRoutes,
-      });
+      setError(null);
+      
+      // Consumir endpoint real de analytics
+      const data = await apiService.getDashboardSummary();
+      setSummary(data);
+      
     } catch (error) {
       console.error('Error fetching analytics:', error);
+      setError('Error al cargar analíticas. Por favor, verifica que el servicio ms-analytics esté activo.');
     } finally {
       setLoading(false);
     }
   };
 
   if (loading) return <LoadingSpinner />;
+  
+  if (error) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <h2 className="text-2xl font-bold text-gray-900">Panel de Analytics</h2>
+        </div>
+        <div className="bg-red-50 border border-red-200 rounded-lg p-6">
+          <div className="flex items-start space-x-3">
+            <AlertCircle className="w-6 h-6 text-red-600 flex-shrink-0 mt-0.5" />
+            <div className="flex-1">
+              <h3 className="font-semibold text-red-800 mb-2">
+                Error al cargar analíticas
+              </h3>
+              <p className="text-sm text-red-700 mb-3">
+                {error}
+              </p>
+              <button
+                onClick={fetchAnalytics}
+                className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors text-sm"
+              >
+                Reintentar
+              </button>
+            </div>
+          </div>
+        </div>
+        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
+          <div className="flex items-start space-x-3">
+            <AlertCircle className="w-6 h-6 text-yellow-600 flex-shrink-0 mt-0.5" />
+            <div className="flex-1">
+              <h3 className="font-semibold text-yellow-800 mb-2">
+                Servicio de Analytics no disponible
+              </h3>
+              <p className="text-sm text-yellow-700 mb-3">
+                El microservicio ms-analytics no está respondiendo. Asegúrate de:
+              </p>
+              <ul className="list-disc list-inside space-y-1 text-sm text-yellow-700">
+                <li>El servicio está corriendo en <code className="bg-yellow-100 px-1 rounded">http://localhost:8005</code></li>
+                <li>AWS credentials están configuradas correctamente</li>
+                <li>La base de datos Glue existe y tiene datos</li>
+                <li>El bucket S3 para resultados está accesible</li>
+              </ul>
+              <div className="mt-4">
+                <code className="text-xs bg-yellow-100 px-2 py-1 rounded block">
+                  cd backend/ms-analytics && python -m uvicorn src.main:app --reload --port 8005
+                </code>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!summary) return null;
+
+  const { summary: metrics, trends } = summary;
 
   const statCards = [
     {
       title: 'Total Pasajeros',
-      value: analytics.total_passengers,
+      value: metrics.total_passengers.toLocaleString(),
       icon: Users,
       color: 'bg-blue-500',
-      trend: '+12%',
+      trend: trends?.passenger_growth ? `${trends.passenger_growth > 0 ? '+' : ''}${trends.passenger_growth.toFixed(1)}%` : 'N/A',
+      trendPositive: (trends?.passenger_growth || 0) >= 0,
     },
     {
       title: 'Viajes Activos',
-      value: analytics.total_trips,
+      value: metrics.active_trips.toLocaleString(),
       icon: MapPin,
       color: 'bg-green-500',
-      trend: '+8%',
+      trend: `${metrics.active_trips} activos`,
+      trendPositive: true,
     },
     {
       title: 'Tickets Vendidos',
-      value: analytics.total_tickets,
+      value: metrics.tickets_sold.toLocaleString(),
       icon: Ticket,
       color: 'bg-orange-500',
-      trend: '+15%',
+      trend: `${metrics.cancellation_rate.toFixed(1)}% cancelados`,
+      trendPositive: metrics.cancellation_rate < 10,
     },
     {
-      title: 'Ingresos',
-      value: `S/ ${analytics.revenue.toFixed(2)}`,
+      title: 'Ingresos Totales',
+      value: `S/ ${metrics.total_revenue.toLocaleString('es-PE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
       icon: DollarSign,
       color: 'bg-purple-500',
-      trend: '+20%',
+      trend: trends?.revenue_growth ? `${trends.revenue_growth > 0 ? '+' : ''}${trends.revenue_growth.toFixed(1)}%` : 'N/A',
+      trendPositive: (trends?.revenue_growth || 0) >= 0,
     },
   ];
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold text-gray-900">Panel de Analytics</h2>
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900">Panel de Analytics</h2>
+          <p className="text-sm text-gray-500 mt-1">
+            Datos de AWS Athena • Actualizado: {new Date(summary.timestamp).toLocaleString('es-PE')}
+          </p>
+        </div>
         <button
           onClick={fetchAnalytics}
           className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2"
@@ -109,15 +144,19 @@ export function AnalyticsSection() {
 
       {/* Statistics Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {statCards.map(({ title, value, icon: Icon, color, trend }) => (
+        {statCards.map(({ title, value, icon: Icon, color, trend, trendPositive }) => (
           <div key={title} className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
             <div className="flex items-center justify-between">
-              <div>
+              <div className="flex-1">
                 <p className="text-sm font-medium text-gray-600">{title}</p>
-                <p className="text-3xl font-bold text-gray-900">{value}</p>
+                <p className="text-3xl font-bold text-gray-900 mt-1">{value}</p>
                 <div className="flex items-center space-x-1 mt-2">
-                  <TrendingUp className="w-4 h-4 text-green-500" />
-                  <span className="text-sm font-medium text-green-600">{trend}</span>
+                  <TrendingUp 
+                    className={`w-4 h-4 ${trendPositive ? 'text-green-500' : 'text-red-500'} ${!trendPositive && 'rotate-180'}`} 
+                  />
+                  <span className={`text-sm font-medium ${trendPositive ? 'text-green-600' : 'text-red-600'}`}>
+                    {trend}
+                  </span>
                 </div>
               </div>
               <div className={`${color} p-3 rounded-full`}>
@@ -128,86 +167,89 @@ export function AnalyticsSection() {
         ))}
       </div>
 
-      {/* Popular Routes */}
-      <div className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Rutas Más Populares</h3>
-        {analytics.popular_routes.length > 0 ? (
-          <div className="space-y-4">
-            {analytics.popular_routes.map(({ route, count }, index) => (
-              <div key={route} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                <div className="flex items-center space-x-3">
-                  <div className="bg-blue-100 text-blue-600 w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium">
-                    {index + 1}
-                  </div>
-                  <span className="font-medium text-gray-900">{route}</span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <span className="text-sm text-gray-600">{count} viajes</span>
-                  <div className="w-20 bg-gray-200 rounded-full h-2">
-                    <div
-                      className="bg-blue-500 h-2 rounded-full transition-all duration-300"
-                      style={{
-                        width: `${(count / Math.max(...analytics.popular_routes.map(r => r.count))) * 100}%`
-                      }}
-                    ></div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className="text-center py-8">
-            <MapPin className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-            <p className="text-gray-500">No hay datos de rutas disponibles</p>
-          </div>
-        )}
-      </div>
-
-      {/* Performance Metrics */}
+      {/* Occupancy Gauge */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Ocupación Promedio</h3>
           <div className="flex items-center justify-center h-40">
             <div className="relative w-32 h-32">
-              <div className="w-full h-full bg-gray-200 rounded-full"></div>
-              <div 
-                className="absolute inset-0 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full"
-                style={{
-                  background: `conic-gradient(from 0deg, #3B82F6 0deg, #3B82F6 ${75 * 3.6}deg, #E5E7EB ${75 * 3.6}deg)`
-                }}
-              ></div>
-              <div className="absolute inset-4 bg-white rounded-full flex items-center justify-center">
-                <span className="text-2xl font-bold text-gray-900">75%</span>
+              <svg className="w-full h-full" viewBox="0 0 100 100">
+                {/* Background circle */}
+                <circle
+                  className="text-gray-200"
+                  strokeWidth="10"
+                  stroke="currentColor"
+                  fill="transparent"
+                  r="40"
+                  cx="50"
+                  cy="50"
+                />
+                {/* Progress circle */}
+                <circle
+                  className="text-blue-500"
+                  strokeWidth="10"
+                  strokeDasharray={`${metrics.average_occupancy * 2.51327} 251.327`}
+                  strokeLinecap="round"
+                  stroke="currentColor"
+                  fill="transparent"
+                  r="40"
+                  cx="50"
+                  cy="50"
+                  style={{ transform: 'rotate(-90deg)', transformOrigin: '50% 50%' }}
+                />
+              </svg>
+              <div className="absolute inset-0 flex items-center justify-center">
+                <span className="text-2xl font-bold text-gray-900">
+                  {metrics.average_occupancy.toFixed(1)}%
+                </span>
               </div>
             </div>
           </div>
-          <p className="text-center text-gray-600 mt-4">Ocupación promedio de los viajes</p>
+          <p className="text-center text-gray-600 mt-4">
+            Ocupación promedio de los buses
+          </p>
         </div>
 
+        {/* System Status */}
         <div className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Estado del Sistema</h3>
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Métricas del Sistema</h3>
           <div className="space-y-3">
-            <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
-              <span className="font-medium text-green-800">Servicio de Pasajeros</span>
-              <div className="flex items-center space-x-2">
-                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                <span className="text-sm text-green-600">Activo</span>
-              </div>
+            <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
+              <span className="font-medium text-blue-800">Tasa de Cancelación</span>
+              <span className={`text-sm font-semibold ${
+                metrics.cancellation_rate < 10 ? 'text-green-600' : 
+                metrics.cancellation_rate < 20 ? 'text-yellow-600' : 
+                'text-red-600'
+              }`}>
+                {metrics.cancellation_rate.toFixed(2)}%
+              </span>
             </div>
             <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
-              <span className="font-medium text-green-800">Servicio de Viajes</span>
-              <div className="flex items-center space-x-2">
-                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                <span className="text-sm text-green-600">Activo</span>
-              </div>
+              <span className="font-medium text-green-800">Tickets por Viaje</span>
+              <span className="text-sm font-semibold text-green-600">
+                {metrics.active_trips > 0 ? (metrics.tickets_sold / metrics.active_trips).toFixed(1) : '0'}
+              </span>
             </div>
-            <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
-              <span className="font-medium text-green-800">Servicio de Tickets</span>
-              <div className="flex items-center space-x-2">
-                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                <span className="text-sm text-green-600">Activo</span>
-              </div>
+            <div className="flex items-center justify-between p-3 bg-purple-50 rounded-lg">
+              <span className="font-medium text-purple-800">Ingreso Promedio</span>
+              <span className="text-sm font-semibold text-purple-600">
+                S/ {metrics.tickets_sold > 0 ? (metrics.total_revenue / metrics.tickets_sold).toFixed(2) : '0.00'}
+              </span>
             </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Info Banner */}
+      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+        <div className="flex items-start space-x-3">
+          <Activity className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+          <div className="flex-1">
+            <p className="text-sm text-blue-800">
+              <strong>Datos en tiempo real:</strong> Estas métricas son calculadas directamente desde AWS Athena 
+              sobre el datalake completo. Para análisis más detallados, usa las pestañas específicas de 
+              Pasajeros, Viajes o Tickets.
+            </p>
           </div>
         </div>
       </div>
