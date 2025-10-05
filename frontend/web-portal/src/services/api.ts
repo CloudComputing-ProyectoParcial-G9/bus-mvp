@@ -1,6 +1,6 @@
-import { 
-  Passenger, 
-  Trip, 
+import {
+  Passenger,
+  Trip,
   Ticket,
   DashboardSummaryResponse,
   PassengerAnalyticsResponse,
@@ -241,7 +241,7 @@ class ApiService {
   }
 
   // ============================================================================
-  // History API (ms-history) 
+  // History API (ms-history)
   // ============================================================================
 
   /**

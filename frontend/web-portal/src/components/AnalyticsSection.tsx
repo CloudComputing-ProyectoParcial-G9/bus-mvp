@@ -17,11 +17,11 @@ export function AnalyticsSection() {
     try {
       setLoading(true);
       setError(null);
-      
+
       // Consumir endpoint real de analytics
-      const data = await apiService.getDashboardSummary();
+      const data = await apiService.getAnalyticsSummary();
       setSummary(data);
-      
+
     } catch (error) {
       console.error('Error fetching analytics:', error);
       setError('Error al cargar analíticas. Por favor, verifica que el servicio ms-analytics esté activo.');
@@ -31,7 +31,7 @@ export function AnalyticsSection() {
   };
 
   if (loading) return <LoadingSpinner />;
-  
+
   if (error) {
     return (
       <div className="space-y-6">
@@ -151,8 +151,8 @@ export function AnalyticsSection() {
                 <p className="text-sm font-medium text-gray-600">{title}</p>
                 <p className="text-3xl font-bold text-gray-900 mt-1">{value}</p>
                 <div className="flex items-center space-x-1 mt-2">
-                  <TrendingUp 
-                    className={`w-4 h-4 ${trendPositive ? 'text-green-500' : 'text-red-500'} ${!trendPositive && 'rotate-180'}`} 
+                  <TrendingUp
+                    className={`w-4 h-4 ${trendPositive ? 'text-green-500' : 'text-red-500'} ${!trendPositive && 'rotate-180'}`}
                   />
                   <span className={`text-sm font-medium ${trendPositive ? 'text-green-600' : 'text-red-600'}`}>
                     {trend}
@@ -217,8 +217,8 @@ export function AnalyticsSection() {
             <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
               <span className="font-medium text-blue-800">Tasa de Cancelación</span>
               <span className={`text-sm font-semibold ${
-                metrics.cancellation_rate < 10 ? 'text-green-600' : 
-                metrics.cancellation_rate < 20 ? 'text-yellow-600' : 
+                metrics.cancellation_rate < 10 ? 'text-green-600' :
+                metrics.cancellation_rate < 20 ? 'text-yellow-600' :
                 'text-red-600'
               }`}>
                 {metrics.cancellation_rate.toFixed(2)}%
@@ -246,8 +246,8 @@ export function AnalyticsSection() {
           <Activity className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
           <div className="flex-1">
             <p className="text-sm text-blue-800">
-              <strong>Datos en tiempo real:</strong> Estas métricas son calculadas directamente desde AWS Athena 
-              sobre el datalake completo. Para análisis más detallados, usa las pestañas específicas de 
+              <strong>Datos en tiempo real:</strong> Estas métricas son calculadas directamente desde AWS Athena
+              sobre el datalake completo. Para análisis más detallados, usa las pestañas específicas de
               Pasajeros, Viajes o Tickets.
             </p>
           </div>

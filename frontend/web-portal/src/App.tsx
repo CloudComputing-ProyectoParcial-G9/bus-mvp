@@ -5,7 +5,7 @@ import { PassengersSection } from './components/PassengersSection';
 import { TripsSection } from './components/TripsSection';
 import { TicketsSection } from './components/TicketsSection';
 import { AnalyticsSection } from './components/AnalyticsSection';
-import { HealthSection } from './components/HealthSection';
+import { HistorySection } from './components/HistorySection';
 
 function App() {
   const [activeTab, setActiveTab] = useState('passengers');
@@ -20,8 +20,8 @@ function App() {
         return <TicketsSection />;
       case 'analytics':
         return <AnalyticsSection />;
-      case 'health':
-        return <HealthSection />;
+      case 'historial':
+        return <HistorySection />;
       default:
         return <PassengersSection />;
     }

@@ -141,6 +141,27 @@ services:
       - ms-tickets
     restart: unless-stopped
 
+  # Microservicio ms-analytics (Python) - Analytics y reportes
+  ms-analytics:
+    build:
+      context: ./backend/ms-analytics
+      dockerfile: Dockerfile
+    container_name: ms-analytics
+    ports:
+      - "8005:8005"
+    environment:
+      - ENVIRONMENT=development
+      - MS_PASSENGERS_URL=http://ms-passengers:8001
+      - MS_TRIPS_URL=http://ms-trips:8002
+      - MS_TICKETS_URL=http://ms-tickets:8003
+      - MS_HISTORY_URL=http://ms-history:8004
+    depends_on:
+      - ms-passengers
+      - ms-trips
+      - ms-tickets
+      - ms-history
+    restart: unless-stopped
+
 volumes:
   mysql_trips_data:
   postgres_passengers_data:
