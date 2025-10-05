@@ -187,7 +187,7 @@ class ApiService {
    * Obtiene el resumen ejecutivo del dashboard
    * Incluye métricas principales: pasajeros, viajes, tickets, ingresos, ocupación
    */
-  async getDashboardSummary(): Promise<DashboardSummaryResponse> {
+  async getAnalyticsSummary(): Promise<DashboardSummaryResponse> {
     return this.fetchWithErrorHandling(
       `${API_URLS.analytics}/api/v1/analytics/summary`
     );
@@ -238,6 +238,38 @@ class ApiService {
     return this.fetchWithErrorHandling(
       `${API_URLS.analytics}/api/v1/health`
     );
+  }
+
+  // ============================================================================
+  // History API (ms-history) 
+  // ============================================================================
+
+  /**
+   * Obtiene dashboard summary de ms-history (diferente a analytics)
+   */
+  async getDashboardSummary() {
+    return this.fetchWithErrorHandling(`${API_URLS.history}/api/v1/dashboard`);
+  }
+
+  /**
+   * Obtiene historial completo de un pasajero
+   */
+  async getPassengerHistory(passengerId: string) {
+    return this.fetchWithErrorHandling(`${API_URLS.history}/api/v1/history/passengers/${passengerId}`);
+  }
+
+  /**
+   * Health check del sistema via ms-history
+   */
+  async getSystemHealth() {
+    return this.fetchWithErrorHandling(`${API_URLS.history}/api/v1/health`);
+  }
+
+  /**
+   * Health check básico de ms-history
+   */
+  async getHistoryHealth() {
+    return this.fetchWithErrorHandling(`${API_URLS.history}/health`);
   }
 }
 
