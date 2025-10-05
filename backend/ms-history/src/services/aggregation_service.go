@@ -247,10 +247,11 @@ func (s *AggregationService) calculatePassengerStats(tickets []models.Ticket, tr
 func (s *AggregationService) GetDashboardSummary(ctx context.Context) (*models.DashboardSummaryResponse, error) {
 	var wg sync.WaitGroup
 	var passengerStats, tripStats, ticketStats map[string]interface{}
+	var tickets []models.Ticket
 	var errs []error
 	var mu sync.Mutex
 
-	wg.Add(3)
+	wg.Add(4)
 
 	// Obtener estadísticas de cada servicio en paralelo
 	go func() {
@@ -289,22 +290,262 @@ func (s *AggregationService) GetDashboardSummary(ctx context.Context) (*models.D
 		ticketStats = stats
 	}()
 
+	// Obtener todos los tickets para calcular revenue real
+	go func() {
+		defer wg.Done()
+		t, err := s.ticketsClient.ListTickets(ctx, 1, 1000)
+		if err != nil {
+			mu.Lock()
+			errs = append(errs, err)
+			mu.Unlock()
+			return
+		}
+		tickets = t
+	}()
+
 	wg.Wait()
+
+	// Calcular revenue real desde los trips
+	totalRevenue := s.calculateTotalRevenue(ctx, tickets)
+
+	// Calcular rutas populares (top 5)
+	popularRoutes := s.calculatePopularRoutes(ctx, tickets, 5)
+
+	// Calcular actividad reciente (últimas 5 actividades)
+	recentActivity := s.calculateRecentActivity(ctx, tickets, 5)
+
+	// Calcular estadísticas mensuales
+	totalPassengers := s.getIntValue(passengerStats, "total_passengers", 0)
+	totalTrips := s.getIntValue(tripStats, "total_trips", 0)
+	monthlyStats := s.calculateMonthlyStats(ctx, tickets, totalPassengers, totalTrips)
 
 	// Construir respuesta con fallbacks para datos faltantes
 	dashboard := &models.DashboardSummaryResponse{
-		TotalPassengers: s.getIntValue(passengerStats, "total_passengers", 0),
-		TotalTrips:      s.getIntValue(tripStats, "total_trips", 0),
+		TotalPassengers: totalPassengers,
+		TotalTrips:      totalTrips,
 		TotalTickets:    s.getIntValue(ticketStats, "total_tickets", 0),
-		TotalRevenue:    s.getFloatValue(ticketStats, "total_revenue", 0.0),
+		TotalRevenue:    totalRevenue,
 		ActiveRoutes:    s.getIntValue(tripStats, "active_routes", 0),
-		PopularRoutes:   []models.RoutePopularity{}, // TODO: Implementar análisis de rutas populares
-		RecentActivity:  []models.RecentActivity{},  // TODO: Implementar actividad reciente
-		MonthlyStats:    &models.MonthlyStatistics{}, // TODO: Implementar estadísticas mensuales
+		PopularRoutes:   popularRoutes,
+		RecentActivity:  recentActivity,
+		MonthlyStats:    monthlyStats,
 		LastUpdated:     time.Now(),
 	}
 
 	return dashboard, nil
+}
+
+// calculateTotalRevenue calcula el revenue total obteniendo los precios desde los trips
+func (s *AggregationService) calculateTotalRevenue(ctx context.Context, tickets []models.Ticket) float64 {
+	if len(tickets) == 0 {
+		return 0.0
+	}
+
+	var totalRevenue float64
+	var mu sync.Mutex
+	var wg sync.WaitGroup
+
+	// Limitar concurrencia
+	sem := make(chan struct{}, 10)
+
+	for _, ticket := range tickets {
+		if ticket.BookingStatus != "confirmed" {
+			continue
+		}
+
+		wg.Add(1)
+		go func(tripID string) {
+			defer wg.Done()
+			sem <- struct{}{}
+			defer func() { <-sem }()
+
+			trip, err := s.tripsClient.GetTrip(ctx, tripID)
+			if err != nil {
+				// Si no podemos obtener el trip, continuamos
+				return
+			}
+
+			// Convertir finalPrice string a float64
+			var price float64
+			if trip.FinalPrice != "" {
+				fmt.Sscanf(trip.FinalPrice, "%f", &price)
+			}
+
+			mu.Lock()
+			totalRevenue += price
+			mu.Unlock()
+		}(ticket.TripID)
+	}
+
+	wg.Wait()
+	return totalRevenue
+}
+
+// calculatePopularRoutes calcula las rutas más populares basadas en tickets y revenue
+func (s *AggregationService) calculatePopularRoutes(ctx context.Context, tickets []models.Ticket, limit int) []models.RoutePopularity {
+	if len(tickets) == 0 {
+		return []models.RoutePopularity{}
+	}
+
+	// Mapa para contar tickets por ruta
+	type routeStats struct {
+		tripIDs  []string
+		tickets  int
+		revenue  float64
+		routeInfo *models.Route
+	}
+	
+	routeMap := make(map[string]*routeStats)
+	var mu sync.Mutex
+	var wg sync.WaitGroup
+	sem := make(chan struct{}, 10)
+
+	// Obtener información de cada trip y agrupar por ruta
+	for _, ticket := range tickets {
+		if ticket.BookingStatus != "confirmed" {
+			continue
+		}
+
+		wg.Add(1)
+		go func(tripID string) {
+			defer wg.Done()
+			sem <- struct{}{}
+			defer func() { <-sem }()
+
+			trip, err := s.tripsClient.GetTrip(ctx, tripID)
+			if err != nil {
+				return
+			}
+
+			route, err := s.tripsClient.GetRoute(ctx, trip.RouteID)
+			if err != nil {
+				return
+			}
+
+			var price float64
+			if trip.FinalPrice != "" {
+				fmt.Sscanf(trip.FinalPrice, "%f", &price)
+			}
+
+			mu.Lock()
+			if _, exists := routeMap[trip.RouteID]; !exists {
+				routeMap[trip.RouteID] = &routeStats{
+					tripIDs:  []string{},
+					routeInfo: route,
+				}
+			}
+			routeMap[trip.RouteID].tickets++
+			routeMap[trip.RouteID].revenue += price
+			routeMap[trip.RouteID].tripIDs = append(routeMap[trip.RouteID].tripIDs, tripID)
+			mu.Unlock()
+		}(ticket.TripID)
+	}
+
+	wg.Wait()
+
+	// Convertir a slice y ordenar por número de tickets
+	popularRoutes := []models.RoutePopularity{}
+	for _, stats := range routeMap {
+		if stats.routeInfo != nil {
+			avgPrice := 0.0
+			if stats.tickets > 0 {
+				avgPrice = stats.revenue / float64(stats.tickets)
+			}
+			
+			popularRoutes = append(popularRoutes, models.RoutePopularity{
+				RouteCode:       stats.routeInfo.RouteCode,
+				OriginCity:      stats.routeInfo.OriginCity,
+				DestinationCity: stats.routeInfo.DestinationCity,
+				TotalTickets:    stats.tickets,
+				TotalRevenue:    stats.revenue,
+				AveragePrice:    avgPrice,
+			})
+		}
+	}
+
+	// Ordenar por total de tickets (descendente)
+	sort.Slice(popularRoutes, func(i, j int) bool {
+		return popularRoutes[i].TotalTickets > popularRoutes[j].TotalTickets
+	})
+
+	// Limitar resultados
+	if limit > 0 && len(popularRoutes) > limit {
+		popularRoutes = popularRoutes[:limit]
+	}
+
+	return popularRoutes
+}
+
+// calculateRecentActivity genera actividad reciente del sistema
+func (s *AggregationService) calculateRecentActivity(ctx context.Context, tickets []models.Ticket, limit int) []models.RecentActivity {
+	activities := []models.RecentActivity{}
+
+	// Agregar actividad de tickets recientes (últimos N tickets)
+	recentTickets := tickets
+	if len(recentTickets) > limit {
+		recentTickets = recentTickets[len(recentTickets)-limit:]
+	}
+
+	for _, ticket := range recentTickets {
+		if ticket.BookingStatus == "confirmed" {
+			activities = append(activities, models.RecentActivity{
+				Type:        "ticket_purchase",
+				Description: fmt.Sprintf("Ticket purchased for trip %s", ticket.TripID),
+				Timestamp:   time.Now(), // En producción, usar ticket.CreatedAt si existe
+				EntityID:    ticket.TicketID,
+			})
+		}
+	}
+
+	// Ordenar por timestamp (más reciente primero)
+	sort.Slice(activities, func(i, j int) bool {
+		return activities[i].Timestamp.After(activities[j].Timestamp)
+	})
+
+	if len(activities) > limit {
+		activities = activities[:limit]
+	}
+
+	return activities
+}
+
+// calculateMonthlyStats calcula estadísticas del mes actual
+func (s *AggregationService) calculateMonthlyStats(ctx context.Context, tickets []models.Ticket, totalPassengers int, totalTrips int) *models.MonthlyStatistics {
+	now := time.Now()
+	currentMonth := now.Format("2006-01")
+	
+	// Calcular revenue del mes actual
+	currentRevenue := 0.0
+	currentTickets := 0
+	
+	for _, ticket := range tickets {
+		if ticket.BookingStatus == "confirmed" {
+			currentTickets++
+			// En producción, filtrar por fecha del ticket
+			// Por ahora contamos todos los tickets
+		}
+	}
+	
+	// Calcular revenue para tickets del mes actual
+	currentRevenue = s.calculateTotalRevenue(ctx, tickets)
+
+	return &models.MonthlyStatistics{
+		CurrentMonth: models.MonthData{
+			Month:      currentMonth,
+			Passengers: totalPassengers,
+			Trips:      totalTrips,
+			Tickets:    currentTickets,
+			Revenue:    currentRevenue,
+		},
+		PreviousMonth: models.MonthData{
+			Month:      "", // TODO: Implementar histórico
+			Passengers: 0,
+			Trips:      0,
+			Tickets:    0,
+			Revenue:    0,
+		},
+		GrowthRate: 0.0, // TODO: Calcular cuando haya datos del mes anterior
+	}
 }
 
 func (s *AggregationService) getIntValue(data map[string]interface{}, key string, defaultValue int) int {

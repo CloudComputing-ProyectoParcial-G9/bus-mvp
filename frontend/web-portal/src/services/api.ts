@@ -46,7 +46,7 @@ class ApiService {
 
   // Passengers API
   async getPassengers(page = 1, limit = 20) {
-    const response = await this.fetchWithErrorHandling(`${API_URLS.passengers}/passengers?page=${page}&limit=${limit}`);
+    const response = await this.fetchWithErrorHandling(`${API_URLS.passengers}/api/v1/passengers?page=${page}&limit=${limit}`);
     // El backend devuelve una lista directa, la transformamos para que sea consistente
     if (Array.isArray(response)) {
       return {

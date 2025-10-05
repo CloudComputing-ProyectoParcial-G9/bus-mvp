@@ -20,7 +20,7 @@ func NewPassengersClient(cfg *config.Config) *PassengersClient {
 
 func (c *PassengersClient) GetPassenger(ctx context.Context, passengerID string) (*models.Passenger, error) {
 	var passenger models.Passenger
-	err := c.GetJSON(ctx, fmt.Sprintf("/passengers/%s", passengerID), &passenger)
+	err := c.GetJSON(ctx, fmt.Sprintf("/api/v1/passengers/%s", passengerID), &passenger)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get passenger %s: %w", passengerID, err)
 	}
@@ -29,7 +29,7 @@ func (c *PassengersClient) GetPassenger(ctx context.Context, passengerID string)
 
 func (c *PassengersClient) ListPassengers(ctx context.Context, page, limit int) ([]models.Passenger, error) {
 	var passengers []models.Passenger
-	endpoint := fmt.Sprintf("/passengers?page=%d&limit=%d", page, limit)
+	endpoint := fmt.Sprintf("/api/v1/passengers?page=%d&limit=%d", page, limit)
 	err := c.GetJSON(ctx, endpoint, &passengers)
 	if err != nil {
 		return nil, fmt.Errorf("failed to list passengers: %w", err)
