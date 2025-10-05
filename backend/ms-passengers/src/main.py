@@ -14,7 +14,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(passengers.router, prefix="", tags=["Passengers"])
+app.include_router(passengers.router, prefix="/api/v1", tags=["Passengers"])
 
 
 @app.on_event("startup")
