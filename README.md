@@ -67,16 +67,23 @@ Este MVP (Minimum Viable Product) implementa un sistema distribuido para la gest
 
 ### Pasos
 
-1. **Configurar variables de entorno**:
-```bash
-cp infra/.env.example infra/.env
-# Editar infra/.env con las configuraciones apropiadas
+1. **Configurar variables de entorno** (¡NUEVO! Centralizado):
+```powershell
+# Ejecutar el script de configuración
+.\setup-env.ps1
+
+# O manualmente:
+cp .env.example .env
+# Editar .env con las configuraciones apropiadas
+
+# Nota: Las variables del backend están CENTRALIZADAS en el .env raíz
+# Ver ENV_SETUP_GUIDE.md para más detalles
 ```
 
 2. **Levantar servicios**:
-```bash
-cd infra
-docker compose up -d --build
+```powershell
+# Desde la raíz del proyecto
+docker-compose up -d --build
 ```
 
 3. **Verificar servicios**:
@@ -95,6 +102,10 @@ docker compose up -d --build
 - Seguir instrucciones específicas en `frontend/web-portal/README.md`
 - Instalar dependencias según el framework elegido
 - Ejecutar servidor de desarrollo (típicamente en puerto 5173)
+
+**Documentación de Variables de Entorno:**
+- 📘 [Guía de Configuración de Variables](ENV_SETUP_GUIDE.md)
+- 📘 [Configuración Detallada del Backend](backend/ENV_CONFIG.md)
 
 ## Estructura del Proyecto
 
