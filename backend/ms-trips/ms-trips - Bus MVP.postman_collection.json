@@ -1,0 +1,283 @@
+{
+	"info": {
+		"_postman_id": "95c17fc3-a553-408c-9b6b-3371779c04ec",
+		"name": "ms-trips - Bus MVP",
+		"description": "Postman collection for ms-trips (health, trips, routes, admin). Generated from README.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "43499852",
+		"_collection_link": "https://winter-robot-541169.postman.co/workspace/My-Workspace~4f89953e-965b-4100-8506-0868915f9679/collection/43499852-95c17fc3-a553-408c-9b6b-3371779c04ec?action=share&source=collection_link&creator=43499852"
+	},
+	"item": [
+		{
+			"name": "Health",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/v1/health",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"health"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "List Trips",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/v1/trips",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"trips"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Search Trips",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/v1/trips/search?origin=Lima&destination=Cusco&departureDate=2025-09-22",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"trips",
+						"search"
+					],
+					"query": [
+						{
+							"key": "origin",
+							"value": "Lima"
+						},
+						{
+							"key": "destination",
+							"value": "Cusco"
+						},
+						{
+							"key": "departureDate",
+							"value": "2025-09-22"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Trip",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"tripId\": \"TRP_20250925_LIM_TRU_08\",\n  \"routeId\": \"LIM_TRU_003\",\n  \"departureDateTime\": \"2025-09-25T06:00:00Z\",\n  \"arrivalDateTime\": \"2025-09-25T14:45:00Z\",\n  \"busCapacity\": 40,\n  \"availableSeats\": 40,\n  \"finalPrice\": 75.00,\n  \"status\": \"scheduled\",\n  \"driverName\": \"Juan Perez\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/v1/trips",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"trips"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update Trip",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"availableSeats\": 35,\n  \"status\": \"in_progress\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/v1/trips/{{tripId}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"trips",
+						"{{tripId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Trip",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/v1/trips/{{tripId}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"trips",
+						"{{tripId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "List Routes",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/v1/routes",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"routes"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Route",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/v1/routes/{{routeId}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"routes",
+						"{{routeId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Admin: Seed Data",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"clearData\": true,\n  \"testData\": true\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/v1/admin/seed",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"admin",
+						"seed"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Admin: Data Status",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/v1/admin/data-status",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"admin",
+						"data-status"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Admin: Clear Data",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/v1/admin/clear-data",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"admin",
+						"clear-data"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8002"
+		},
+		{
+			"key": "tripId",
+			"value": "TRP_20250925_LIM_TRU_08"
+		},
+		{
+			"key": "routeId",
+			"value": "LIM_TRU_003"
+		}
+	]
+}

@@ -1,0 +1,240 @@
+{
+	"info": {
+		"_postman_id": "4fef7eea-15f6-4a70-b1c9-2d6cbad13bec",
+		"name": "ms-tickets - Local",
+		"description": "Colección para probar localmente los endpoints de ms-tickets (Java + Spring Boot + MongoDB). Contiene requests para health, create, list, get, update, cancel y history.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "43499852",
+		"_collection_link": "https://winter-robot-541169.postman.co/workspace/My-Workspace~4f89953e-965b-4100-8506-0868915f9679/collection/43499852-4fef7eea-15f6-4a70-b1c9-2d6cbad13bec?action=share&source=collection_link&creator=43499852"
+	},
+	"item": [
+		{
+			"name": "Health - GET /tickets/health",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Status 200', function () {pm.response.to.have.status(200);});",
+							"pm.test('Tiene campo status healthy', function () {",
+							"    var json = pm.response.json();",
+							"    pm.expect(json).to.have.property('status');",
+							"    pm.expect(json.status).to.eql('healthy');",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/tickets/health",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"tickets",
+						"health"
+					]
+				},
+				"description": "Comprueba que ms-tickets está vivo. Debe devolver un JSON con status=healthy."
+			},
+			"response": []
+		},
+		{
+			"name": "Create Ticket - POST /tickets",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Status 201 Created', function () {",
+							"    pm.response.to.have.status(201);",
+							"});",
+							"var json = pm.response.json();",
+							"pm.test('Tiene data.ticket_id', function () {",
+							"    pm.expect(json).to.have.property('data');",
+							"    pm.expect(json.data).to.have.property('ticket_id');",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"passenger_id\": \"passenger-123\",\n  \"trip_id\": \"trip-456\",\n  \"seat_number\": \"12A\",\n  \"payment_method\": \"card\",\n  \"idempotency_key\": \"idem-001\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/tickets",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"tickets"
+					]
+				},
+				"description": "Ejemplo de compra de boleto. Ajusta campos según tus datos de prueba. El servicio puede devolver 201 (creado) o 409 (no seats)."
+			},
+			"response": []
+		},
+		{
+			"name": "List Tickets - GET /tickets",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/tickets?page=1&limit=10",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"tickets"
+					],
+					"query": [
+						{
+							"key": "page",
+							"value": "1"
+						},
+						{
+							"key": "limit",
+							"value": "10"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Ticket - GET /tickets/:id",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/tickets/:ticket_id",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"tickets",
+						":ticket_id"
+					],
+					"variable": [
+						{
+							"key": "ticket_id"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update Ticket - PUT /tickets/:id",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"seat_number\": \"12B\",\n  \"booking_status\": \"confirmed\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/tickets/:ticket_id",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"tickets",
+						":ticket_id"
+					],
+					"variable": [
+						{
+							"key": "ticket_id"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Cancel Ticket - POST /tickets/:id/cancel",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/tickets/:ticket_id/cancel",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"tickets",
+						":ticket_id",
+						"cancel"
+					],
+					"variable": [
+						{
+							"key": "ticket_id"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Passenger History - GET /tickets/passenger/:passenger_id/history",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/tickets/passenger/:passenger_id/history",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"tickets",
+						"passenger",
+						":passenger_id",
+						"history"
+					],
+					"variable": [
+						{
+							"key": "passenger_id"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8003",
+			"type": "string"
+		}
+	]
+}
