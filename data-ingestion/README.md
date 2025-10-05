@@ -1,8 +1,22 @@
-# Bus MVP - Data Ingestion & Analytics# Data Ingestion Pipeline - Bus MVP
+# Data Ingestion Pipeline - Bus MVP
 
+Pipeline de ingesta de datos para extracción desde microservicios hacia AWS S3.
 
+## ⚡ Inicio Rápido
 
-Sistema de ingesta y análisis de datos para Bus MVP usando AWS (S3, Glue, Athena).Pipeline de ingesta de datos para extracción desde microservicios hacia AWS S3.
+**Ejecuta todo el proceso con un solo comando:**
+
+```powershell
+# Windows
+.\setup_aws_academy.ps1  # Primera vez
+.\run_all.ps1            # Ejecuta TODO
+
+# Linux/Mac
+./setup_aws_academy.sh   # Primera vez
+./run_all.sh             # Ejecuta TODO
+```
+
+📖 **Guía completa**: [RUN_ALL_GUIDE.md](./RUN_ALL_GUIDE.md)
 
 
 

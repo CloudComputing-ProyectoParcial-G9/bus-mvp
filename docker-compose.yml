@@ -6,12 +6,12 @@ services:
     image: mysql:8.0
     container_name: mysql-trips
     environment:
-      MYSQL_ROOT_PASSWORD: rootpassword
-      MYSQL_DATABASE: trips_db
-      MYSQL_USER: trips_user
-      MYSQL_PASSWORD: secure_password
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
     ports:
-      - "3307:3306" # Puerto alternativo para evitar conflictos
+      - "${MYSQL_EXTERNAL_PORT}:3306" # Puerto alternativo para evitar conflictos
     volumes:
       - mysql_trips_data:/var/lib/mysql
     command: --default-authentication-plugin=mysql_native_password
@@ -26,15 +26,15 @@ services:
     image: postgres:15
     container_name: postgres-passengers
     environment:
-      POSTGRES_DB: passengers_db
-      POSTGRES_USER: passengers_user
-      POSTGRES_PASSWORD: passengers_password
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
-      - "5433:5432" # Puerto alternativo
+      - "${POSTGRES_EXTERNAL_PORT}:5432" # Puerto alternativo
     volumes:
       - postgres_passengers_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U passengers_user -d passengers_db"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
       interval: 30s
       timeout: 10s
       retries: 5
@@ -44,11 +44,11 @@ services:
     image: mongo:7
     container_name: mongo-tickets
     environment:
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: rootpassword
-      MONGO_INITDB_DATABASE: tickets_db
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+      MONGO_INITDB_DATABASE: ${MONGO_INITDB_DATABASE}
     ports:
-      - "27018:27017" # Puerto alternativo
+      - "${MONGO_EXTERNAL_PORT}:27017" # Puerto alternativo
     volumes:
       - mongo_tickets_data:/data/db
       - ./backend/ms-tickets/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
@@ -66,18 +66,33 @@ services:
       dockerfile: Dockerfile
     container_name: ms-trips
     ports:
-      - "8002:8002"
+      - "${MS_TRIPS_PORT}:${MS_TRIPS_PORT}"
     environment:
-      - NODE_ENV=development
-      - PORT=8002
-      - MYSQL_HOST=mysql-trips
-      - MYSQL_PORT=3306
-      - MYSQL_DB=trips_db
-      - MYSQL_USER=trips_user
-      - MYSQL_PASSWORD=secure_password
-      - DATABASE_URL=mysql://trips_user:secure_password@mysql-trips:3306/trips_db
-      - CORS_ORIGIN=*
-      - SWAGGER_ENABLED=true
+      - NODE_ENV=${NODE_ENV}
+      - PORT=${MS_TRIPS_PORT}
+      - MYSQL_HOST=${MYSQL_HOST}
+      - MYSQL_PORT=${MYSQL_PORT}
+      - MYSQL_DB=${MYSQL_DB}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - SQL2_HOST=${SQL2_HOST}
+      - SQL2_PORT=${SQL2_PORT}
+      - SQL2_DB=${SQL2_DB}
+      - SQL2_USER=${SQL2_USER}
+      - SQL2_PASSWORD=${SQL2_PASSWORD}
+      - PROJECT_NAME=${PROJECT_NAME}
+      - PROJECT_VERSION=${PROJECT_VERSION}
+      - API_V1_PREFIX=${API_V1_PREFIX}
+      - LOG_LEVEL=${LOG_LEVEL}
+      - LOG_FORMAT=${LOG_FORMAT}
+      - CORS_ORIGIN=${CORS_ORIGIN}
+      - CORS_METHODS=${CORS_METHODS}
+      - CORS_ALLOWED_HEADERS=${CORS_ALLOWED_HEADERS}
+      - RATE_LIMIT_WINDOW_MS=${RATE_LIMIT_WINDOW_MS}
+      - RATE_LIMIT_MAX_REQUESTS=${RATE_LIMIT_MAX_REQUESTS}
+      - SWAGGER_ENABLED=${SWAGGER_ENABLED}
+      - SWAGGER_PATH=${SWAGGER_PATH}
+      - HEALTH_CHECK_TIMEOUT_MS=${HEALTH_CHECK_TIMEOUT_MS}
     depends_on:
       mysql-trips:
         condition: service_healthy
@@ -90,10 +105,16 @@ services:
       dockerfile: Dockerfile
     container_name: ms-passengers
     ports:
-      - "8001:8001"
+      - "${MS_PASSENGERS_PORT}:${MS_PASSENGERS_PORT}"
     environment:
-      - DATABASE_URL=postgresql://passengers_user:passengers_password@postgres-passengers:5432/passengers_db
-      - ENVIRONMENT=development
+      - DATABASE_URL=${DATABASE_URL}
+      - SQL1_HOST=${SQL1_HOST}
+      - SQL1_PORT=${SQL1_PORT}
+      - SQL1_DB=${SQL1_DB}
+      - SQL1_USER=${SQL1_USER}
+      - SQL1_PASSWORD=${SQL1_PASSWORD}
+      - ENVIRONMENT=${ENVIRONMENT}
+      - LOG_LEVEL=${LOG_LEVEL}
     depends_on:
       postgres-passengers:
         condition: service_healthy
@@ -106,12 +127,15 @@ services:
       dockerfile: Dockerfile
     container_name: ms-tickets
     ports:
-      - "8003:8003"
+      - "${MS_TICKETS_PORT}:${MS_TICKETS_PORT}"
     environment:
-      - SPRING_DATA_MONGODB_URI=mongodb://tickets_user:tickets_password@mongo-tickets:27017/tickets_db
-      - SPRING_PROFILES_ACTIVE=development
-      - MS_TRIPS_URL=http://ms-trips:8002
-      - MS_PASSENGERS_URL=http://ms-passengers:8001
+      - MS_TICKETS_PORT=${MS_TICKETS_PORT}
+      - SPRING_DATA_MONGODB_URI=${SPRING_DATA_MONGODB_URI}
+      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
+      - IDEMPOTENCY_TTL_SECONDS=${IDEMPOTENCY_TTL_SECONDS}
+      - ENABLE_INTEGRATION_CHECKS=${ENABLE_INTEGRATION_CHECKS}
+      - MS_TRIPS_URL=${MS_TRIPS_URL}
+      - MS_PASSENGERS_URL=${MS_PASSENGERS_URL}
     depends_on:
       mongo-tickets:
         condition: service_healthy
@@ -128,39 +152,57 @@ services:
       dockerfile: Dockerfile
     container_name: ms-history
     ports:
-      - "8004:8004"
+      - "${MS_HISTORY_PORT}:${MS_HISTORY_PORT}"
     environment:
-      - PORT=8004
-      - ENVIRONMENT=development
-      - MS_PASSENGERS_URL=http://ms-passengers:8001
-      - MS_TRIPS_URL=http://ms-trips:8002
-      - MS_TICKETS_URL=http://ms-tickets:8003
+      - MS_HISTORY_PORT=${MS_HISTORY_PORT}
+      - NODE_ENV=${NODE_ENV}
+      - ENVIRONMENT=${ENVIRONMENT}
+      - LOG_LEVEL=${LOG_LEVEL}
+      - MS_PASSENGERS_URL=${MS_PASSENGERS_URL}
+      - MS_TRIPS_URL=${MS_TRIPS_URL}
+      - MS_TICKETS_URL=${MS_TICKETS_URL}
+      - HTTP_TIMEOUT_MS=${HTTP_TIMEOUT_MS}
+      - MAX_RETRIES=${MAX_RETRIES}
+      - RETRY_DELAY_MS=${RETRY_DELAY_MS}
+      - CIRCUIT_BREAKER_FAILURE_THRESHOLD=${CIRCUIT_BREAKER_FAILURE_THRESHOLD}
+      - CIRCUIT_BREAKER_RECOVERY_TIMEOUT=${CIRCUIT_BREAKER_RECOVERY_TIMEOUT}
+      - REDIS_URL=${REDIS_URL}
+      - CACHE_TTL_SECONDS=${CACHE_TTL_SECONDS}
+      - ENABLE_CACHE=${ENABLE_CACHE}
     depends_on:
       - ms-passengers
       - ms-trips
       - ms-tickets
     restart: unless-stopped
 
-  # Microservicio ms-analytics (Python) - Analytics y reportes
+  # Microservicio ms-analytics (Python) - Servicio analítico con AWS Athena
   ms-analytics:
     build:
       context: ./backend/ms-analytics
       dockerfile: Dockerfile
     container_name: ms-analytics
     ports:
-      - "8005:8005"
+      - "${MS_ANALYTICS_PORT}:${MS_ANALYTICS_PORT}"
     environment:
-      - ENVIRONMENT=development
-      - MS_PASSENGERS_URL=http://ms-passengers:8001
-      - MS_TRIPS_URL=http://ms-trips:8002
-      - MS_TICKETS_URL=http://ms-tickets:8003
-      - MS_HISTORY_URL=http://ms-history:8004
-    depends_on:
-      - ms-passengers
-      - ms-trips
-      - ms-tickets
-      - ms-history
+      # AWS Configuration
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - AWS_SESSION_TOKEN=${AWS_SESSION_TOKEN}
+      - AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION}
+      # Athena Configuration
+      - GLUE_DATABASE=${GLUE_DATABASE}
+      - ATHENA_OUTPUT_LOCATION=${ATHENA_OUTPUT_LOCATION}
+      - ATHENA_QUERY_TIMEOUT=${ATHENA_QUERY_TIMEOUT}
+      # Application Configuration
+      - APP_NAME=${APP_NAME}
+      - APP_VERSION=${APP_VERSION}
+      - DEBUG=${DEBUG}
+      - LOG_LEVEL=${LOG_LEVEL}
+      # CORS
+      - CORS_ORIGINS=${CORS_ORIGINS}
     restart: unless-stopped
+    volumes:
+      - ./backend/ms-analytics/logs:/app/logs
 
 volumes:
   mysql_trips_data:

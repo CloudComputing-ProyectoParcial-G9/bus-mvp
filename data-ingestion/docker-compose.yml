@@ -46,48 +46,6 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
-  analytics-service:
-    build: ./analytics-service
-    container_name: analytics-service
-    ports:
-      - "5000:5000"
-    environment:
-      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
-      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
-      - AWS_SESSION_TOKEN=${AWS_SESSION_TOKEN}
-      - AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION}
-      - GLUE_DATABASE=${GLUE_DATABASE}
-      - ATHENA_OUTPUT_LOCATION=${ATHENA_OUTPUT_LOCATION}
-    networks:
-      - ingestion-network
-
-  ms-analytics:
-    build: ../backend/ms-analytics
-    container_name: ms-analytics
-    ports:
-      - "8005:8005"
-    environment:
-      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
-      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
-      - AWS_SESSION_TOKEN=${AWS_SESSION_TOKEN}
-      - AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION}
-      - GLUE_DATABASE=${GLUE_DATABASE}
-      - ATHENA_OUTPUT_LOCATION=${ATHENA_OUTPUT_LOCATION}
-      - APP_NAME=Bus MVP Analytics API
-      - APP_VERSION=1.0.0
-      - DEBUG=False
-      - LOG_LEVEL=INFO
-    volumes:
-      - ../backend/ms-analytics/logs:/app/logs
-    networks:
-      - ingestion-network
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8005/api/v1/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
-
 networks:
   ingestion-network:
     driver: bridge
