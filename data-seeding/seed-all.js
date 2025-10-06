@@ -27,55 +27,6 @@ const CONFIG = require('./config/constants');
 const { faker } = require('@faker-js/faker');
 
 // ============================================================================
-// CONFIGURACIÓN
-// ============================================================================
-
-const CONFIG = {
-  counts: {
-    routes: 50,
-    passengers: 2000,
-    trips: 3000,
-    tickets: 14950
-  },
-
-  // Conexión desde el HOST usando puertos expuestos
-  mysql: {
-    host: process.env.SQL2_HOST || process.env.MYSQL_HOST || 'localhost',
-    port: parseInt(process.env.SQL2_PORT || process.env.MYSQL_PORT || '3307'),
-    database: process.env.SQL2_DB || process.env.MYSQL_DB || 'trips_db',
-    user: process.env.SQL2_USER || process.env.MYSQL_USER || 'trips_user',
-    password: process.env.SQL2_PASSWORD || process.env.MYSQL_PASSWORD || 'secure_password'
-  },
-
-  postgres: {
-    host: process.env.POSTGRES_HOST || 'localhost',
-    port: parseInt(process.env.POSTGRES_PORT || '5433'),
-    database: process.env.POSTGRES_DB || 'passengers_db',
-    user: process.env.POSTGRES_USER || 'passengers_user',
-    password: process.env.POSTGRES_PASSWORD || 'passengers_password'
-  },
-
-  mongodb: {
-    url: process.env.SPRING_DATA_MONGODB_URI || 'mongodb://tickets_user:tickets_password@localhost:27018/tickets_db?authSource=tickets_db',
-    database: process.env.NOSQL_DB || 'tickets_db'
-  },
-
-  cities: [
-    'Lima', 'Arequipa', 'Cusco', 'Trujillo', 'Chiclayo', 'Piura', 'Iquitos',
-    'Huancayo', 'Tacna', 'Pucallpa', 'Ayacucho', 'Cajamarca', 'Ica', 'Juliaca',
-    'Huaraz', 'Puno', 'Tumbes', 'Tarapoto', 'Chimbote', 'Huánuco'
-  ],
-
-  cityCodes: {
-    'Lima': 'LIM', 'Arequipa': 'AQP', 'Cusco': 'CUZ', 'Trujillo': 'TRU',
-    'Chiclayo': 'CIX', 'Piura': 'PIU', 'Iquitos': 'IQT', 'Huancayo': 'HUA',
-    'Tacna': 'TCQ', 'Pucallpa': 'PCL', 'Ayacucho': 'AYA', 'Cajamarca': 'CAJ',
-    'Ica': 'ICA', 'Juliaca': 'JUL', 'Huaraz': 'HUZ', 'Puno': 'PUN',
-    'Tumbes': 'TBP', 'Tarapoto': 'TPP', 'Chimbote': 'CHM', 'Huánuco': 'HUC'
-  }
-};
-
-// ============================================================================
 // CONEXIONES
 // ============================================================================
 
