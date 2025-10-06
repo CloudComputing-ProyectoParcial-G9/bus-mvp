@@ -18,23 +18,47 @@ class PassengerIngestion:
         self.bucket_name = os.getenv('S3_BUCKET', 'bus-mvp-datalake')
         
     def extract_passengers(self):
-        """Extrae el 100% de pasajeros desde la API"""
+        """Extrae el 100% de pasajeros desde la API con paginación"""
+        all_passengers = []
+        page = 1
+        page_size = 100  # Aumentar tamaño de página
+        
         try:
-            print(f'🔍 Fetching passengers from {self.api_url}/passengers...')
-            response = requests.get(f'{self.api_url}/passengers', timeout=30)
-            response.raise_for_status()
-            data = response.json()
-            
-            # Handle different response formats
-            if isinstance(data, dict) and 'data' in data:
-                passengers = data['data']
-            elif isinstance(data, list):
-                passengers = data
-            else:
-                passengers = [data]
+            while True:
+                print(f'🔍 Fetching passengers page {page} from {self.api_url}/passengers...')
+                params = {
+                    'page': page,
+                    'limit': page_size
+                }
+                response = requests.get(f'{self.api_url}/passengers', params=params, timeout=30)
+                response.raise_for_status()
+                data = response.json()
                 
-            print(f'✅ Retrieved {len(passengers)} passengers')
-            return passengers
+                # Handle different response formats
+                if isinstance(data, dict) and 'data' in data:
+                    passengers = data['data']
+                    # Check if there are more pages
+                    has_more = data.get('hasMore', False) or data.get('pagination', {}).get('hasNextPage', False)
+                elif isinstance(data, list):
+                    passengers = data
+                    has_more = len(passengers) == page_size
+                else:
+                    passengers = [data]
+                    has_more = False
+                
+                if not passengers:
+                    break
+                    
+                all_passengers.extend(passengers)
+                print(f'✅ Retrieved {len(passengers)} passengers from page {page} (total: {len(all_passengers)})')
+                
+                if not has_more or len(passengers) < page_size:
+                    break
+                    
+                page += 1
+                
+            print(f'✅ Total passengers retrieved: {len(all_passengers)}')
+            return all_passengers
         except requests.exceptions.RequestException as e:
             print(f'❌ Error fetching passengers: {e}')
             sys.exit(1)

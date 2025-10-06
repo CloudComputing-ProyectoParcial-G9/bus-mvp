@@ -18,23 +18,58 @@ class TicketIngestion:
         self.bucket_name = os.getenv('S3_BUCKET', 'bus-mvp-datalake')
         
     def extract_tickets(self):
-        """Extrae el 100% de tickets desde la API"""
+        """Extrae el 100% de tickets desde la API con paginación"""
+        all_tickets = []
+        page = 1
+        page_size = 100  # Usar un tamaño mayor para reducir llamadas
+        
         try:
-            print(f'🔍 Fetching tickets from {self.api_url}/tickets...')
-            response = requests.get(f'{self.api_url}/tickets', timeout=30)
-            response.raise_for_status()
-            data = response.json()
-            
-            # Handle different response formats
-            if isinstance(data, dict) and 'data' in data:
-                tickets = data['data']
-            elif isinstance(data, list):
-                tickets = data
-            else:
-                tickets = [data]
+            while True:
+                print(f'🔍 Fetching tickets page {page} from {self.api_url}/tickets...')
                 
-            print(f'✅ Retrieved {len(tickets)} tickets')
-            return tickets
+                params = {
+                    'page': page,
+                    'limit': page_size
+                }
+                
+                response = requests.get(f'{self.api_url}/tickets', params=params, timeout=30)
+                response.raise_for_status()
+                data = response.json()
+                
+                # Handle different response formats
+                if isinstance(data, dict) and 'data' in data:
+                    tickets = data['data']
+                    has_more = data.get('hasMore', False)
+                    total_pages = data.get('totalPages', 0)
+                elif isinstance(data, list):
+                    tickets = data
+                    has_more = len(tickets) == page_size  # Si devuelve menos del límite, no hay más
+                else:
+                    tickets = [data] if data else []
+                    has_more = False
+                
+                if not tickets:
+                    print(f'📄 No more tickets found on page {page}')
+                    break
+                
+                all_tickets.extend(tickets)
+                print(f'📄 Page {page}: Retrieved {len(tickets)} tickets (Total so far: {len(all_tickets)})')
+                
+                # Check if we should continue
+                if not has_more or len(tickets) < page_size:
+                    print(f'✅ Reached end of data on page {page}')
+                    break
+                
+                page += 1
+                
+                # Safety check to avoid infinite loops
+                if page > 1000:
+                    print(f'⚠️  Safety break at page {page}')
+                    break
+            
+            print(f'✅ Retrieved total {len(all_tickets)} tickets across {page} pages')
+            return all_tickets
+            
         except requests.exceptions.RequestException as e:
             print(f'❌ Error fetching tickets: {e}')
             sys.exit(1)

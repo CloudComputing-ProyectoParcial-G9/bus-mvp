@@ -18,23 +18,46 @@ class TripIngestion:
         self.bucket_name = os.getenv('S3_BUCKET', 'bus-mvp-datalake')
         
     def extract_trips(self):
-        """Extrae el 100% de viajes desde la API"""
+        """Extrae el 100% de viajes desde la API con paginación"""
+        all_trips = []
+        page = 1
+        page_size = 100
+        
         try:
-            print(f'🔍 Fetching trips from {self.api_url}/trips...')
-            response = requests.get(f'{self.api_url}/trips', timeout=30)
-            response.raise_for_status()
-            data = response.json()
-            
-            # Handle different response formats
-            if isinstance(data, dict) and 'data' in data:
-                trips = data['data']
-            elif isinstance(data, list):
-                trips = data
-            else:
-                trips = [data]
+            while True:
+                print(f'🔍 Fetching trips page {page} from {self.api_url}/trips...')
+                params = {
+                    'page': page,
+                    'limit': page_size
+                }
+                response = requests.get(f'{self.api_url}/trips', params=params, timeout=30)
+                response.raise_for_status()
+                data = response.json()
                 
-            print(f'✅ Retrieved {len(trips)} trips')
-            return trips
+                # Handle different response formats
+                if isinstance(data, dict) and 'data' in data:
+                    trips = data['data']
+                    has_more = data.get('hasMore', False) or data.get('pagination', {}).get('hasNextPage', False)
+                elif isinstance(data, list):
+                    trips = data
+                    has_more = len(trips) == page_size
+                else:
+                    trips = [data]
+                    has_more = False
+                
+                if not trips:
+                    break
+                    
+                all_trips.extend(trips)
+                print(f'✅ Retrieved {len(trips)} trips from page {page} (total: {len(all_trips)})')
+                
+                if not has_more or len(trips) < page_size:
+                    break
+                    
+                page += 1
+                
+            print(f'✅ Total trips retrieved: {len(all_trips)}')
+            return all_trips
         except requests.exceptions.RequestException as e:
             print(f'❌ Error fetching trips: {e}')
             sys.exit(1)
