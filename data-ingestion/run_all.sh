@@ -370,7 +370,7 @@ invoke_validation() {
     # 1. Verificar datos en S3
     log_step "Verificando datos en S3..."
     
-    local bucket="bus-mvp-datalake"
+    local bucket="bus-mvp-datalake-349698160079"
     if [ -f "$SCRIPT_DIR/.env" ]; then
         local bucket_line=$(grep "S3_BUCKET=" "$SCRIPT_DIR/.env" | head -1)
         if [ -n "$bucket_line" ]; then
@@ -438,9 +438,9 @@ show_summary() {
     log_success "  ✅ AWS Athena (Tablas + Queries)"
     
     echo -e "\n${CYAN}Archivos generados:${NC}"
-    echo "  📁 s3://bus-mvp-datalake/raw/passengers_csv/"
-    echo "  📁 s3://bus-mvp-datalake/raw/trips_csv/"
-    echo "  📁 s3://bus-mvp-datalake/raw/tickets_csv/"
+    echo "  📁 s3://bus-mvp-datalake-349698160079/raw/passengers_csv/"
+    echo "  📁 s3://bus-mvp-datalake-349698160079/raw/trips_csv/"
+    echo "  📁 s3://bus-mvp-datalake-349698160079/raw/tickets_csv/"
     
     echo -e "\n${CYAN}Servicios disponibles:${NC}"
     echo "  🔍 AWS Athena: https://console.aws.amazon.com/athena/"
