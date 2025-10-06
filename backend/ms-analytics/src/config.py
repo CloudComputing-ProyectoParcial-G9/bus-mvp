@@ -20,7 +20,7 @@ class Settings(BaseSettings):
     
     # Athena Configuration
     glue_database: str = "bus_mvp_db"
-    athena_output_location: str = "s3://bus-mvp-datalake/athena-results/"
+    athena_output_location: str = "s3://bus-mvp-datalake-1/athena-results/"
     athena_query_timeout: int = 60  # segundos
     
     # Application

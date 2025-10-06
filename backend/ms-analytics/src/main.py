@@ -30,7 +30,7 @@ app = FastAPI(
     
     - **Backend**: FastAPI + Python 3.11
     - **Data Source**: AWS Athena
-    - **Storage**: AWS S3 (bus-mvp-datalake)
+    - **Storage**: AWS S3 (bus-mvp-datalake-1)
     - **Catalog**: AWS Glue Database
     
     ### Documentación:

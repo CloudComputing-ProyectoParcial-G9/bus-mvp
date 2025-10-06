@@ -109,7 +109,7 @@ Después de ejecutar el script:
 
 ```bash
 # Ver archivos en S3
-aws s3 ls s3://bus-mvp-datalake/raw/ --recursive
+aws s3 ls s3://bus-mvp-datalake-1/raw/ --recursive
 
 # Ver tablas en Glue
 aws glue get-tables --database-name bus_mvp_db

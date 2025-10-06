@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Script para ejecutar las 4 consultas SQL requeridas en Amazon Athena
-Los resultados se guardan automáticamente en s3://bus-mvp-datalake/athena-results/
+Los resultados se guardan automáticamente en s3://bus-mvp-datalake-1/athena-results/
 
 Requisitos cumplidos:
 - 4 consultas SQL que unen múltiples tablas
@@ -26,8 +26,8 @@ class AthenaQueryExecutor:
         self.athena = boto3.client('athena', region_name='us-east-1')
         self.s3 = boto3.client('s3', region_name='us-east-1')
         self.database = os.getenv('GLUE_DATABASE', 'bus_mvp_db')
-        self.output_location = os.getenv('ATHENA_OUTPUT_LOCATION', 's3://bus-mvp-datalake/athena-results/')
-        self.bucket = os.getenv('S3_BUCKET', 'bus-mvp-datalake')
+        self.output_location = os.getenv('ATHENA_OUTPUT_LOCATION', 's3://bus-mvp-datalake-1/athena-results/')
+        self.bucket = os.getenv('S3_BUCKET', 'bus-mvp-datalake-1')
         
         # Asegurar que output_location termina con /
         if not self.output_location.endswith('/'):
@@ -391,7 +391,7 @@ def main():
 ║        BUS MVP - EJECUCIÓN DE CONSULTAS SQL EN ATHENA           ║
 ║                                                                  ║
 ║  Requisito: 4 consultas SQL que unen varias tablas              ║
-║  Destino: s3://bus-mvp-datalake/athena-results/                 ║
+║  Destino: s3://bus-mvp-datalake-1/athena-results/                 ║
 ║                                                                  ║
 ╚══════════════════════════════════════════════════════════════════╝
 """)

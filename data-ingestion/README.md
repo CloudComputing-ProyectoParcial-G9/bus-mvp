@@ -136,19 +136,19 @@ Este script:```
 
 ### Paso 2: Crear infraestructura en AWS```bash
 
-aws s3 mb s3://bus-mvp-datalake --region us-east-1
+aws s3 mb s3://bus-mvp-datalake-1 --region us-east-1
 
 ```bash
 
 # Instalar dependencias Python# Crear estructura de carpetas
 
-pip install -r scripts/requirements.txtaws s3api put-object --bucket bus-mvp-datalake --key raw/passengers/
+pip install -r scripts/requirements.txtaws s3api put-object --bucket bus-mvp-datalake-1 --key raw/passengers/
 
-aws s3api put-object --bucket bus-mvp-datalake --key raw/trips/
+aws s3api put-object --bucket bus-mvp-datalake-1 --key raw/trips/
 
-# Crear bucket S3aws s3api put-object --bucket bus-mvp-datalake --key raw/tickets/
+# Crear bucket S3aws s3api put-object --bucket bus-mvp-datalake-1 --key raw/tickets/
 
-python scripts/setup_s3.pyaws s3api put-object --bucket bus-mvp-datalake --key athena-results/
+python scripts/setup_s3.pyaws s3api put-object --bucket bus-mvp-datalake-1 --key athena-results/
 
 ```
 
@@ -190,7 +190,7 @@ docker-compose up tickets-ingestion
 
 python scripts/test_athena_queries.py```bash
 
-aws s3 ls s3://bus-mvp-datalake/raw/ --recursive
+aws s3 ls s3://bus-mvp-datalake-1/raw/ --recursive
 
 # Ver estado de crawlers```
 
@@ -230,7 +230,7 @@ python scripts/check_crawlers.py
 
 ```    --database-name bus_mvp_db \
 
-    --targets '{"S3Targets": [{"Path": "s3://bus-mvp-datalake/raw/passengers/"}]}'
+    --targets '{"S3Targets": [{"Path": "s3://bus-mvp-datalake-1/raw/passengers/"}]}'
 
 ### Tabla: trips
 
@@ -244,7 +244,7 @@ python scripts/check_crawlers.py
 
 - arrivalDateTime: STRING    --database-name bus_mvp_db \
 
-- busCapacity: INT    --targets '{"S3Targets": [{"Path": "s3://bus-mvp-datalake/raw/trips/"}]}'
+- busCapacity: INT    --targets '{"S3Targets": [{"Path": "s3://bus-mvp-datalake-1/raw/trips/"}]}'
 
 - availableSeats: INT
 
@@ -258,7 +258,7 @@ python scripts/check_crawlers.py
 
 - createdAt: STRING    --database-name bus_mvp_db \
 
-- updatedAt: STRING    --targets '{"S3Targets": [{"Path": "s3://bus-mvp-datalake/raw/tickets/"}]}'
+- updatedAt: STRING    --targets '{"S3Targets": [{"Path": "s3://bus-mvp-datalake-1/raw/tickets/"}]}'
 
 - ingestion_timestamp: STRING```
 
@@ -391,7 +391,7 @@ AWS_DEFAULT_REGION=us-east-1
 AWS_ACCOUNT_ID=...
 
 # S3 Configuration
-S3_BUCKET=bus-mvp-datalake
+S3_BUCKET=bus-mvp-datalake-1
 
 # Microservices URLs
 PASSENGERS_API_URL=http://host.docker.internal:8001/api/v1
@@ -402,7 +402,7 @@ TICKETS_API_URL=http://host.docker.internal:8003
 GLUE_DATABASE=bus_mvp_db
 
 # Athena Configuration
-ATHENA_OUTPUT_LOCATION=s3://bus-mvp-datalake/athena-results/
+ATHENA_OUTPUT_LOCATION=s3://bus-mvp-datalake-1/athena-results/
 ```
 
 ## ⚠️ Importante

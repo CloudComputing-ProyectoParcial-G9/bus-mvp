@@ -26,11 +26,11 @@ docker-compose ps
 
 **Evidencia**:
 - Variable `S3_BUCKET` configurada en docker-compose.yml
-- Bucket: `bus-mvp-datalake` (o el que hayas configurado en .env)
+- Bucket: `bus-mvp-datalake-1` (o el que hayas configurado en .env)
 
 **Verificación**:
 ```powershell
-aws s3 ls s3://bus-mvp-datalake/raw/
+aws s3 ls s3://bus-mvp-datalake-1/raw/
 ```
 
 Deberías ver:
@@ -80,8 +80,8 @@ docker-compose up tickets-ingestion
 Los contenedores deben mostrar:
 ```
 ✅ Retrieved X passengers
-✅ Uploaded CSV: s3://bus-mvp-datalake/raw/passengers_csv/...
-✅ Uploaded JSON: s3://bus-mvp-datalake/raw/passengers_json/...
+✅ Uploaded CSV: s3://bus-mvp-datalake-1/raw/passengers_csv/...
+✅ Uploaded JSON: s3://bus-mvp-datalake-1/raw/passengers_json/...
 ```
 
 ---
@@ -132,20 +132,20 @@ El script:
 
    **Crawler 1: Passengers**
    - Name: `passengers-csv-crawler`
-   - Data source: `s3://bus-mvp-datalake/raw/passengers_csv/`
+   - Data source: `s3://bus-mvp-datalake-1/raw/passengers_csv/`
    - IAM role: `AWSGlueServiceRole-BusMVP` (crear si no existe)
    - Database: `bus_mvp_db`
    - Frequency: On demand
 
    **Crawler 2: Trips**
    - Name: `trips-csv-crawler`
-   - Data source: `s3://bus-mvp-datalake/raw/trips_csv/`
+   - Data source: `s3://bus-mvp-datalake-1/raw/trips_csv/`
    - IAM role: `AWSGlueServiceRole-BusMVP`
    - Database: `bus_mvp_db`
 
    **Crawler 3: Tickets**
    - Name: `tickets-csv-crawler`
-   - Data source: `s3://bus-mvp-datalake/raw/tickets_csv/`
+   - Data source: `s3://bus-mvp-datalake-1/raw/tickets_csv/`
    - IAM role: `AWSGlueServiceRole-BusMVP`
    - Database: `bus_mvp_db`
 
@@ -218,7 +218,7 @@ Puedes convertir el diagrama a imagen usando:
 
 2. **Configurar Output Location** (primera vez):
    - Settings → Manage
-   - Query result location: `s3://bus-mvp-datalake/athena-results/`
+   - Query result location: `s3://bus-mvp-datalake-1/athena-results/`
 
 3. **Seleccionar Database**:
    - En el panel izquierdo: Database → `bus_mvp_db`
@@ -333,7 +333,7 @@ docker-compose up trips-ingestion
 docker-compose up tickets-ingestion
 
 # Verificar datos en S3
-aws s3 ls s3://bus-mvp-datalake/raw/ --recursive
+aws s3 ls s3://bus-mvp-datalake-1/raw/ --recursive
 ```
 
 ### Fase 3: Configurar AWS Glue (15 minutos)
@@ -423,7 +423,7 @@ evidencias/
 **Solución**:
 ```powershell
 # Verificar que los archivos existen en S3
-aws s3 ls s3://bus-mvp-datalake/raw/passengers_csv/
+aws s3 ls s3://bus-mvp-datalake-1/raw/passengers_csv/
 
 # Re-ejecutar ingesta si no hay archivos
 docker-compose up passengers-ingestion
@@ -464,13 +464,13 @@ docker ps
 docker-compose logs passengers-ingestion
 
 # Listar archivos en S3
-aws s3 ls s3://bus-mvp-datalake/raw/ --recursive
+aws s3 ls s3://bus-mvp-datalake-1/raw/ --recursive
 
 # Ver tablas en Glue (CLI)
 aws glue get-tables --database-name bus_mvp_db
 
 # Ejecutar query en Athena (CLI)
-aws athena start-query-execution --query-string "SHOW TABLES" --result-configuration "OutputLocation=s3://bus-mvp-datalake/athena-results/" --query-execution-context "Database=bus_mvp_db"
+aws athena start-query-execution --query-string "SHOW TABLES" --result-configuration "OutputLocation=s3://bus-mvp-datalake-1/athena-results/" --query-execution-context "Database=bus_mvp_db"
 ```
 
 ---

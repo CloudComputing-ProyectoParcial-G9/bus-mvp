@@ -183,7 +183,7 @@ nano .env
 # Configurar:
 # - AWS_ACCESS_KEY_ID (si no usas IAM Role)
 # - AWS_SECRET_ACCESS_KEY (si no usas IAM Role)
-# - S3_BUCKET=bus-mvp-datalake
+# - S3_BUCKET=bus-mvp-datalake-1
 # - PASSENGERS_API_URL=http://<YOUR_BACKEND_IP>:3001/api
 # - TRIPS_API_URL=http://<YOUR_BACKEND_IP>:3002/api
 # - TICKETS_API_URL=http://<YOUR_BACKEND_IP>:3003/api
@@ -199,13 +199,13 @@ pip3 install -r scripts/requirements.txt
 python3 scripts/setup_s3.py us-east-1
 
 # O manualmente con AWS CLI
-aws s3 mb s3://bus-mvp-datalake --region us-east-1
+aws s3 mb s3://bus-mvp-datalake-1 --region us-east-1
 
 # Crear estructura de carpetas
-aws s3api put-object --bucket bus-mvp-datalake --key raw/passengers/
-aws s3api put-object --bucket bus-mvp-datalake --key raw/trips/
-aws s3api put-object --bucket bus-mvp-datalake --key raw/tickets/
-aws s3api put-object --bucket bus-mvp-datalake --key athena-results/
+aws s3api put-object --bucket bus-mvp-datalake-1 --key raw/passengers/
+aws s3api put-object --bucket bus-mvp-datalake-1 --key raw/trips/
+aws s3api put-object --bucket bus-mvp-datalake-1 --key raw/tickets/
+aws s3api put-object --bucket bus-mvp-datalake-1 --key athena-results/
 ```
 
 ## 🐳 Paso 8: Ejecutar Contenedores de Ingesta
@@ -244,7 +244,7 @@ python3 scripts/setup_glue.py us-east-1
 
 ```bash
 # Verificar archivos en S3
-aws s3 ls s3://bus-mvp-datalake/raw/ --recursive
+aws s3 ls s3://bus-mvp-datalake-1/raw/ --recursive
 
 # Listar tablas en Glue
 aws glue get-tables --database-name bus_mvp_db
@@ -302,7 +302,7 @@ aws ec2 stop-instances --instance-ids <INSTANCE_ID>
 aws ec2 terminate-instances --instance-ids <INSTANCE_ID>
 
 # Eliminar bucket S3 (¡cuidado! elimina todos los datos)
-aws s3 rb s3://bus-mvp-datalake --force
+aws s3 rb s3://bus-mvp-datalake-1 --force
 ```
 
 ## 📚 Troubleshooting

@@ -30,7 +30,7 @@ class GlueSetup:
         self.glue = boto3.client('glue', region_name=region)
         self.sts = boto3.client('sts', region_name=region)
         self.database_name = 'bus_mvp_db'
-        self.bucket_name = 'bus-mvp-datalake'
+        self.bucket_name = 'bus-mvp-datalake-1'
         
         # Obtener Account ID automáticamente
         account_id = self._get_account_id()

@@ -126,12 +126,12 @@ aws sts get-caller-identity
 aws s3 ls
 
 # Ver contenido del bucket
-aws s3 ls s3://bus-mvp-datalake/
-aws s3 ls s3://bus-mvp-datalake/raw/
-aws s3 ls s3://bus-mvp-datalake/raw/passengers_csv/
+aws s3 ls s3://bus-mvp-datalake-1/
+aws s3 ls s3://bus-mvp-datalake-1/raw/
+aws s3 ls s3://bus-mvp-datalake-1/raw/passengers_csv/
 
 # Descargar archivo
-aws s3 cp s3://bus-mvp-datalake/raw/passengers_csv/passengers.csv .
+aws s3 cp s3://bus-mvp-datalake-1/raw/passengers_csv/passengers.csv .
 
 # Verificar database Glue
 aws glue get-database --name bus_mvp_db
@@ -145,7 +145,7 @@ aws glue get-table --database-name bus_mvp_db --name passengers_csv
 # Ejecutar query Athena (CLI)
 aws athena start-query-execution \
   --query-string "SELECT COUNT(*) FROM bus_mvp_db.passengers_csv" \
-  --result-configuration OutputLocation=s3://bus-mvp-datalake/athena-results/
+  --result-configuration OutputLocation=s3://bus-mvp-datalake-1/athena-results/
 ```
 
 ### API Testing

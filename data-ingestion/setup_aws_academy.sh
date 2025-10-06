@@ -74,7 +74,7 @@ AWS_SESSION_TOKEN=$session_token
 AWS_DEFAULT_REGION=us-east-1
 
 # S3 Configuration
-S3_BUCKET=bus-mvp-datalake
+S3_BUCKET=bus-mvp-datalake-1
 
 # Microservices URLs
 PASSENGERS_API_URL=http://host.docker.internal:3001/api
@@ -85,7 +85,7 @@ TICKETS_API_URL=http://host.docker.internal:3003/api
 GLUE_DATABASE=bus_mvp_db
 
 # Athena Configuration
-ATHENA_OUTPUT_LOCATION=s3://bus-mvp-datalake/athena-results/
+ATHENA_OUTPUT_LOCATION=s3://bus-mvp-datalake-1/athena-results/
 
 # Ingestion Schedule (optional)
 INGESTION_INTERVAL=3600

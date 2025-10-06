@@ -15,7 +15,7 @@ class TicketIngestion:
     def __init__(self):
         self.api_url = os.getenv('TICKETS_API_URL', 'http://host.docker.internal:3003/api')
         self.s3_client = boto3.client('s3')
-        self.bucket_name = os.getenv('S3_BUCKET', 'bus-mvp-datalake')
+        self.bucket_name = os.getenv('S3_BUCKET', 'bus-mvp-datalake-1')
         
     def extract_tickets(self):
         """Extrae el 100% de tickets desde la API"""

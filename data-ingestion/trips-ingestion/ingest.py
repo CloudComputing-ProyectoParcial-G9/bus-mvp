@@ -15,7 +15,7 @@ class TripIngestion:
     def __init__(self):
         self.api_url = os.getenv('TRIPS_API_URL', 'http://host.docker.internal:3002/api')
         self.s3_client = boto3.client('s3')
-        self.bucket_name = os.getenv('S3_BUCKET', 'bus-mvp-datalake')
+        self.bucket_name = os.getenv('S3_BUCKET', 'bus-mvp-datalake-1')
         
     def extract_trips(self):
         """Extrae el 100% de viajes desde la API"""

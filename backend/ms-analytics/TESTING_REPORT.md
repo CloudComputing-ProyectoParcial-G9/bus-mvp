@@ -17,7 +17,7 @@ Se realizaron pruebas exhaustivas de todos los endpoints del microservicio MS-An
 - **Health Check:** ✅ Healthy
 - **Conexión Athena:** ✅ Activa
 - **Base de Datos Glue:** bus_mvp_db
-- **Bucket S3:** bus-mvp-datalake
+- **Bucket S3:** bus-mvp-datalake-1
 
 ---
 
@@ -244,22 +244,22 @@ Se realizaron pruebas exhaustivas de todos los endpoints del microservicio MS-An
 
 ### Infraestructura AWS
 
-- **S3 Bucket:** bus-mvp-datalake
+- **S3 Bucket:** bus-mvp-datalake-1
 - **Glue Database:** bus_mvp_db
-- **Athena Output:** s3://bus-mvp-datalake/athena-results/
+- **Athena Output:** s3://bus-mvp-datalake-1/athena-results/
 
 ### Tablas en Athena
 
 1. **passengers_csv** - 10 registros
-   - Ubicación: s3://bus-mvp-datalake/raw/passengers_csv/
+   - Ubicación: s3://bus-mvp-datalake-1/raw/passengers_csv/
    - Formato: CSV con header
 
 2. **trips_csv** - 10 registros
-   - Ubicación: s3://bus-mvp-datalake/raw/trips_csv/
+   - Ubicación: s3://bus-mvp-datalake-1/raw/trips_csv/
    - Formato: CSV con header
 
 3. **tickets_csv** - 10 registros
-   - Ubicación: s3://bus-mvp-datalake/raw/tickets_csv/
+   - Ubicación: s3://bus-mvp-datalake-1/raw/tickets_csv/
    - Formato: CSV con header
 
 ### Vistas en Athena

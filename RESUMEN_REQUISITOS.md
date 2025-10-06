@@ -240,7 +240,7 @@ Root:
                     ↓ Upload S3
 
 3. DATA LAKE (Storage)
-   S3 Bucket: bus-mvp-datalake
+   S3 Bucket: bus-mvp-datalake-1
    ├── raw/
    │   ├── passengers_csv/
    │   ├── passengers_json/

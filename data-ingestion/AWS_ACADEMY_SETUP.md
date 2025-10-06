@@ -45,7 +45,7 @@ AWS_SESSION_TOKEN=IQoJb3JpZ2luX2VjEH... # ¡IMPORTANTE! Copiar de AWS Details
 AWS_DEFAULT_REGION=us-east-1
 
 # S3 Configuration
-S3_BUCKET=bus-mvp-datalake
+S3_BUCKET=bus-mvp-datalake-1
 
 # Microservices URLs
 PASSENGERS_API_URL=http://host.docker.internal:3001/api
@@ -56,7 +56,7 @@ TICKETS_API_URL=http://host.docker.internal:3003/api
 GLUE_DATABASE=bus_mvp_db
 
 # Athena Configuration
-ATHENA_OUTPUT_LOCATION=s3://bus-mvp-datalake/athena-results/
+ATHENA_OUTPUT_LOCATION=s3://bus-mvp-datalake-1/athena-results/
 ```
 
 ## ⚠️ Limitaciones de AWS Academy Lab
@@ -129,7 +129,7 @@ docker-compose build
 docker-compose up passengers-ingestion trips-ingestion tickets-ingestion
 
 # 5. Verificar datos en S3
-aws s3 ls s3://bus-mvp-datalake/raw/ --recursive
+aws s3 ls s3://bus-mvp-datalake-1/raw/ --recursive
 
 # 6. Configurar Glue (después de tener datos en S3)
 python3 scripts/setup_glue.py
@@ -151,13 +151,13 @@ python3 scripts/setup_s3.py
 
 ```bash
 # Crear bucket
-aws s3 mb s3://bus-mvp-datalake
+aws s3 mb s3://bus-mvp-datalake-1
 
 # Crear estructura de carpetas
-aws s3api put-object --bucket bus-mvp-datalake --key raw/passengers/
-aws s3api put-object --bucket bus-mvp-datalake --key raw/trips/
-aws s3api put-object --bucket bus-mvp-datalake --key raw/tickets/
-aws s3api put-object --bucket bus-mvp-datalake --key athena-results/
+aws s3api put-object --bucket bus-mvp-datalake-1 --key raw/passengers/
+aws s3api put-object --bucket bus-mvp-datalake-1 --key raw/trips/
+aws s3api put-object --bucket bus-mvp-datalake-1 --key raw/tickets/
+aws s3api put-object --bucket bus-mvp-datalake-1 --key athena-results/
 ```
 
 ### Opción C: Usando Console Web
@@ -165,7 +165,7 @@ aws s3api put-object --bucket bus-mvp-datalake --key athena-results/
 1. Ir a **AWS Console** (click en "AWS" en AWS Academy)
 2. Buscar servicio **S3**
 3. Click **Create bucket**
-4. Nombre: `bus-mvp-datalake`
+4. Nombre: `bus-mvp-datalake-1`
 5. Region: `us-east-1`
 6. Dejar resto por defecto
 7. Click **Create bucket**
@@ -217,7 +217,7 @@ aws sts get-caller-identity
 # 2. Verificar acceso a S3
 aws s3 ls
 
-# Deberías ver tu bucket: bus-mvp-datalake
+# Deberías ver tu bucket: bus-mvp-datalake-1
 
 # 3. Verificar Glue
 aws glue get-database --name bus_mvp_db
@@ -249,10 +249,10 @@ docker-compose up passengers-ingestion
 docker-compose down
 
 # Eliminar archivos de S3 (si ya no los necesitas)
-aws s3 rm s3://bus-mvp-datalake/raw/ --recursive
+aws s3 rm s3://bus-mvp-datalake-1/raw/ --recursive
 
 # Eliminar bucket S3 (al final del proyecto)
-aws s3 rb s3://bus-mvp-datalake --force
+aws s3 rb s3://bus-mvp-datalake-1 --force
 
 # Eliminar database de Glue
 aws glue delete-database --name bus_mvp_db
@@ -313,7 +313,7 @@ AWS_SESSION_TOKEN=IQoJb3JpZ2luX2VjEHwaCXVzLWVhc3QtMSJHMEUCIQDExampleTokenVeryLon
 AWS_DEFAULT_REGION=us-east-1
 
 # S3 Configuration
-S3_BUCKET=bus-mvp-datalake
+S3_BUCKET=bus-mvp-datalake-1
 
 # Microservices URLs (ajustar según tu setup)
 PASSENGERS_API_URL=http://host.docker.internal:3001/api
@@ -324,7 +324,7 @@ TICKETS_API_URL=http://host.docker.internal:3003/api
 GLUE_DATABASE=bus_mvp_db
 
 # Athena Configuration
-ATHENA_OUTPUT_LOCATION=s3://bus-mvp-datalake/athena-results/
+ATHENA_OUTPUT_LOCATION=s3://bus-mvp-datalake-1/athena-results/
 
 # Ingestion Schedule (optional)
 INGESTION_INTERVAL=3600

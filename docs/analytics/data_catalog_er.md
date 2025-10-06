@@ -142,7 +142,7 @@ CREATE INDEX idx_passengers_status ON passengers(status);
 
 **Ubicación S3**:
 ```
-s3://bus-mvp-datalake/
+s3://bus-mvp-datalake-1/
 ├── raw/
 │   ├── passengers_csv/
 │   ├── passengers_json/

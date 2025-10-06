@@ -380,7 +380,7 @@ function Invoke-Validation {
     Write-Step "Verificando datos en S3..."
     
     $envFile = Join-Path $SCRIPT_DIR ".env"
-    $bucket = "bus-mvp-datalake"
+    $bucket = "bus-mvp-datalake-1"
     
     if (Test-Path $envFile) {
         $content = Get-Content $envFile
@@ -466,9 +466,9 @@ function Show-Summary {
     Write-Host "  ✅ AWS Athena (Tablas + Queries)" -ForegroundColor Green
     
     Write-Host "`nArchivos generados:" -ForegroundColor Cyan
-    Write-Host "  📁 s3://bus-mvp-datalake/raw/passengers_csv/" -ForegroundColor Gray
-    Write-Host "  📁 s3://bus-mvp-datalake/raw/trips_csv/" -ForegroundColor Gray
-    Write-Host "  📁 s3://bus-mvp-datalake/raw/tickets_csv/" -ForegroundColor Gray
+    Write-Host "  📁 s3://bus-mvp-datalake-1/raw/passengers_csv/" -ForegroundColor Gray
+    Write-Host "  📁 s3://bus-mvp-datalake-1/raw/trips_csv/" -ForegroundColor Gray
+    Write-Host "  📁 s3://bus-mvp-datalake-1/raw/tickets_csv/" -ForegroundColor Gray
     
     Write-Host "`nServicios disponibles:" -ForegroundColor Cyan
     Write-Host "  🔍 AWS Athena: https://console.aws.amazon.com/athena/" -ForegroundColor Gray

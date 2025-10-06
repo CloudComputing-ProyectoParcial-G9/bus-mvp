@@ -20,7 +20,7 @@ class GlueSetup:
         
         # Configuración desde variables de entorno o valores por defecto
         import os
-        self.bucket_name = os.getenv('S3_BUCKET', 'bus-mvp-datalake')
+        self.bucket_name = os.getenv('S3_BUCKET', 'bus-mvp-datalake-1')
         self.database_name = os.getenv('GLUE_DATABASE', 'bus_mvp_db')
         self.region = os.getenv('AWS_DEFAULT_REGION', 'us-east-1')
         

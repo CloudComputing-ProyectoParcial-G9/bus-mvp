@@ -27,7 +27,7 @@ python scripts/create_athena_tables.py
 - ✅ **Consulta 2**: Análisis de Ingresos por Viaje (JOIN trips + tickets)
 - ✅ **Consulta 3**: Resumen Completo de Transacciones (JOIN TRIPLE: passengers + tickets + trips)
 - ✅ **Consulta 4**: Tendencias de Ventas por Ruta (JOIN trips + tickets)
-- 📦 Guarda resultados en `s3://bus-mvp-datalake/athena-results/`
+- 📦 Guarda resultados en `s3://bus-mvp-datalake-1/athena-results/`
 - 📄 Genera reporte local con metadata de ejecución
 - 📊 Muestra preview de resultados en consola
 
@@ -42,7 +42,7 @@ python scripts/run_athena_queries.py
 ╔══════════════════════════════════════════════════════════════════╗
 ║        BUS MVP - EJECUCIÓN DE CONSULTAS SQL EN ATHENA           ║
 ║  Requisito: 4 consultas SQL que unen varias tablas              ║
-║  Destino: s3://bus-mvp-datalake/athena-results/                 ║
+║  Destino: s3://bus-mvp-datalake-1/athena-results/                 ║
 ╚══════════════════════════════════════════════════════════════════╝
 
 ======================================================================
@@ -51,7 +51,7 @@ python scripts/run_athena_queries.py
 Descripción: Análisis del comportamiento de compra...
 Query Execution ID: abc123...
 ✅ Query ejecutada exitosamente en 3.45 segundos
-📁 Resultados guardados en: s3://bus-mvp-datalake/athena-results/abc123.csv
+📁 Resultados guardados en: s3://bus-mvp-datalake-1/athena-results/abc123.csv
 
 📊 RESULTADOS DE: Historial de Compras por Pasajero
 Total de filas: 25
@@ -165,7 +165,7 @@ cd data-ingestion
 Todos los resultados se guardan automáticamente en:
 
 ```
-s3://bus-mvp-datalake/athena-results/
+s3://bus-mvp-datalake-1/athena-results/
 ├── abc123-query1.csv                    # Consulta 1: Historial de Compras
 ├── abc123-query1.csv.metadata
 ├── def456-query2.csv                    # Consulta 2: Ingresos por Viaje
@@ -178,8 +178,8 @@ s3://bus-mvp-datalake/athena-results/
 
 **Descargar resultados:**
 ```powershell
-aws s3 ls s3://bus-mvp-datalake/athena-results/
-aws s3 cp s3://bus-mvp-datalake/athena-results/ ./evidencias/ --recursive
+aws s3 ls s3://bus-mvp-datalake-1/athena-results/
+aws s3 cp s3://bus-mvp-datalake-1/athena-results/ ./evidencias/ --recursive
 ```
 
 ---
@@ -209,7 +209,7 @@ Estos archivos contienen:
 
 ```powershell
 # Listar archivos en S3
-aws s3 ls s3://bus-mvp-datalake/athena-results/ --recursive
+aws s3 ls s3://bus-mvp-datalake-1/athena-results/ --recursive
 
 # Ver query en Athena Console
 # https://console.aws.amazon.com/athena/

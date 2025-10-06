@@ -103,9 +103,9 @@ Este proyecto implementa un **pipeline completo de Data Science** para el sistem
        │                         │                    │
        ▼                         ▼                    ▼
 ┌──────────────────────────────────────────────────────────────────────┐
-│                   AWS S3 DATA LAKE (bus-mvp-datalake)                │
+│                   AWS S3 DATA LAKE (bus-mvp-datalake-1)                │
 ├──────────────────────────────────────────────────────────────────────┤
-│  s3://bus-mvp-datalake/                                              │
+│  s3://bus-mvp-datalake-1/                                              │
 │  ├── raw/                                                            │
 │  │   ├── passengers_csv/*.csv                                        │
 │  │   ├── passengers_json/*.json                                      │
@@ -193,7 +193,7 @@ Este proyecto implementa un **pipeline completo de Data Science** para el sistem
 | Servicio | Propósito | Configuración |
 |----------|-----------|---------------|
 | **EC2** | Máquina virtual de ingesta | t3.medium (opcional) |
-| **S3** | Data Lake | bucket: `bus-mvp-datalake` |
+| **S3** | Data Lake | bucket: `bus-mvp-datalake-1` |
 | **Glue** | Data Catalog y Crawlers | database: `bus_mvp_db` |
 | **Athena** | Query engine SQL serverless | Workgroup: primary |
 | **IAM** | Gestión de permisos | Roles/Users con políticas |
@@ -254,7 +254,7 @@ AWS_SESSION_TOKEN=FwoGZXIvYXdzE...  # Solo para AWS Academy
 AWS_DEFAULT_REGION=us-east-1
 
 # S3 Configuration
-S3_BUCKET=bus-mvp-datalake
+S3_BUCKET=bus-mvp-datalake-1
 
 # Microservices URLs
 PASSENGERS_API_URL=http://localhost:3001/api
@@ -265,7 +265,7 @@ TICKETS_API_URL=http://localhost:3003/api
 GLUE_DATABASE=bus_mvp_db
 
 # Athena Configuration
-ATHENA_OUTPUT_LOCATION=s3://bus-mvp-datalake/athena-results/
+ATHENA_OUTPUT_LOCATION=s3://bus-mvp-datalake-1/athena-results/
 
 # API Configuration
 DEBUG=True
@@ -283,7 +283,7 @@ python scripts/setup_s3.py
 ```
 
 Esto creará:
-- Bucket: `bus-mvp-datalake`
+- Bucket: `bus-mvp-datalake-1`
 - Carpetas: `raw/`, `processed/`, `athena-results/`
 
 #### 4. Configurar AWS Glue
@@ -318,8 +318,8 @@ Cada contenedor extrae el 100% de los datos desde un microservicio y los carga a
 - Transforma a DataFrame con Pandas
 - Genera CSV y JSON con timestamp
 - Carga a S3 en carpetas separadas:
-  - `s3://bus-mvp-datalake/raw/passengers_csv/`
-  - `s3://bus-mvp-datalake/raw/passengers_json/`
+  - `s3://bus-mvp-datalake-1/raw/passengers_csv/`
+  - `s3://bus-mvp-datalake-1/raw/passengers_json/`
 
 **Ejecución**:
 ```bash
@@ -334,8 +334,8 @@ docker-compose up passengers-ingestion
 - Extrae todos los viajes desde `GET /api/trips`
 - Similar a passengers-ingestion
 - Carpetas:
-  - `s3://bus-mvp-datalake/raw/trips_csv/`
-  - `s3://bus-mvp-datalake/raw/trips_json/`
+  - `s3://bus-mvp-datalake-1/raw/trips_csv/`
+  - `s3://bus-mvp-datalake-1/raw/trips_json/`
 
 **Ejecución**:
 ```bash
@@ -350,8 +350,8 @@ docker-compose up trips-ingestion
 - Extrae todos los tickets desde `GET /api/tickets`
 - Similar a anteriores
 - Carpetas:
-  - `s3://bus-mvp-datalake/raw/tickets_csv/`
-  - `s3://bus-mvp-datalake/raw/tickets_json/`
+  - `s3://bus-mvp-datalake-1/raw/tickets_csv/`
+  - `s3://bus-mvp-datalake-1/raw/tickets_json/`
 
 **Ejecución**:
 ```bash
@@ -437,11 +437,11 @@ ms-analytics/
 
 ### AWS S3 - Data Lake
 
-**Bucket**: `bus-mvp-datalake`
+**Bucket**: `bus-mvp-datalake-1`
 
 **Estructura**:
 ```
-s3://bus-mvp-datalake/
+s3://bus-mvp-datalake-1/
 ├── raw/
 │   ├── passengers_csv/
 │   │   ├── passengers_20251005_143022.csv
@@ -475,17 +475,17 @@ s3://bus-mvp-datalake/
 **Tablas catalogadas**:
 
 1. **passengers_csv**
-   - Fuente: `s3://bus-mvp-datalake/raw/passengers_csv/`
+   - Fuente: `s3://bus-mvp-datalake-1/raw/passengers_csv/`
    - Schema: passenger_id, name, email, phone, status, etc.
    - Crawler: `passengers-crawler`
 
 2. **trips_csv**
-   - Fuente: `s3://bus-mvp-datalake/raw/trips_csv/`
+   - Fuente: `s3://bus-mvp-datalake-1/raw/trips_csv/`
    - Schema: trip_id, route_code, origin_city, destination_city, departure_time, bus_capacity, status, etc.
    - Crawler: `trips-crawler`
 
 3. **tickets_csv**
-   - Fuente: `s3://bus-mvp-datalake/raw/tickets_csv/`
+   - Fuente: `s3://bus-mvp-datalake-1/raw/tickets_csv/`
    - Schema: ticket_id, passenger_id, trip_id, seat_number, price, booking_status, purchase_date, etc.
    - Crawler: `tickets-crawler`
 
@@ -504,7 +504,7 @@ aws glue get-tables --database-name bus_mvp_db
 **Configuración**:
 - Database: `bus_mvp_db`
 - Workgroup: `primary`
-- Output: `s3://bus-mvp-datalake/athena-results/`
+- Output: `s3://bus-mvp-datalake-1/athena-results/`
 
 **Características**:
 - SQL serverless (sin infraestructura)
@@ -1098,7 +1098,7 @@ docker-compose logs -f
 curl http://localhost:8005/api/v1/health
 
 # Ver archivos en S3
-aws s3 ls s3://bus-mvp-datalake/raw/ --recursive
+aws s3 ls s3://bus-mvp-datalake-1/raw/ --recursive
 ```
 
 ### Deployment con IAM Roles (Seguridad Mejorada)
@@ -1118,8 +1118,8 @@ En EC2, es mejor usar IAM Roles en lugar de credenciales hardcoded:
         "s3:ListBucket"
       ],
       "Resource": [
-        "arn:aws:s3:::bus-mvp-datalake",
-        "arn:aws:s3:::bus-mvp-datalake/*"
+        "arn:aws:s3:::bus-mvp-datalake-1",
+        "arn:aws:s3:::bus-mvp-datalake-1/*"
       ]
     },
     {
@@ -1157,7 +1157,7 @@ En EC2, es mejor usar IAM Roles en lugar de credenciales hardcoded:
 
 # Solo configurar:
 AWS_DEFAULT_REGION=us-east-1
-S3_BUCKET=bus-mvp-datalake
+S3_BUCKET=bus-mvp-datalake-1
 # ... resto de variables
 ```
 
@@ -1172,12 +1172,12 @@ S3_BUCKET=bus-mvp-datalake
 docker-compose up passengers-ingestion trips-ingestion tickets-ingestion
 
 # 2. Verificar archivos en S3
-aws s3 ls s3://bus-mvp-datalake/raw/passengers_csv/
-aws s3 ls s3://bus-mvp-datalake/raw/trips_csv/
-aws s3 ls s3://bus-mvp-datalake/raw/tickets_csv/
+aws s3 ls s3://bus-mvp-datalake-1/raw/passengers_csv/
+aws s3 ls s3://bus-mvp-datalake-1/raw/trips_csv/
+aws s3 ls s3://bus-mvp-datalake-1/raw/tickets_csv/
 
 # 3. Descargar y verificar contenido
-aws s3 cp s3://bus-mvp-datalake/raw/passengers_csv/passengers_latest.csv - | head -10
+aws s3 cp s3://bus-mvp-datalake-1/raw/passengers_csv/passengers_latest.csv - | head -10
 ```
 
 ### Validar AWS Glue
@@ -1291,13 +1291,13 @@ botocore.exceptions.ClientError: Access Denied
 aws sts get-caller-identity
 
 # 2. Verificar permisos
-aws s3 ls s3://bus-mvp-datalake/
+aws s3 ls s3://bus-mvp-datalake-1/
 
 # 3. Si usas AWS Academy, renovar session token
 # Copiar nuevo AWS_SESSION_TOKEN al .env
 
 # 4. Verificar que el bucket exista
-aws s3 mb s3://bus-mvp-datalake
+aws s3 mb s3://bus-mvp-datalake-1
 ```
 
 ### Problema: Glue Crawler falla
@@ -1310,10 +1310,10 @@ Crawler failed: Unable to retrieve table metadata
 **Solución**:
 ```bash
 # 1. Verificar que haya datos en S3
-aws s3 ls s3://bus-mvp-datalake/raw/passengers_csv/
+aws s3 ls s3://bus-mvp-datalake-1/raw/passengers_csv/
 
 # 2. Verificar formato de archivos
-aws s3 cp s3://bus-mvp-datalake/raw/passengers_csv/passengers_latest.csv - | head -5
+aws s3 cp s3://bus-mvp-datalake-1/raw/passengers_csv/passengers_latest.csv - | head -5
 
 # 3. Verificar IAM role del crawler
 aws glue get-crawler --name passengers-crawler
@@ -1486,7 +1486,7 @@ bus-mvp/
 ## ✅ Checklist de Implementación
 
 ### Infraestructura AWS
-- [x] Bucket S3 creado (`bus-mvp-datalake`)
+- [x] Bucket S3 creado (`bus-mvp-datalake-1`)
 - [x] Estructura de carpetas en S3
 - [x] EC2 configurada (opcional)
 - [x] Security Groups configurados

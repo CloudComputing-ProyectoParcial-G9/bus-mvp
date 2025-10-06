@@ -23,7 +23,7 @@ Microservicio de analítica para el proyecto Bus MVP. Consume datos de AWS Athen
 ## 📋 Requisitos Previos
 
 1. **AWS Configurado**:
-   - Bucket S3: `bus-mvp-datalake`
+   - Bucket S3: `bus-mvp-datalake-1`
    - Glue Database: `bus_mvp_db`
    - Tablas: `passengers_csv`, `trips_csv`, `tickets_csv`
    - Vistas: `passenger_sales_summary`, `trip_occupancy_revenue`
@@ -99,7 +99,7 @@ ms-analytics:
     - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
     - AWS_SESSION_TOKEN=${AWS_SESSION_TOKEN}
     - GLUE_DATABASE=bus_mvp_db
-    - ATHENA_OUTPUT_LOCATION=s3://bus-mvp-datalake/athena-results/
+    - ATHENA_OUTPUT_LOCATION=s3://bus-mvp-datalake-1/athena-results/
   networks:
     - bus-mvp-network
 ```

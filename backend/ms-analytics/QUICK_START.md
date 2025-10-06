@@ -25,7 +25,7 @@ AWS_SECRET_ACCESS_KEY=tu_secret_key
 AWS_SESSION_TOKEN=tu_session_token  # Si usas AWS Academy
 AWS_DEFAULT_REGION=us-east-1
 GLUE_DATABASE=bus_mvp_db
-ATHENA_OUTPUT_LOCATION=s3://bus-mvp-datalake/athena-results/
+ATHENA_OUTPUT_LOCATION=s3://bus-mvp-datalake-1/athena-results/
 ```
 
 ### 2. Instalar Dependencias (2 min)
@@ -206,7 +206,7 @@ pip install -r requirements.txt
 2. **Bucket S3 no existe**
    ```bash
    # Verificar bucket
-   aws s3 ls s3://bus-mvp-datalake/
+   aws s3 ls s3://bus-mvp-datalake-1/
    ```
 
 3. **Database Glue no existe**
