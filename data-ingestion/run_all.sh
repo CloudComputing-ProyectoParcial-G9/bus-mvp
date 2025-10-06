@@ -100,7 +100,7 @@ test_prerequisites() {
     
     # 2. Verificar Docker Compose
     log_step "2️⃣  Verificando Docker Compose..."
-    if command -v docker-compose &> /dev/null; then
+    if command -v docker compose &> /dev/null; then
         local compose_version=$(docker compose version)
         log_success "  ✅ Docker Compose instalado: $compose_version"
     else
@@ -156,11 +156,12 @@ test_prerequisites() {
     log_step "6️⃣  Verificando microservicios..."
     local containers=$(docker ps --format "{{.Names}}" 2>&1 || echo "")
     local running=0
+    set +e  # Temporalmente permitir errores
     
     for service in "ms-passengers" "ms-trips" "ms-tickets"; do
         if echo "$containers" | grep -q "$service"; then
             log_success "  ✅ $service corriendo"
-            ((running++))
+            running=$((running + 1))
         else
             log_warning "  ⚠️  $service no está corriendo"
         fi
@@ -173,6 +174,7 @@ test_prerequisites() {
     else
         log_success "  ✅ Todos los microservicios están corriendo ($running/3)"
     fi
+    set -e  # Restaurar comportamiento de salida por error
     
     # 7. Verificar dependencias Python
     log_step "7️⃣  Verificando dependencias Python..."
@@ -248,7 +250,7 @@ invoke_data_ingestion() {
     fi
     
     log_info "📊 Construyendo imágenes Docker..."
-    docker-compose build --quiet
+    docker compose build --quiet
     
     if [ $? -ne 0 ]; then
         log_error "❌ Error construyendo imágenes Docker"
@@ -264,7 +266,7 @@ invoke_data_ingestion() {
     for service in "${services[@]}"; do
         log_step "Ejecutando $service..."
         
-        if docker-compose up "$service"; then
+        if docker compose up "$service"; then
             log_success "  ✅ $service completado"
         else
             log_error "  ❌ $service falló"
@@ -368,7 +370,7 @@ invoke_validation() {
     # 1. Verificar datos en S3
     log_step "Verificando datos en S3..."
     
-    local bucket="bus-mvp-datalake"
+    local bucket="bus-mvp-datalake-1-1"
     if [ -f "$SCRIPT_DIR/.env" ]; then
         local bucket_line=$(grep "S3_BUCKET=" "$SCRIPT_DIR/.env" | head -1)
         if [ -n "$bucket_line" ]; then
@@ -436,9 +438,9 @@ show_summary() {
     log_success "  ✅ AWS Athena (Tablas + Queries)"
     
     echo -e "\n${CYAN}Archivos generados:${NC}"
-    echo "  📁 s3://bus-mvp-datalake/raw/passengers_csv/"
-    echo "  📁 s3://bus-mvp-datalake/raw/trips_csv/"
-    echo "  📁 s3://bus-mvp-datalake/raw/tickets_csv/"
+    echo "  📁 s3://bus-mvp-datalake-1-1/raw/passengers_csv/"
+    echo "  📁 s3://bus-mvp-datalake-1-1/raw/trips_csv/"
+    echo "  📁 s3://bus-mvp-datalake-1-1/raw/tickets_csv/"
     
     echo -e "\n${CYAN}Servicios disponibles:${NC}"
     echo "  🔍 AWS Athena: https://console.aws.amazon.com/athena/"
