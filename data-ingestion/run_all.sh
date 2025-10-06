@@ -250,7 +250,7 @@ invoke_data_ingestion() {
     fi
     
     log_info "📊 Construyendo imágenes Docker..."
-    docker-compose build --quiet
+    docker compose build --quiet
     
     if [ $? -ne 0 ]; then
         log_error "❌ Error construyendo imágenes Docker"
@@ -266,7 +266,7 @@ invoke_data_ingestion() {
     for service in "${services[@]}"; do
         log_step "Ejecutando $service..."
         
-        if docker-compose up "$service"; then
+        if docker compose up "$service"; then
             log_success "  ✅ $service completado"
         else
             log_error "  ❌ $service falló"
