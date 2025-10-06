@@ -158,13 +158,16 @@ test_prerequisites() {
     local running=0
     
     for service in "ms-passengers" "ms-trips" "ms-tickets"; do
+        echo "DEBUG: Verificando $service..." >&2
         if echo "$containers" | grep -q "$service"; then
             log_success "  ✅ $service corriendo"
             ((running++))
         else
             log_warning "  ⚠️  $service no está corriendo"
         fi
+        echo "DEBUG: $service procesado, running=$running" >&2
     done
+    echo "DEBUG: Bucle completado, running total=$running" >&2
     
     if [ $running -eq 0 ]; then
         log_warning "  ⚠️  Ningún microservicio está corriendo"
