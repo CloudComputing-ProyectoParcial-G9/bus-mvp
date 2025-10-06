@@ -169,11 +169,15 @@ export function TripsSection() {
         }
 
         // Convertir datos del frontend al formato del backend
+        // Construir fechas correctamente sin forzar UTC
+        const departureDate = new Date(`${formData.departure_date}T${formData.departure_time}:00`);
+        const arrivalDate = new Date(`${formData.departure_date}T${formData.arrival_time}:00`);
+
         const updateData = {
           origin: formData.origin,
           destination: formData.destination,
-          departureDateTime: `${formData.departure_date}T${formData.departure_time}:00.000Z`,
-          arrivalDateTime: `${formData.departure_date}T${formData.arrival_time}:00.000Z`,
+          departureDateTime: departureDate.toISOString(),
+          arrivalDateTime: arrivalDate.toISOString(),
           busCapacity: formData.total_seats,
           availableSeats: formData.available_seats,
           finalPrice: formData.price,
@@ -201,15 +205,15 @@ export function TripsSection() {
         // 2. Usar routeId de la ruta seleccionada
         const routeId = routeToUse.id;
 
-        // 3. Validar que arrival_time sea posterior a departure_time
-        const departureTime = `${formData.departure_date}T${formData.departure_time}:00.000Z`;
-        const departureDate = new Date(departureTime);
+        // 3. Construir fechas en hora local y convertir a ISO
+        // No usar 'Z' al final para evitar problemas de zona horaria
+        const departureDate = new Date(`${formData.departure_date}T${formData.departure_time}:00`);
 
         // Calcular arrival automáticamente para evitar errores (mínimo 2 horas después)
         let arrivalDate = new Date(departureDate.getTime() + (2 * 60 * 60 * 1000)); // +2 horas
         if (formData.arrival_time) {
           // Si el usuario especificó hora de llegada, usarla pero validar
-          const userArrival = new Date(`${formData.departure_date}T${formData.arrival_time}:00.000Z`);
+          const userArrival = new Date(`${formData.departure_date}T${formData.arrival_time}:00`);
           if (userArrival > departureDate) {
             const timeDiff = userArrival.getTime() - departureDate.getTime();
             const minutesDiff = timeDiff / (1000 * 60);
@@ -219,6 +223,7 @@ export function TripsSection() {
           }
         }
 
+        const departureTime = departureDate.toISOString();
         const arrivalTime = arrivalDate.toISOString();
 
         const tripData = {
