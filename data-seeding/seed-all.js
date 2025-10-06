@@ -25,6 +25,9 @@ const cliProgress = require('cli-progress');
 const DatabaseManager = require('./config/database');
 const CONFIG = require('./config/constants');
 const { faker } = require('@faker-js/faker');
+const { Sequelize } = require('sequelize');
+const { Client } = require('pg');
+const { MongoClient } = require('mongodb');
 
 // ============================================================================
 // CONEXIONES
@@ -60,7 +63,7 @@ async function connectDatabases() {
   console.log('✅ MySQL conectado');
 
   // PostgreSQL
-  pgClient = new PgClient({
+  pgClient = new Client({
     host: CONFIG.postgres.host,
     port: CONFIG.postgres.port,
     database: CONFIG.postgres.database,
