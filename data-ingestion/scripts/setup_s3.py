@@ -25,7 +25,7 @@ except ImportError:
 class S3Setup:
     def __init__(self, region='us-east-1'):
         self.s3 = boto3.client('s3', region_name=region)
-        self.bucket_name = 'bus-mvp-datalake'
+        self.bucket_name = 'bus-mvp-datalake-1'
         self.region = region
     
     def create_bucket(self):

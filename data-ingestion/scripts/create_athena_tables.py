@@ -18,7 +18,7 @@ class AthenaTablesFix:
         self.athena = boto3.client('athena', region_name='us-east-1')
         self.database = os.getenv('GLUE_DATABASE', 'bus_mvp_db')
         self.output_location = os.getenv('ATHENA_OUTPUT_LOCATION', 's3://bus-mvp-datalake-1/athena-results/')
-        self.bucket = os.getenv('S3_BUCKET', 'bus-mvp-datalake')
+        self.bucket = os.getenv('S3_BUCKET', 'bus-mvp-datalake-1')
         
     def execute_ddl(self, query, description=""):
         """Ejecuta una consulta DDL en Athena"""

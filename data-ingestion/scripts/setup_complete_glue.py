@@ -15,12 +15,13 @@ from datetime import datetime
 
 class GlueSetup:
     def __init__(self):
-        self.glue_client = boto3.client('glue')
+        self.glue_client = boto3.client('glue', region_name='us-east-1')
+
         self.s3_client = boto3.client('s3')
         
         # Configuración desde variables de entorno o valores por defecto
         import os
-        self.bucket_name = os.getenv('S3_BUCKET', 'bus-mvp-datalake')
+        self.bucket_name = os.getenv('S3_BUCKET', 'bus-mvp-datalake-1')
         self.database_name = os.getenv('GLUE_DATABASE', 'bus_mvp_db')
         self.region = os.getenv('AWS_DEFAULT_REGION', 'us-east-1')
         
