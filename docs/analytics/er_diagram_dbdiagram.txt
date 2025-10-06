@@ -1,0 +1,84 @@
+// ============================================================================
+// Diagrama ER para dbdiagram.io - Bus MVP Data Catalog
+// ============================================================================
+// Instrucciones:
+// 1. Ir a https://dbdiagram.io/
+// 2. Copiar este código completo
+// 3. Pegar en el editor
+// 4. Exportar como PNG/PDF
+// ============================================================================
+
+Table passengers {
+  passenger_id integer [primary key, not null]
+  full_name varchar(255) [not null]
+  email varchar(255) [unique, not null]
+  phone varchar(20)
+  document_type varchar(20)
+  document_number varchar(50) [unique]
+  date_of_birth date
+  registration_date timestamp [not null]
+  status varchar(20) [not null, note: 'active, inactive, blocked']
+  ingestion_timestamp timestamp [not null]
+  
+  Note: 'Tabla de pasajeros registrados en el sistema'
+}
+
+Table trips {
+  trip_id integer [primary key, not null]
+  route_id varchar(50) [not null]
+  departure_time timestamp [not null]
+  arrival_time timestamp [not null]
+  bus_capacity integer [not null]
+  available_seats integer [not null]
+  final_price decimal(10,2) [not null]
+  status varchar(20) [not null, note: 'scheduled, in_progress, completed, cancelled']
+  driver_name varchar(255)
+  bus_plate varchar(20)
+  ingestion_timestamp timestamp [not null]
+  
+  Note: 'Tabla de viajes programados y ejecutados'
+}
+
+Table tickets {
+  ticket_id varchar(100) [primary key, not null]
+  passenger_id integer [not null, ref: > passengers.passenger_id]
+  trip_id integer [not null, ref: > trips.trip_id]
+  seat_number integer [not null]
+  total_price decimal(10,2) [not null]
+  currency varchar(10) [default: 'USD']
+  booking_status varchar(20) [not null, note: 'reserved, confirmed, cancelled, completed']
+  purchase_date timestamp [not null]
+  ingestion_timestamp timestamp [not null]
+  
+  Note: 'Tabla de tickets (reservas) que conecta pasajeros con viajes'
+}
+
+// Relaciones
+Ref: tickets.passenger_id > passengers.passenger_id [note: '1 pasajero puede tener N tickets']
+Ref: tickets.trip_id > trips.trip_id [note: '1 viaje puede tener N tickets']
+
+// Índices
+Table passengers {
+  indexes {
+    email [unique, name: 'idx_passengers_email']
+    document_number [unique, name: 'idx_passengers_document']
+    status [name: 'idx_passengers_status']
+  }
+}
+
+Table trips {
+  indexes {
+    route_id [name: 'idx_trips_route']
+    departure_time [name: 'idx_trips_departure']
+    status [name: 'idx_trips_status']
+  }
+}
+
+Table tickets {
+  indexes {
+    passenger_id [name: 'idx_tickets_passenger']
+    trip_id [name: 'idx_tickets_trip']
+    booking_status [name: 'idx_tickets_status']
+    purchase_date [name: 'idx_tickets_purchase_date']
+  }
+}

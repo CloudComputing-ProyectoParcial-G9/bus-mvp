@@ -1,0 +1,210 @@
+version: "3.8"
+
+services:
+  # Base de datos MySQL para ms-trips
+  mysql-trips:
+    image: mysql:8.0
+    container_name: mysql-trips
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    ports:
+      - "${MYSQL_EXTERNAL_PORT}:3306" # Puerto alternativo para evitar conflictos
+    volumes:
+      - mysql_trips_data:/var/lib/mysql
+    command: --default-authentication-plugin=mysql_native_password
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  # Base de datos PostgreSQL para ms-passengers
+  postgres-passengers:
+    image: postgres:15
+    container_name: postgres-passengers
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "${POSTGRES_EXTERNAL_PORT}:5432" # Puerto alternativo
+    volumes:
+      - postgres_passengers_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  # Base de datos MongoDB para ms-tickets
+  mongo-tickets:
+    image: mongo:7
+    container_name: mongo-tickets
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+      MONGO_INITDB_DATABASE: ${MONGO_INITDB_DATABASE}
+    ports:
+      - "${MONGO_EXTERNAL_PORT}:27017" # Puerto alternativo
+    volumes:
+      - mongo_tickets_data:/data/db
+      - ./backend/ms-tickets/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
+
+  # Microservicio ms-trips (Node.js)
+  ms-trips:
+    build:
+      context: ./backend/ms-trips
+      dockerfile: Dockerfile
+    container_name: ms-trips
+    ports:
+      - "${MS_TRIPS_PORT}:${MS_TRIPS_PORT}"
+    environment:
+      - NODE_ENV=${NODE_ENV}
+      - PORT=${MS_TRIPS_PORT}
+      - MYSQL_HOST=${MYSQL_HOST}
+      - MYSQL_PORT=${MYSQL_PORT}
+      - MYSQL_DB=${MYSQL_DB}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - SQL2_HOST=${SQL2_HOST}
+      - SQL2_PORT=${SQL2_PORT}
+      - SQL2_DB=${SQL2_DB}
+      - SQL2_USER=${SQL2_USER}
+      - SQL2_PASSWORD=${SQL2_PASSWORD}
+      - PROJECT_NAME=${PROJECT_NAME}
+      - PROJECT_VERSION=${PROJECT_VERSION}
+      - API_V1_PREFIX=${API_V1_PREFIX}
+      - LOG_LEVEL=${LOG_LEVEL}
+      - LOG_FORMAT=${LOG_FORMAT}
+      - CORS_ORIGIN=${CORS_ORIGIN}
+      - CORS_METHODS=${CORS_METHODS}
+      - CORS_ALLOWED_HEADERS=${CORS_ALLOWED_HEADERS}
+      - RATE_LIMIT_WINDOW_MS=${RATE_LIMIT_WINDOW_MS}
+      - RATE_LIMIT_MAX_REQUESTS=${RATE_LIMIT_MAX_REQUESTS}
+      - SWAGGER_ENABLED=${SWAGGER_ENABLED}
+      - SWAGGER_PATH=${SWAGGER_PATH}
+      - HEALTH_CHECK_TIMEOUT_MS=${HEALTH_CHECK_TIMEOUT_MS}
+    depends_on:
+      mysql-trips:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # Microservicio ms-passengers (Python)
+  ms-passengers:
+    build:
+      context: ./backend/ms-passengers
+      dockerfile: Dockerfile
+    container_name: ms-passengers
+    ports:
+      - "${MS_PASSENGERS_PORT}:${MS_PASSENGERS_PORT}"
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - SQL1_HOST=${SQL1_HOST}
+      - SQL1_PORT=${SQL1_PORT}
+      - SQL1_DB=${SQL1_DB}
+      - SQL1_USER=${SQL1_USER}
+      - SQL1_PASSWORD=${SQL1_PASSWORD}
+      - ENVIRONMENT=${ENVIRONMENT}
+      - LOG_LEVEL=${LOG_LEVEL}
+    depends_on:
+      postgres-passengers:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # Microservicio ms-tickets (Java)
+  ms-tickets:
+    build:
+      context: ./backend/ms-tickets
+      dockerfile: Dockerfile
+    container_name: ms-tickets
+    ports:
+      - "${MS_TICKETS_PORT}:${MS_TICKETS_PORT}"
+    environment:
+      - MS_TICKETS_PORT=${MS_TICKETS_PORT}
+      - SPRING_DATA_MONGODB_URI=${SPRING_DATA_MONGODB_URI}
+      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
+      - IDEMPOTENCY_TTL_SECONDS=${IDEMPOTENCY_TTL_SECONDS}
+      - ENABLE_INTEGRATION_CHECKS=${ENABLE_INTEGRATION_CHECKS}
+      - MS_TRIPS_URL=${MS_TRIPS_URL}
+      - MS_PASSENGERS_URL=${MS_PASSENGERS_URL}
+    depends_on:
+      mongo-tickets:
+        condition: service_healthy
+      ms-trips:
+        condition: service_started
+      ms-passengers:
+        condition: service_started
+    restart: unless-stopped
+
+  # Microservicio ms-history (Go) - Agregador sin DB
+  ms-history:
+    build:
+      context: ./backend/ms-history
+      dockerfile: Dockerfile
+    container_name: ms-history
+    ports:
+      - "${MS_HISTORY_PORT}:${MS_HISTORY_PORT}"
+    environment:
+      - MS_HISTORY_PORT=${MS_HISTORY_PORT}
+      - NODE_ENV=${NODE_ENV}
+      - ENVIRONMENT=${ENVIRONMENT}
+      - LOG_LEVEL=${LOG_LEVEL}
+      - MS_PASSENGERS_URL=${MS_PASSENGERS_URL}
+      - MS_TRIPS_URL=${MS_TRIPS_URL}
+      - MS_TICKETS_URL=${MS_TICKETS_URL}
+      - HTTP_TIMEOUT_MS=${HTTP_TIMEOUT_MS}
+      - MAX_RETRIES=${MAX_RETRIES}
+      - RETRY_DELAY_MS=${RETRY_DELAY_MS}
+      - CIRCUIT_BREAKER_FAILURE_THRESHOLD=${CIRCUIT_BREAKER_FAILURE_THRESHOLD}
+      - CIRCUIT_BREAKER_RECOVERY_TIMEOUT=${CIRCUIT_BREAKER_RECOVERY_TIMEOUT}
+      - REDIS_URL=${REDIS_URL}
+      - CACHE_TTL_SECONDS=${CACHE_TTL_SECONDS}
+      - ENABLE_CACHE=${ENABLE_CACHE}
+    depends_on:
+      - ms-passengers
+      - ms-trips
+      - ms-tickets
+    restart: unless-stopped
+
+  # Microservicio ms-analytics (Python) - Servicio analítico con AWS Athena
+  ms-analytics:
+    build:
+      context: ./backend/ms-analytics
+      dockerfile: Dockerfile
+    container_name: ms-analytics
+    ports:
+      - "${MS_ANALYTICS_PORT}:${MS_ANALYTICS_PORT}"
+    environment:
+      # AWS Configuration
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - AWS_SESSION_TOKEN=${AWS_SESSION_TOKEN}
+      - AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION}
+      # Athena Configuration
+      - GLUE_DATABASE=${GLUE_DATABASE}
+      - ATHENA_OUTPUT_LOCATION=${ATHENA_OUTPUT_LOCATION}
+      - ATHENA_QUERY_TIMEOUT=${ATHENA_QUERY_TIMEOUT}
+      # Application Configuration
+      - APP_NAME=${APP_NAME}
+      - APP_VERSION=${APP_VERSION}
+      - DEBUG=${DEBUG}
+      - LOG_LEVEL=${LOG_LEVEL}
+      # CORS
+      - CORS_ORIGINS=${CORS_ORIGINS}
+    restart: unless-stopped
+    volumes:
+      - ./backend/ms-analytics/logs:/app/logs
+
+volumes:
+  mysql_trips_data:
+  postgres_passengers_data:
+  mongo_tickets_data:

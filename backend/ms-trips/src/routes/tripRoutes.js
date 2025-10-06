@@ -10,8 +10,8 @@ const {
   updateSeats
 } = require('../controllers/tripController');
 
-// Middleware de validación (se puede agregar después)
-// const { tripValidation } = require('../middleware/validation');
+// Middleware de validación
+const { tripValidation } = require('../middleware/validation');
 
 /**
  * @swagger
@@ -100,7 +100,7 @@ router.get('/search', searchTrips);
  *       404:
  *         description: Viaje no encontrado
  */
-router.get('/:tripId', getTripById);
+router.get('/:tripId', tripValidation.getById, getTripById);
 
 /**
  * @swagger
@@ -133,7 +133,7 @@ router.get('/:tripId', getTripById);
  *       201:
  *         description: Viaje creado exitosamente
  */
-router.post('/', createTrip);
+router.post('/', tripValidation.create, createTrip);
 
 /**
  * @swagger
@@ -151,7 +151,7 @@ router.post('/', createTrip);
  *       200:
  *         description: Viaje actualizado exitosamente
  */
-router.put('/:tripId', updateTrip);
+router.put('/:tripId', tripValidation.update, updateTrip);
 
 /**
  * @swagger

@@ -1,342 +1,51 @@
-# Docker Compose - Data Ingestion
-# ========================================
-#
-# Orquestación de los 3 contenedores de ingesta de datos
-# Puede ejecutarse independiente o como parte del sistema completo
-#
-# TODO (@A): Configurar variables específicas para fuentes de datos reales
-
 version: '3.8'
 
-# ========================================
-# REDES
-# ========================================
+services:
+  passengers-ingestion:
+    build: ./passengers-ingestion
+    container_name: passengers-ingestion
+    environment:
+      - PASSENGERS_API_URL=${PASSENGERS_API_URL}
+      - S3_BUCKET=${S3_BUCKET}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - AWS_SESSION_TOKEN=${AWS_SESSION_TOKEN}
+      - AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION}
+    networks:
+      - ingestion-network
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  trips-ingestion:
+    build: ./trips-ingestion
+    container_name: trips-ingestion
+    environment:
+      - TRIPS_API_URL=${TRIPS_API_URL}
+      - S3_BUCKET=${S3_BUCKET}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - AWS_SESSION_TOKEN=${AWS_SESSION_TOKEN}
+      - AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION}
+    networks:
+      - ingestion-network
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  tickets-ingestion:
+    build: ./tickets-ingestion
+    container_name: tickets-ingestion
+    environment:
+      - TICKETS_API_URL=${TICKETS_API_URL}
+      - S3_BUCKET=${S3_BUCKET}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - AWS_SESSION_TOKEN=${AWS_SESSION_TOKEN}
+      - AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION}
+    networks:
+      - ingestion-network
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
 networks:
   ingestion-network:
     driver: bridge
-    name: bus-mvp-ingestion-network
-
-# ========================================
-# VOLÚMENES
-# ========================================
-volumes:
-  # Volúmenes compartidos para datos
-  ingestion_data:
-    name: bus_mvp_ingestion_data
-  ingestion_logs:
-    name: bus_mvp_ingestion_logs
-  ingestion_cache:
-    name: bus_mvp_ingestion_cache
-  
-  # Volúmenes específicos por contenedor
-  realtime_temp:
-    name: bus_mvp_realtime_temp
-  batch_processed:
-    name: bus_mvp_batch_processed
-  external_downloads:
-    name: bus_mvp_external_downloads
-
-# ========================================
-# SERVICIOS DE INGESTA
-# ========================================
-services:
-
-  # ========================================
-  # CONTENEDOR 1: Real-Time Data Ingestion
-  # ========================================
-  real-time-data:
-    build:
-      context: ./real-time-data
-      dockerfile: Dockerfile
-    container_name: bus-mvp-realtime-ingestion
-    hostname: realtime-ingestion
-    environment:
-      # Configuración básica
-      - LOG_LEVEL=${INGESTION_LOG_LEVEL:-INFO}
-      - ENVIRONMENT=${ENVIRONMENT:-development}
-      - HEALTH_CHECK_PORT=8090
-      
-      # Object Storage
-      - CLOUD_PROVIDER=${CLOUD_PROVIDER:-local}
-      - OBJECT_STORE_BUCKET=${OBJECT_STORE_BUCKET}
-      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
-      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
-      - AWS_REGION=${AWS_REGION}
-      
-      # Redis para buffering (opcional)
-      - REDIS_URL=${REDIS_URL:-redis://redis-cache:6379}
-      - REDIS_PASSWORD=${REDIS_PASSWORD}
-      
-      # IoT y GPS configuración
-      - GPS_TRACKING_INTERVAL=${GPS_TRACKING_INTERVAL:-30}
-      - IOT_MQTT_BROKER=${IOT_MQTT_BROKER:-localhost}
-      - IOT_MQTT_PORT=${IOT_MQTT_PORT:-1883}
-      - IOT_MQTT_USERNAME=${IOT_MQTT_USERNAME}
-      - IOT_MQTT_PASSWORD=${IOT_MQTT_PASSWORD}
-      
-      # Configuración de ingesta
-      - BATCH_SIZE=${REALTIME_BATCH_SIZE:-100}
-      - UPLOAD_INTERVAL=${REALTIME_UPLOAD_INTERVAL:-60}
-      - MAX_RETRIES=${REALTIME_MAX_RETRIES:-3}
-    ports:
-      - "8090:8090"  # Health check port
-    volumes:
-      - ingestion_data:/app/data
-      - ingestion_logs:/app/logs
-      - realtime_temp:/app/temp
-    networks:
-      - ingestion-network
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8090/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 60s
-    deploy:
-      resources:
-        limits:
-          cpus: '1.0'
-          memory: 512M
-        reservations:
-          cpus: '0.5'
-          memory: 256M
-
-  # ========================================
-  # CONTENEDOR 2: Batch Data Processor
-  # ========================================
-  batch-processor:
-    build:
-      context: ./batch-processor
-      dockerfile: Dockerfile
-    container_name: bus-mvp-batch-processor
-    hostname: batch-processor
-    environment:
-      # Configuración básica
-      - LOG_LEVEL=${INGESTION_LOG_LEVEL:-INFO}
-      - ENVIRONMENT=${ENVIRONMENT:-development}
-      - HEALTH_CHECK_PORT=8091
-      
-      # Object Storage
-      - CLOUD_PROVIDER=${CLOUD_PROVIDER:-local}
-      - OBJECT_STORE_BUCKET=${OBJECT_STORE_BUCKET}
-      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
-      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
-      - AWS_REGION=${AWS_REGION}
-      
-      # Directorios de trabajo
-      - INPUT_DIRECTORY=/app/data/input
-      - PROCESSED_DIRECTORY=/app/data/processed
-      - FAILED_DIRECTORY=/app/data/failed
-      - TEMP_DIRECTORY=/app/temp
-      
-      # Configuración de procesamiento
-      - BATCH_SIZE=${BATCH_PROCESSING_SIZE:-1000}
-      - PROCESSING_SCHEDULE=${BATCH_SCHEDULE:-0 2 * * *}
-      - MAX_FILE_SIZE=${MAX_FILE_SIZE:-100MB}
-      - PARALLEL_JOBS=${BATCH_PARALLEL_JOBS:-2}
-      
-      # Base de datos para ETL (opcional)
-      - ETL_DB_TYPE=${ETL_DB_TYPE:-postgresql}
-      - ETL_DB_HOST=${ETL_DB_HOST}
-      - ETL_DB_PORT=${ETL_DB_PORT:-5432}
-      - ETL_DB_NAME=${ETL_DB_NAME}
-      - ETL_DB_USER=${ETL_DB_USER}
-      - ETL_DB_PASSWORD=${ETL_DB_PASSWORD}
-    ports:
-      - "8091:8091"  # Health check port
-    volumes:
-      - ingestion_data:/app/data
-      - ingestion_logs:/app/logs
-      - batch_processed:/app/processed
-      # Montar directorio local para archivos de entrada (desarrollo)
-      - ./batch-processor/data/input:/app/data/input
-      - ./batch-processor/data/failed:/app/data/failed
-    networks:
-      - ingestion-network
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8091/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 60s
-    deploy:
-      resources:
-        limits:
-          cpus: '2.0'
-          memory: 1G
-        reservations:
-          cpus: '1.0'
-          memory: 512M
-
-  # ========================================
-  # CONTENEDOR 3: External APIs Collector
-  # ========================================
-  external-apis:
-    build:
-      context: ./external-apis
-      dockerfile: Dockerfile
-    container_name: bus-mvp-external-collector
-    hostname: external-collector
-    environment:
-      # Configuración básica
-      - LOG_LEVEL=${INGESTION_LOG_LEVEL:-INFO}
-      - ENVIRONMENT=${ENVIRONMENT:-development}
-      - HEALTH_CHECK_PORT=8092
-      
-      # Object Storage
-      - CLOUD_PROVIDER=${CLOUD_PROVIDER:-local}
-      - OBJECT_STORE_BUCKET=${OBJECT_STORE_BUCKET}
-      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
-      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
-      - AWS_REGION=${AWS_REGION}
-      
-      # APIs Keys (configurar según necesidades)
-      - WEATHER_API_KEY=${WEATHER_API_KEY}
-      - WEATHER_API_URL=${WEATHER_API_URL:-https://api.openweathermap.org/data/2.5}
-      - TRAFFIC_API_KEY=${TRAFFIC_API_KEY}
-      - TRAFFIC_API_URL=${TRAFFIC_API_URL}
-      - NEWS_API_KEY=${NEWS_API_KEY}
-      - FUEL_API_KEY=${FUEL_API_KEY}
-      
-      # Rate Limiting
-      - WEATHER_RATE_LIMIT=${WEATHER_RATE_LIMIT:-60/hour}
-      - TRAFFIC_RATE_LIMIT=${TRAFFIC_RATE_LIMIT:-100/hour}
-      - NEWS_RATE_LIMIT=${NEWS_RATE_LIMIT:-100/day}
-      - FUEL_RATE_LIMIT=${FUEL_RATE_LIMIT:-50/hour}
-      
-      # Cache configuración
-      - CACHE_TTL=${API_CACHE_TTL:-3600}
-      - CACHE_SIZE=${API_CACHE_SIZE:-100MB}
-      
-      # Selenium/Scraping
-      - CHROME_BIN=/usr/bin/chromium
-      - CHROME_DRIVER_PATH=/usr/bin/chromedriver
-      - SELENIUM_HEADLESS=${SELENIUM_HEADLESS:-true}
-    ports:
-      - "8092:8092"  # Health check port
-    volumes:
-      - ingestion_data:/app/data
-      - ingestion_logs:/app/logs
-      - ingestion_cache:/app/cache
-      - external_downloads:/app/downloads
-    networks:
-      - ingestion-network
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8092/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 60s
-    deploy:
-      resources:
-        limits:
-          cpus: '1.0'
-          memory: 1G
-        reservations:
-          cpus: '0.5'
-          memory: 512M
-
-  # ========================================
-  # SERVICIOS AUXILIARES (opcional)
-  # ========================================
-
-  # Redis para cache y buffering
-  redis-cache:
-    image: redis:7-alpine
-    container_name: bus-mvp-ingestion-redis
-    command: redis-server --requirepass ${REDIS_PASSWORD:-defaultpassword}
-    ports:
-      - "6380:6379"  # Puerto diferente para evitar conflictos
-    volumes:
-      - ingestion_cache:/data
-    networks:
-      - ingestion-network
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-    deploy:
-      resources:
-        limits:
-          cpus: '0.5'
-          memory: 256M
-
-  # MinIO para object storage local (desarrollo)
-  minio:
-    image: minio/minio:latest
-    container_name: bus-mvp-ingestion-minio
-    command: server /data --console-address ":9001"
-    environment:
-      - MINIO_ROOT_USER=${MINIO_ROOT_USER:-minioadmin}
-      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD:-minioadmin123}
-    ports:
-      - "9000:9000"  # API
-      - "9001:9001"  # Console
-    volumes:
-      - ingestion_data:/data
-    networks:
-      - ingestion-network
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-
-  # Prometheus para métricas (opcional)
-  prometheus:
-    image: prom/prometheus:latest
-    container_name: bus-mvp-ingestion-prometheus
-    command:
-      - '--config.file=/etc/prometheus/prometheus.yml'
-      - '--storage.tsdb.path=/prometheus'
-      - '--web.console.libraries=/etc/prometheus/console_libraries'
-      - '--web.console.templates=/etc/prometheus/consoles'
-      - '--web.enable-lifecycle'
-    ports:
-      - "9090:9090"
-    volumes:
-      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
-    networks:
-      - ingestion-network
-    restart: unless-stopped
-    profiles:
-      - monitoring
-
-# ========================================
-# CONFIGURACIÓN DE DESARROLLO
-# ========================================
-
-# Para usar este compose en desarrollo:
-# 1. Copiar .env.example a .env
-# 2. Configurar variables específicas
-# 3. docker-compose up --build
-#
-# Para usar solo algunos servicios:
-# docker-compose up real-time-data redis-cache
-#
-# Para incluir monitoreo:
-# docker-compose --profile monitoring up
-
-# ========================================
-# INTEGRACIÓN CON SISTEMA COMPLETO
-# ========================================
-
-# Este archivo puede ser incluido en el docker-compose principal:
-# 
-# En infra/docker-compose.yml:
-# services:
-#   # ... otros servicios ...
-#   
-#   # Incluir servicios de ingesta
-#   real-time-data:
-#     extends:
-#       file: ../data-ingestion/docker-compose.yml
-#       service: real-time-data
-#     networks:
-#       - bus-mvp-network  # Red principal del sistema

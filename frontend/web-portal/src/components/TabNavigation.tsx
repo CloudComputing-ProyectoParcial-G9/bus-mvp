@@ -1,5 +1,5 @@
 import React from 'react';
-import { Users, MapPin, Ticket, BarChart3, Activity } from 'lucide-react';
+import { Users, MapPin, Ticket, BarChart3, Clock } from 'lucide-react';
 
 interface TabNavigationProps {
   activeTab: string;
@@ -11,7 +11,7 @@ const tabs = [
   { id: 'trips', label: 'Viajes', icon: MapPin },
   { id: 'tickets', label: 'Tickets', icon: Ticket },
   { id: 'analytics', label: 'Analytics', icon: BarChart3 },
-  { id: 'health', label: 'Estado', icon: Activity },
+  { id: 'historial', label: 'Historial', icon: Clock },
 ];
 
 export function TabNavigation({ activeTab, onTabChange }: TabNavigationProps) {

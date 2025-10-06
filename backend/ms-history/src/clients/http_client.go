@@ -80,6 +80,7 @@ func (c *HTTPClient) doRequestWithRetry(ctx context.Context, method, url string,
 		
 		req.Header.Set("Content-Type", "application/json")
 		req.Header.Set("User-Agent", "ms-history/1.0")
+		req.Header.Set("X-Internal-Call", "true") // Identificar como llamada interna
 		
 		resp, err := c.client.Do(req)
 		if err != nil {

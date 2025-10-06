@@ -117,6 +117,23 @@ const errorHandler = (err, req, res, next) => {
     });
   }
 
+  // Error con statusCode customizado
+  if (err.statusCode) {
+    const statusCode = err.statusCode;
+    const errorName = statusCode === 404 ? 'Not Found' :
+                      statusCode === 400 ? 'Bad Request' :
+                      statusCode === 401 ? 'Unauthorized' :
+                      statusCode === 403 ? 'Forbidden' :
+                      statusCode === 409 ? 'Conflict' :
+                      'Error';
+    
+    return res.status(statusCode).json({
+      error: errorName,
+      message: err.message,
+      code: err.code || `HTTP_${statusCode}`
+    });
+  }
+
   // Error genérico del servidor
   res.status(500).json({
     error: 'Internal Server Error',

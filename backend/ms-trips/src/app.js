@@ -35,14 +35,29 @@ app.use(cors({
 
 // Rate limiting
 const limiter = rateLimit({
-  windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS) || 15 * 60 * 1000, // 15 minutos
-  max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS) || 100, // máximo 100 requests por ventana
+  windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS) || 1 * 60 * 1000, // 1 minuto
+  max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS) || 500, // máximo 500 requests por minuto
   message: {
     error: 'Too many requests from this IP, please try again later.',
     code: 'RATE_LIMIT_EXCEEDED'
   },
   standardHeaders: true,
   legacyHeaders: false,
+  // Excluir llamadas entre microservicios internos
+  skip: (req) => {
+    // No aplicar rate limit si viene de un microservicio interno
+    const internalServices = ['ms-history', 'ms-passengers', 'ms-tickets', 'ms-analytics'];
+    const userAgent = req.get('User-Agent') || '';
+    const referer = req.get('Referer') || '';
+    
+    // Detectar si la llamada viene de Docker network interno
+    const isInternalCall = req.headers['x-internal-call'] === 'true' ||
+                          internalServices.some(service => userAgent.includes(service)) ||
+                          req.ip.startsWith('172.') || // Docker network
+                          req.ip === '::ffff:172.19.0.'; // IPv6 Docker
+    
+    return isInternalCall;
+  }
 });
 app.use(limiter);
 

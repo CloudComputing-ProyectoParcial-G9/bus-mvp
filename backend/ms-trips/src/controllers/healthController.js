@@ -3,7 +3,7 @@ const { Route, Trip } = require('../models');
 
 /**
  * @swagger
- * /health:
+ * /api/v1/health:
  *   get:
  *     tags: [Health]
  *     summary: Health check básico
@@ -49,7 +49,7 @@ const healthCheck = async (req, res) => {
 
 /**
  * @swagger
- * /health/db:
+ * /api/v1/health/db:
  *   get:
  *     tags: [Health]
  *     summary: Health check de base de datos

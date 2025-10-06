@@ -125,25 +125,51 @@ src/
 - [ ] Tracing distribuido
 - [ ] Alertas de monitoreo
 
+## Seed Data / Datos Iniciales
+
+El microservicio incluye un sistema automático de poblado de base de datos con datos de prueba.
+
+### Comportamiento Automático
+- ✅ Al iniciar el contenedor/aplicación, **automáticamente** se pobla la base de datos con 10 tickets de ejemplo
+- ✅ Solo se ejecuta si la base de datos está vacía (no duplica datos)
+- ✅ Los tickets se generan con datos realistas (pasajeros, viajes, asientos, precios, etc.)
+
+### Datos Generados
+El seed crea 10 tickets con:
+- IDs secuenciales: `TICKET001`, `TICKET002`, ..., `TICKET010`
+- Referencias a pasajeros existentes: `PASS001` - `PASS010`
+- Referencias a viajes: `TRIP001` - `TRIP005`
+- Asientos aleatorios: formato "15A", "23B", etc.
+- Precios entre €20 y €120
+- Estados: mayormente "confirmed", algunos "pending" o "cancelled"
+- Fechas de creación de los últimos 90 días
+- Moneda: EUR
+
+### Verificar Datos
+Después del seed, puedes verificar:
+```bash
+# Listar todos los tickets
+curl http://localhost:8003/api/v1/tickets
+
+# Ver un ticket específico
+curl http://localhost:8003/api/v1/tickets/TICKET001
+
+# Tickets por pasajero
+curl http://localhost:8003/api/v1/tickets/passenger/PASS001
+```
+
 ## Comandos de Desarrollo
 
 ### Local Development
 ```bash
-# TODO: Completar según stack elegido
+# Java con Spring Boot (stack actual)
+./mvnw spring-boot:run
 
-# Ejemplo Go:
-# go mod tidy
-# go run main.go
+# O en Windows
+mvnw.cmd spring-boot:run
 
-# Ejemplo Java:
-# ./mvnw spring-boot:run
-
-# Ejemplo C#:
-# dotnet run
-
-# Ejemplo Python:
-# pip install -r requirements.txt
-# uvicorn main:app --reload --port 8003
+# El seed se ejecuta automáticamente al iniciar
+# Verás en consola: "📦 Seeding database with sample tickets..."
 ```
 
 ### Docker

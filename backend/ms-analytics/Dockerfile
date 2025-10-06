@@ -1,40 +1,27 @@
-# TODO: Completar según stack elegido
-# Este Dockerfile será completado cuando el equipo elija el lenguaje y framework
+FROM python:3.11-slim
 
-# Ejemplo para Node.js:
-# FROM node:18-alpine
-# WORKDIR /app
-# COPY package*.json ./
-# RUN npm ci --only=production
-# COPY . .
-# EXPOSE 8010
-# CMD ["npm", "start"]
+WORKDIR /app
 
-# Ejemplo para Python:
-# FROM python:3.11-slim
-# WORKDIR /app
-# COPY requirements.txt .
-# RUN pip install --no-cache-dir -r requirements.txt
-# COPY . .
-# EXPOSE 8010
-# CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8010"]
+# Instalar dependencias del sistema
+RUN apt-get update && apt-get install -y \
+    gcc \
+    && rm -rf /var/lib/apt/lists/*
 
-# Ejemplo para Java:
-# FROM openjdk:17-jre-slim
-# WORKDIR /app
-# COPY target/*.jar app.jar
-# EXPOSE 8010
-# ENTRYPOINT ["java", "-jar", "app.jar"]
+# Copiar requirements
+COPY requirements.txt .
 
-# Variables de entorno requeridas:
-# - CLOUD_REGION
-# - OBJECT_STORE_BUCKET
-# - QUERY_OUTPUT_PATH
-# - CATALOG_DATABASE
+# Instalar dependencias Python
+RUN pip install --no-cache-dir -r requirements.txt
 
-# TODO:
-# 1. Elegir imagen base según lenguaje
-# 2. Configurar instalación de dependencias
-# 3. Configurar health check
-# 4. Instalar SDK del proveedor de nube elegido
-# 5. Configurar usuario no-root para seguridad
+# Copiar código fuente
+COPY src/ ./src/
+
+# Variables de entorno
+ENV PYTHONUNBUFFERED=1
+ENV PYTHONDONTWRITEBYTECODE=1
+
+# Exponer puerto 8005
+EXPOSE 8005
+
+# Comando para ejecutar
+CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8005"]

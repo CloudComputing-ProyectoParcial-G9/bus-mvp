@@ -1,4 +1,14 @@
-import { Passenger, Trip, Ticket } from '../types';
+import {
+  Passenger,
+  Trip,
+  Ticket,
+  DashboardSummaryResponse,
+  PassengerAnalyticsResponse,
+  RevenueAnalyticsResponse,
+  OccupancyAnalyticsResponse,
+  TripAnalyticsResponse,
+  AnalyticsHealthResponse,
+} from '../types';
 
 const API_URLS = {
   passengers: import.meta.env.VITE_PASSENGERS_API,
@@ -36,7 +46,7 @@ class ApiService {
 
   // Passengers API
   async getPassengers(page = 1, limit = 20) {
-    const response = await this.fetchWithErrorHandling(`${API_URLS.passengers}/passengers?page=${page}&limit=${limit}`);
+    const response = await this.fetchWithErrorHandling(`${API_URLS.passengers}/api/v1/passengers?page=${page}&limit=${limit}`);
     // El backend devuelve una lista directa, la transformamos para que sea consistente
     if (Array.isArray(response)) {
       return {
@@ -51,21 +61,21 @@ class ApiService {
   }
 
   async createPassenger(passenger: Omit<Passenger, 'id' | 'created_at' | 'updated_at'>) {
-    return this.fetchWithErrorHandling(`${API_URLS.passengers}/passengers`, {
+    return this.fetchWithErrorHandling(`${API_URLS.passengers}/api/v1/passengers`, {
       method: 'POST',
       body: JSON.stringify(passenger),
     });
   }
 
   async updatePassenger(id: string, passenger: Partial<Omit<Passenger, 'id' | 'created_at' | 'updated_at'>>) {
-    return this.fetchWithErrorHandling(`${API_URLS.passengers}/passengers/${id}`, {
+    return this.fetchWithErrorHandling(`${API_URLS.passengers}/api/v1/passengers/${id}`, {
       method: 'PUT',
       body: JSON.stringify(passenger),
     });
   }
 
   async getPassenger(id: string) {
-    const response = await this.fetchWithErrorHandling(`${API_URLS.passengers}/passengers/${id}`);
+    const response = await this.fetchWithErrorHandling(`${API_URLS.passengers}/api/v1/passengers/${id}`);
     // Asegurar que tenga el campo id correcto
     return {
       ...response,
@@ -162,9 +172,104 @@ class ApiService {
       ? `${API_URLS[service]}/api/v1/health`
       : service === 'tickets'
       ? `${API_URLS[service]}/tickets/health`
+      : service === 'analytics'
+      ? `${API_URLS[service]}/api/v1/health`
       : `${API_URLS[service]}/health`;
 
     return this.fetchWithErrorHandling(url);
+  }
+
+  // ============================================================================
+  // Analytics API
+  // ============================================================================
+
+  /**
+   * Obtiene el resumen ejecutivo del dashboard
+   * Incluye métricas principales: pasajeros, viajes, tickets, ingresos, ocupación
+   */
+  async getAnalyticsSummary(): Promise<DashboardSummaryResponse> {
+    return this.fetchWithErrorHandling(
+      `${API_URLS.analytics}/api/v1/analytics/summary`
+    );
+  }
+
+  /**
+   * Obtiene analítica de pasajeros con segmentación
+   * Segmentos: VIP, Frequent, Regular, Occasional
+   */
+  async getPassengerAnalytics(): Promise<PassengerAnalyticsResponse> {
+    return this.fetchWithErrorHandling(
+      `${API_URLS.analytics}/api/v1/analytics/passengers`
+    );
+  }
+
+  /**
+   * Obtiene analítica de ingresos por ruta y estado
+   */
+  async getRevenueAnalytics(): Promise<RevenueAnalyticsResponse> {
+    return this.fetchWithErrorHandling(
+      `${API_URLS.analytics}/api/v1/analytics/revenue`
+    );
+  }
+
+  /**
+   * Obtiene analítica de ocupación de buses
+   * Niveles: Full (>90%), High (70-90%), Medium (50-70%), Low (30-50%), Very Low (<30%)
+   */
+  async getOccupancyAnalytics(): Promise<OccupancyAnalyticsResponse> {
+    return this.fetchWithErrorHandling(
+      `${API_URLS.analytics}/api/v1/analytics/occupancy`
+    );
+  }
+
+  /**
+   * Obtiene analítica de viajes por estado
+   */
+  async getTripAnalytics(): Promise<TripAnalyticsResponse> {
+    return this.fetchWithErrorHandling(
+      `${API_URLS.analytics}/api/v1/analytics/trips`
+    );
+  }
+
+  /**
+   * Health check específico para el servicio de analytics
+   */
+  async checkAnalyticsHealth(): Promise<AnalyticsHealthResponse> {
+    return this.fetchWithErrorHandling(
+      `${API_URLS.analytics}/api/v1/health`
+    );
+  }
+
+  // ============================================================================
+  // History API (ms-history)
+  // ============================================================================
+
+  /**
+   * Obtiene dashboard summary de ms-history (diferente a analytics)
+   */
+  async getDashboardSummary() {
+    return this.fetchWithErrorHandling(`${API_URLS.history}/api/v1/dashboard`);
+  }
+
+  /**
+   * Obtiene historial completo de un pasajero
+   */
+  async getPassengerHistory(passengerId: string) {
+    return this.fetchWithErrorHandling(`${API_URLS.history}/api/v1/history/passengers/${passengerId}`);
+  }
+
+  /**
+   * Health check del sistema via ms-history
+   */
+  async getSystemHealth() {
+    return this.fetchWithErrorHandling(`${API_URLS.history}/api/v1/health`);
+  }
+
+  /**
+   * Health check básico de ms-history
+   */
+  async getHistoryHealth() {
+    return this.fetchWithErrorHandling(`${API_URLS.history}/health`);
   }
 }
 
