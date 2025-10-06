@@ -16,6 +16,9 @@ public class Ticket {
     private String booking_status;
     private double total_price;
     private String currency;
+    private Instant purchase_date;
+    private String payment_method;
+    private String booking_reference;
     private Instant created_at;
 
     // getters and setters
@@ -33,6 +36,12 @@ public class Ticket {
     public void setTotal_price(double total_price) { this.total_price = total_price; }
     public String getCurrency() { return currency; }
     public void setCurrency(String currency) { this.currency = currency; }
+    public Instant getPurchase_date() { return purchase_date; }
+    public void setPurchase_date(Instant purchase_date) { this.purchase_date = purchase_date; }
+    public String getPayment_method() { return payment_method; }
+    public void setPayment_method(String payment_method) { this.payment_method = payment_method; }
+    public String getBooking_reference() { return booking_reference; }
+    public void setBooking_reference(String booking_reference) { this.booking_reference = booking_reference; }
     public Instant getCreated_at() { return created_at; }
     public void setCreated_at(Instant created_at) { this.created_at = created_at; }
 }

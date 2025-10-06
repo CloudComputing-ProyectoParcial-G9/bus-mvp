@@ -185,22 +185,27 @@ func (s *AggregationService) calculatePassengerStats(tickets []models.Ticket, tr
 	destinationCount := make(map[string]int)
 	var firstTrip, lastTrip *time.Time
 
-	for _, ticket := range tickets {
-		if ticket.BookingStatus == "confirmed" {
-			totalSpent += ticket.TotalPrice
+	// Calcular gasto total y fechas desde travel_history (que tiene los trips con precios reales)
+	for _, travel := range travelHistory {
+		// Calcular gasto real desde el precio del trip
+		var price float64
+		if travel.Trip.FinalPrice != "" {
+			fmt.Sscanf(travel.Trip.FinalPrice, "%f", &price)
+			totalSpent += price
+		}
 
-			// Encontrar fechas de primer y último viaje
-			if firstTrip == nil || ticket.PurchaseDate.Before(*firstTrip) {
-				firstTrip = &ticket.PurchaseDate
+		// Usar la fecha de salida del viaje (departure) en lugar de purchase_date
+		departureTime := travel.Trip.DepartureDateTime
+		if !departureTime.IsZero() {
+			if firstTrip == nil || departureTime.Before(*firstTrip) {
+				firstTrip = &departureTime
 			}
-			if lastTrip == nil || ticket.PurchaseDate.After(*lastTrip) {
-				lastTrip = &ticket.PurchaseDate
+			if lastTrip == nil || departureTime.After(*lastTrip) {
+				lastTrip = &departureTime
 			}
 		}
-	}
 
-	// Analizar rutas y destinos favoritos
-	for _, travel := range travelHistory {
+		// Analizar rutas y destinos favoritos
 		if travel.Route.RouteCode != "" {
 			routeCount[travel.Route.RouteCode]++
 			destinationCount[travel.Route.DestinationCity]++
@@ -227,7 +232,8 @@ func (s *AggregationService) calculatePassengerStats(tickets []models.Ticket, tr
 		}
 	}
 
-	confirmedTrips := len(tickets) // Simplificado - asumimos todos confirmados
+	// Contar viajes confirmados desde travel_history (más preciso que tickets)
+	confirmedTrips := len(travelHistory)
 	averageSpent := 0.0
 	if confirmedTrips > 0 {
 		averageSpent = totalSpent / float64(confirmedTrips)
