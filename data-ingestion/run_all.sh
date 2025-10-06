@@ -101,7 +101,7 @@ test_prerequisites() {
     # 2. Verificar Docker Compose
     log_step "2️⃣  Verificando Docker Compose..."
     if command -v docker-compose &> /dev/null; then
-        local compose_version=$(ddocker compose version)
+        local compose_version=$(docker compose version)
         log_success "  ✅ Docker Compose instalado: $compose_version"
     else
         log_error "  ❌ Docker Compose no está instalado"
