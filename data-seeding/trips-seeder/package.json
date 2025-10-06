@@ -1,0 +1,28 @@
+{
+  "name": "trips-data-seeder",
+  "version": "1.0.0",
+  "description": "Data seeder para microservicio de trips - Generación de 20k registros",
+  "main": "seed.js",
+  "scripts": {
+    "seed": "node seed.js",
+    "seed:clear": "node seed.js --clear",
+    "seed:20k": "node seed.js --records=20000",
+    "seed:test": "node seed.js --records=100 --test",
+    "help": "node seed.js --help"
+  },
+  "dependencies": {
+    "sequelize": "^6.35.0",
+    "mysql2": "^3.6.5",
+    "faker": "^5.5.3",
+    "dotenv": "^16.3.1"
+  },
+  "keywords": [
+    "seeder",
+    "data",
+    "trips",
+    "microservices",
+    "bus-mvp"
+  ],
+  "author": "Bus MVP Team",
+  "license": "MIT"
+}
