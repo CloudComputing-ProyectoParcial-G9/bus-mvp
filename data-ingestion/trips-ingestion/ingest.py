@@ -18,21 +18,21 @@ class TripIngestion:
         self.bucket_name = os.getenv('S3_BUCKET', 'bus-mvp-datalake')
         
     def extract_trips(self):
-        """Extrae el 100% de viajes desde la API con paginación"""
+        """Extract all trips data with pagination"""
         all_trips = []
         page = 1
-        page_size = 100
+        page_size = 1000  # Aumentar el tamaño de página para obtener más datos
         
-        try:
-            while True:
-                print(f'🔍 Fetching trips page {page} from {self.api_url}/trips...')
-                params = {
-                    'page': page,
-                    'limit': page_size
-                }
-                response = requests.get(f'{self.api_url}/trips', params=params, timeout=30)
+        while True:
+            print(f"🔍 Fetching trips page {page} from {self.api_url}/trips...")
+            
+            try:
+                response = requests.get(
+                    f"{self.api_url}/trips",
+                    params={"page": page, "limit": page_size},
+                    timeout=30
+                )
                 response.raise_for_status()
-                data = response.json()
                 
                 # Handle different response formats
                 if isinstance(data, dict) and 'data' in data:
