@@ -1830,3 +1830,212 @@
   message: 'GET /docs/',
   timestamp: '2025-09-20 19:46:06'
 }
+{
+  service: 'ms-trips',
+  version: '1.0.0',
+  name: 'SequelizeAccessDeniedError',
+  parent: Error: Access denied for user 'trips_user'@'localhost' (using password: YES)
+      at Packet.asError (/root/bus-mvp/backend/ms-trips/node_modules/mysql2/lib/packets/packet.js:740:17)
+      at ClientHandshake.execute (/root/bus-mvp/backend/ms-trips/node_modules/mysql2/lib/commands/command.js:29:26)
+      at Connection.handlePacket (/root/bus-mvp/backend/ms-trips/node_modules/mysql2/lib/base/connection.js:475:34)
+      at PacketParser.onPacket (/root/bus-mvp/backend/ms-trips/node_modules/mysql2/lib/base/connection.js:93:12)
+      at PacketParser.executeStart (/root/bus-mvp/backend/ms-trips/node_modules/mysql2/lib/packet_parser.js:75:16)
+      at Socket.<anonymous> (/root/bus-mvp/backend/ms-trips/node_modules/mysql2/lib/base/connection.js:100:25)
+      at Socket.emit (node:events:524:28)
+      at addChunk (node:internal/streams/readable:561:12)
+      at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+      at Readable.push (node:internal/streams/readable:392:5) {
+    code: 'ER_ACCESS_DENIED_ERROR',
+    errno: 1045,
+    sqlState: '28000',
+    sqlMessage: "Access denied for user 'trips_user'@'localhost' (using password: YES)",
+    sql: undefined
+  },
+  original: Error: Access denied for user 'trips_user'@'localhost' (using password: YES)
+      at Packet.asError (/root/bus-mvp/backend/ms-trips/node_modules/mysql2/lib/packets/packet.js:740:17)
+      at ClientHandshake.execute (/root/bus-mvp/backend/ms-trips/node_modules/mysql2/lib/commands/command.js:29:26)
+      at Connection.handlePacket (/root/bus-mvp/backend/ms-trips/node_modules/mysql2/lib/base/connection.js:475:34)
+      at PacketParser.onPacket (/root/bus-mvp/backend/ms-trips/node_modules/mysql2/lib/base/connection.js:93:12)
+      at PacketParser.executeStart (/root/bus-mvp/backend/ms-trips/node_modules/mysql2/lib/packet_parser.js:75:16)
+      at Socket.<anonymous> (/root/bus-mvp/backend/ms-trips/node_modules/mysql2/lib/base/connection.js:100:25)
+      at Socket.emit (node:events:524:28)
+      at addChunk (node:internal/streams/readable:561:12)
+      at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+      at Readable.push (node:internal/streams/readable:392:5) {
+    code: 'ER_ACCESS_DENIED_ERROR',
+    errno: 1045,
+    sqlState: '28000',
+    sqlMessage: "Access denied for user 'trips_user'@'localhost' (using password: YES)",
+    sql: undefined
+  },
+  level: 'error',
+  message: "Failed to start server: Access denied for user 'trips_user'@'localhost' (using password: YES)",
+  stack: "SequelizeAccessDeniedError: Access denied for user 'trips_user'@'localhost' (using password: YES)\n" +
+    '    at ConnectionManager.connect (/root/bus-mvp/backend/ms-trips/node_modules/sequelize/lib/dialects/mysql/connection-manager.js:94:17)\n' +
+    '    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n' +
+    '    at async ConnectionManager._connect (/root/bus-mvp/backend/ms-trips/node_modules/sequelize/lib/dialects/abstract/connection-manager.js:222:24)\n' +
+    '    at async /root/bus-mvp/backend/ms-trips/node_modules/sequelize/lib/dialects/abstract/connection-manager.js:174:32\n' +
+    '    at async ConnectionManager.getConnection (/root/bus-mvp/backend/ms-trips/node_modules/sequelize/lib/dialects/abstract/connection-manager.js:197:7)\n' +
+    '    at async /root/bus-mvp/backend/ms-trips/node_modules/sequelize/lib/sequelize.js:305:26\n' +
+    '    at async Sequelize.authenticate (/root/bus-mvp/backend/ms-trips/node_modules/sequelize/lib/sequelize.js:457:5)\n' +
+    '    at async startServer (/root/bus-mvp/backend/ms-trips/src/server.js:10:5)',
+  timestamp: '2025-10-06 08:23:47'
+}
+{
+  message: 'Database connection established successfully',
+  level: 'info',
+  service: 'ms-trips',
+  version: '1.0.0',
+  timestamp: '2025-10-06 08:25:11'
+}
+{
+  message: 'Database synchronized',
+  level: 'info',
+  service: 'ms-trips',
+  version: '1.0.0',
+  timestamp: '2025-10-06 08:25:11'
+}
+{
+  message: '🚀 Bus MVP - Trips Service server is running on port 8002',
+  level: 'info',
+  service: 'ms-trips',
+  version: '1.0.0',
+  timestamp: '2025-10-06 08:25:11'
+}
+{
+  message: '📚 API Documentation: http://localhost:8002/docs',
+  level: 'info',
+  service: 'ms-trips',
+  version: '1.0.0',
+  timestamp: '2025-10-06 08:25:11'
+}
+{
+  message: '🏥 Health Check: http://localhost:8002/health',
+  level: 'info',
+  service: 'ms-trips',
+  version: '1.0.0',
+  timestamp: '2025-10-06 08:25:11'
+}
+{
+  message: '🌍 Environment: development',
+  level: 'info',
+  service: 'ms-trips',
+  version: '1.0.0',
+  timestamp: '2025-10-06 08:25:11'
+}
+{
+  message: 'Database connection established successfully',
+  level: 'info',
+  service: 'ms-trips',
+  version: '1.0.0',
+  timestamp: '2025-10-06 08:25:56'
+}
+{
+  message: 'Database synchronized',
+  level: 'info',
+  service: 'ms-trips',
+  version: '1.0.0',
+  timestamp: '2025-10-06 08:25:56'
+}
+{
+  message: '🚀 Bus MVP - Trips Service server is running on port 8002',
+  level: 'info',
+  service: 'ms-trips',
+  version: '1.0.0',
+  timestamp: '2025-10-06 08:25:56'
+}
+{
+  message: '📚 API Documentation: http://localhost:8002/docs',
+  level: 'info',
+  service: 'ms-trips',
+  version: '1.0.0',
+  timestamp: '2025-10-06 08:25:56'
+}
+{
+  message: '🏥 Health Check: http://localhost:8002/health',
+  level: 'info',
+  service: 'ms-trips',
+  version: '1.0.0',
+  timestamp: '2025-10-06 08:25:56'
+}
+{
+  message: '🌍 Environment: development',
+  level: 'info',
+  service: 'ms-trips',
+  version: '1.0.0',
+  timestamp: '2025-10-06 08:25:56'
+}
+{
+  service: 'ms-trips',
+  version: '1.0.0',
+  ip: '::ffff:127.0.0.1',
+  userAgent: 'curl/7.81.0',
+  level: 'info',
+  message: 'GET /health',
+  timestamp: '2025-10-06 08:26:03'
+}
+{
+  service: 'ms-trips',
+  version: '1.0.0',
+  ip: '::ffff:127.0.0.1',
+  userAgent: 'curl/7.81.0',
+  level: 'info',
+  message: 'POST /api/v1/trips',
+  timestamp: '2025-10-06 08:26:24'
+}
+{
+  service: 'ms-trips',
+  version: '1.0.0',
+  error: 'Cannot add or update a child row: a foreign key constraint fails (`trips_db`.`trips`, CONSTRAINT `trips_ibfk_1` FOREIGN KEY (`route_id`) REFERENCES `routes` (`route_id`) ON DELETE RESTRICT ON UPDATE CASCADE)',
+  stack: 'Error\n' +
+    '    at Query.run (/root/bus-mvp/backend/ms-trips/node_modules/sequelize/lib/dialects/mysql/query.js:52:25)\n' +
+    '    at /root/bus-mvp/backend/ms-trips/node_modules/sequelize/lib/sequelize.js:315:28\n' +
+    '    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n' +
+    '    at async MySQLQueryInterface.insert (/root/bus-mvp/backend/ms-trips/node_modules/sequelize/lib/dialects/abstract/query-interface.js:308:21)\n' +
+    '    at async Trip.save (/root/bus-mvp/backend/ms-trips/node_modules/sequelize/lib/model.js:2490:35)\n' +
+    '    at async Trip.create (/root/bus-mvp/backend/ms-trips/node_modules/sequelize/lib/model.js:1362:12)\n' +
+    '    at async createTrip (/root/bus-mvp/backend/ms-trips/src/controllers/tripController.js:153:18)',
+  method: 'POST',
+  url: '/api/v1/trips',
+  ip: '::ffff:127.0.0.1',
+  userAgent: 'curl/7.81.0',
+  level: 'error',
+  message: 'Error occurred:',
+  timestamp: '2025-10-06 08:26:24'
+}
+{
+  service: 'ms-trips',
+  version: '1.0.0',
+  ip: '::ffff:127.0.0.1',
+  userAgent: 'curl/7.81.0',
+  level: 'info',
+  message: 'POST /api/v1/trips',
+  timestamp: '2025-10-06 08:27:19'
+}
+{
+  service: 'ms-trips',
+  version: '1.0.0',
+  ip: '::ffff:127.0.0.1',
+  userAgent: 'curl/7.81.0',
+  level: 'info',
+  message: 'GET /api/v1/trips',
+  timestamp: '2025-10-06 08:30:28'
+}
+{
+  service: 'ms-trips',
+  version: '1.0.0',
+  ip: '::ffff:127.0.0.1',
+  userAgent: 'curl/7.81.0',
+  level: 'info',
+  message: 'DELETE /api/v1/trips/TRP_20251010_LIM_CUZ_10',
+  timestamp: '2025-10-06 08:30:28'
+}
+{
+  service: 'ms-trips',
+  version: '1.0.0',
+  ip: '::ffff:127.0.0.1',
+  userAgent: 'curl/7.81.0',
+  level: 'info',
+  message: 'GET /health',
+  timestamp: '2025-10-06 08:35:03'
+}

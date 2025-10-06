@@ -141,14 +141,14 @@ const getTripById = async (req, res, next) => {
 const createTrip = async (req, res, next) => {
   try {
     const tripData = req.body;
-    
-    // Verificar que la ruta existe
-    const route = await Route.findByPk(tripData.routeId);
-    if (!route) {
-      const error = new Error(`Route with ID ${tripData.routeId} not found`);
-      error.statusCode = 404;
-      return next(error);
-    }
+
+    // TEMPORALMENTE COMENTADO - Verificar que la ruta existe
+    // const route = await Route.findByPk(tripData.routeId);
+    // if (!route) {
+    //   const error = new Error(`Route with ID ${tripData.routeId} not found`);
+    //   error.statusCode = 404;
+    //   return next(error);
+    // }
 
     const trip = await Trip.create(tripData);
 
@@ -179,15 +179,15 @@ const updateTrip = async (req, res, next) => {
       return next(error);
     }
 
-    // Si se está actualizando la ruta, verificar que existe
-    if (updateData.routeId && updateData.routeId !== trip.routeId) {
-      const route = await Route.findByPk(updateData.routeId);
-      if (!route) {
-        const error = new Error(`Route with ID ${updateData.routeId} not found`);
-        error.statusCode = 404;
-        return next(error);
-      }
-    }
+    // TEMPORALMENTE COMENTADO - Si se está actualizando la ruta, verificar que existe
+    // if (updateData.routeId && updateData.routeId !== trip.routeId) {
+    //   const route = await Route.findByPk(updateData.routeId);
+    //   if (!route) {
+    //     const error = new Error(`Route with ID ${updateData.routeId} not found`);
+    //     error.statusCode = 404;
+    //     return next(error);
+    //   }
+    // }
 
     await trip.update(updateData);
 

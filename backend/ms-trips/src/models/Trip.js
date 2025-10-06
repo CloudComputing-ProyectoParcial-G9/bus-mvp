@@ -106,7 +106,10 @@ Trip.init({
       notEmpty: true,
       isDate: true,
       isAfterNow(value) {
-        if (new Date(value) < new Date()) {
+        // Permitir margen de 5 minutos para evitar problemas de sincronización
+        const now = new Date();
+        const fiveMinutesAgo = new Date(now.getTime() - (5 * 60 * 1000));
+        if (new Date(value) < fiveMinutesAgo) {
           throw new Error('Departure date must be in the future');
         }
       }
@@ -227,7 +230,10 @@ Trip.init({
   hooks: {
     beforeCreate: (trip, options) => {
       // Validar que el viaje no sea en el pasado al crear
-      if (new Date(trip.departureDateTime) <= new Date()) {
+      // Permitir margen de 5 minutos para evitar problemas de sincronización
+      const now = new Date();
+      const fiveMinutesAgo = new Date(now.getTime() - (5 * 60 * 1000));
+      if (new Date(trip.departureDateTime) <= fiveMinutesAgo) {
         throw new Error('Cannot create trips in the past');
       }
     },
@@ -237,9 +243,12 @@ Trip.init({
       if (trip.status === 'cancelled') {
         return;
       }
-      
+
       // Validar que no se pueda cambiar fecha a pasado si no está cancelado
-      if (trip.changed('departureDateTime') && new Date(trip.departureDateTime) <= new Date()) {
+      // Permitir margen de 5 minutos para evitar problemas de sincronización
+      const now = new Date();
+      const fiveMinutesAgo = new Date(now.getTime() - (5 * 60 * 1000));
+      if (trip.changed('departureDateTime') && new Date(trip.departureDateTime) <= fiveMinutesAgo) {
         throw new Error('Cannot update departure time to the past');
       }
     }
