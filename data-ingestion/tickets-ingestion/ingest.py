@@ -13,15 +13,15 @@ class TicketIngestion:
     """
     
     def __init__(self):
-        self.api_url = os.getenv('TICKETS_API_URL', 'http://host.docker.internal:3003/api')
+        self.api_url = os.getenv('TICKETS_API_URL', 'http://host.docker.internal:8003')
         self.s3_client = boto3.client('s3')
-        self.bucket_name = os.getenv('S3_BUCKET', 'bus-mvp-datalake')
+        self.bucket_name = os.getenv('S3_BUCKET', 'bus-mvp-datalake-1')
         
     def extract_tickets(self):
         """Extrae el 100% de tickets desde la API con paginación"""
         all_tickets = []
         page = 1
-        page_size = 100  # Usar un tamaño mayor para reducir llamadas
+        page_size = 1000  # Usar un tamaño mayor para reducir llamadas
         
         try:
             while True:
@@ -39,7 +39,7 @@ class TicketIngestion:
                 # Handle different response formats
                 if isinstance(data, dict) and 'data' in data:
                     tickets = data['data']
-                    has_more = data.get('hasMore', False)
+                    has_more = len(tickets) == page_size
                     total_pages = data.get('totalPages', 0)
                 elif isinstance(data, list):
                     tickets = data

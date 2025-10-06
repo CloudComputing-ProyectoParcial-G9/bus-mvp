@@ -13,9 +13,9 @@ class TripIngestion:
     """
     
     def __init__(self):
-        self.api_url = os.getenv('TRIPS_API_URL', 'http://host.docker.internal:3002/api')
+        self.api_url = os.getenv('TRIPS_API_URL', 'http://host.docker.internal:8002/api/v1')
         self.s3_client = boto3.client('s3')
-        self.bucket_name = os.getenv('S3_BUCKET', 'bus-mvp-datalake')
+        self.bucket_name = os.getenv('S3_BUCKET', 'bus-mvp-datalake-1')
         
     def extract_trips(self):
         """Extract all trips data with pagination"""
@@ -23,21 +23,22 @@ class TripIngestion:
         page = 1
         page_size = 1000  # Aumentar el tamaño de página para obtener más datos
         
-        while True:
-            print(f"🔍 Fetching trips page {page} from {self.api_url}/trips...")
-            
-            try:
+        try:
+            while True:
+                print(f"🔍 Fetching trips page {page} from {self.api_url}/trips...")
+                
                 response = requests.get(
                     f"{self.api_url}/trips",
                     params={"page": page, "limit": page_size},
                     timeout=30
                 )
                 response.raise_for_status()
+                data = response.json()
                 
                 # Handle different response formats
                 if isinstance(data, dict) and 'data' in data:
                     trips = data['data']
-                    has_more = data.get('hasMore', False) or data.get('pagination', {}).get('hasNextPage', False)
+                    has_more = data.get("pagination", {}).get("currentPage", page) < data.get("pagination", {}).get("totalPages", 1)
                 elif isinstance(data, list):
                     trips = data
                     has_more = len(trips) == page_size
@@ -56,11 +57,12 @@ class TripIngestion:
                     
                 page += 1
                 
-            print(f'✅ Total trips retrieved: {len(all_trips)}')
-            return all_trips
         except requests.exceptions.RequestException as e:
             print(f'❌ Error fetching trips: {e}')
             sys.exit(1)
+            
+        print(f'✅ Total trips retrieved: {len(all_trips)}')
+        return all_trips
     
     def transform_to_dataframe(self, data):
         """Transforma datos a DataFrame de pandas"""
