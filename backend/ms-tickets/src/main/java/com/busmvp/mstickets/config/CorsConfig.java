@@ -11,27 +11,24 @@ public class CorsConfig {
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
 
-        // Para desarrollo - permitir todos los orígenes de localhost
-        configuration.setAllowedOriginPatterns(java.util.Arrays.asList("http://localhost:*"));
-        configuration.addAllowedOrigin("http://127.0.0.1:5176");
-        configuration.addAllowedOrigin("http://127.0.0.1:5173");
+    CorsConfiguration configuration = new CorsConfiguration();
+    // Permitir cualquier origen
+    configuration.addAllowedOriginPattern("*");
 
-        // Métodos HTTP permitidos
-        configuration.setAllowedMethods(java.util.Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD"));
+    // Métodos HTTP permitidos
+    configuration.setAllowedMethods(java.util.Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD"));
 
-        // Headers permitidos
-        configuration.setAllowedHeaders(java.util.Arrays.asList("*"));
+    // Headers permitidos
+    configuration.setAllowedHeaders(java.util.Arrays.asList("*"));
+    // Headers expuestos
+    configuration.setExposedHeaders(java.util.Arrays.asList("*"));
 
-        // Headers expuestos
-        configuration.setExposedHeaders(java.util.Arrays.asList("*"));
+    // NO permitir credenciales para evitar problemas con wildcard
+    configuration.setAllowCredentials(false);
 
-        // NO permitir credenciales para evitar problemas con wildcard
-        configuration.setAllowCredentials(false);
-
-        // Configurar tiempo de cache para preflight requests
-        configuration.setMaxAge(3600L);
+    // Configurar tiempo de cache para preflight requests
+    configuration.setMaxAge(3600L);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
