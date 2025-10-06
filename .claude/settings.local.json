@@ -2,7 +2,16 @@
   "permissions": {
     "allow": [
       "Bash(docker stop:*)",
-      "Bash(docker rm:*)"
+      "Bash(docker rm:*)",
+      "Bash(docker:*)",
+      "Bash(curl:*)",
+      "Bash(lsof:*)",
+      "Bash(npm run dev:*)",
+      "Bash(npm run build:*)",
+      "Bash(docker-compose:*)",
+      "Bash(awk:*)",
+      "Bash(netstat:*)",
+      "Bash(mvn clean:*)"
     ],
     "deny": [],
     "ask": []
