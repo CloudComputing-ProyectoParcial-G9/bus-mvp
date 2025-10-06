@@ -9,16 +9,7 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "lint": "eslint src/",
-    "db:migrate": "npx sequelize-cli db:migrate",
-    "db:seed": "npx sequelize-cli db:seed:all",
-    "seed": "node scripts/seed.js",
-    "seed:no-clear": "node scripts/seed.js --no-clear",
-    "seed:no-test": "node scripts/seed.js --no-test",
-    "seed:help": "node scripts/seed.js --help",
-    "seed:20k": "node scripts/seed20k.js",
-    "seed:50k": "node scripts/seed20k.js --count 50000",
-    "seed:100k": "node scripts/seed20k.js --count 100000",
-    "seed:all-20k": "node scripts/seed-all-20k.js"
+    "db:migrate": "npx sequelize-cli db:migrate"
   },
   "keywords": [
     "microservice",

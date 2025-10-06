@@ -1,41 +1,11 @@
 const express = require('express');
 const router = express.Router();
 const {
-  runSeeder,
   getDataStatus,
   clearAllData
 } = require('../controllers/adminController');
 
-/**
- * @swagger
- * /api/v1/admin/seed:
- *   post:
- *     tags: [Admin]
- *     summary: Ejecutar data seeder
- *     description: Poblar la base de datos con datos de prueba (solo en desarrollo)
- *     requestBody:
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               clearData:
- *                 type: boolean
- *                 default: true
- *                 description: Limpiar datos existentes antes de crear nuevos
- *               testData:
- *                 type: boolean
- *                 default: true
- *                 description: Verificar datos después de crearlos
- *     responses:
- *       200:
- *         description: Seeder ejecutado exitosamente
- *       403:
- *         description: No permitido en producción
- *       500:
- *         description: Error ejecutando seeder
- */
-router.post('/seed', runSeeder);
+
 
 /**
  * @swagger

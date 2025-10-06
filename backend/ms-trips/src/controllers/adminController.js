@@ -1,57 +1,3 @@
-const DataSeeder = require('../seeders/dataSeeder');
-
-/**
- * @desc Ejecutar data seeder
- * @route POST /api/v1/admin/seed
- * @access Private (solo para desarrollo)
- */
-const runSeeder = async (req, res) => {
-  try {
-    const { clearData = true, testData = true } = req.body;
-    
-    // Solo permitir en desarrollo
-    if (process.env.NODE_ENV === 'production') {
-      return res.status(403).json({
-        error: 'Forbidden',
-        message: 'Data seeder not available in production',
-        code: 'SEEDER_FORBIDDEN'
-      });
-    }
-    
-    const seeder = new DataSeeder();
-    
-    const startTime = Date.now();
-    
-    const summary = await seeder.run({ clearData, testData });
-    
-    const endTime = Date.now();
-    const duration = ((endTime - startTime) / 1000).toFixed(2);
-    
-    res.status(200).json({
-      message: 'Data seeder executed successfully',
-      summary: {
-        routes: summary.routes,
-        trips: summary.trips,
-        activeRoutes: summary.activeRoutes,
-        scheduledTrips: summary.scheduledTrips,
-        executionTime: `${duration}s`
-      },
-      options: {
-        clearData,
-        testData
-      },
-      timestamp: new Date().toISOString()
-    });
-    
-  } catch (error) {
-    res.status(500).json({
-      error: 'Seeder Error',
-      message: error.message,
-      code: 'SEEDER_EXECUTION_ERROR'
-    });
-  }
-};
-
 /**
  * @desc Verificar datos existentes
  * @route GET /api/v1/admin/data-status
@@ -155,7 +101,6 @@ const clearAllData = async (req, res) => {
 };
 
 module.exports = {
-  runSeeder,
   getDataStatus,
   clearAllData
 };
