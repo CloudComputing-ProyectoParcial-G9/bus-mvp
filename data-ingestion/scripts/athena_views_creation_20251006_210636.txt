@@ -1,0 +1,32 @@
+======================================================================
+REPORTE DE CREACIÓN - VISTAS ATHENA
+Bus MVP Analytics - Requisito: 2 Vistas
+======================================================================
+
+Fecha de creación: 2025-10-06 21:06:36
+Database: bus_mvp_db
+Total de vistas: 2
+
+----------------------------------------------------------------------
+VISTA 1: passenger_sales_summary
+----------------------------------------------------------------------
+Descripción: Vista consolidada del comportamiento de compra de cada pasajero con métricas de valor del cliente y segmentación RFM
+Execution ID: 9566b862-0243-4e26-ac83-e350d49731f8
+Tiempo de creación: 2.05 segundos
+Timestamp: 2025-10-06T21:06:27.440614
+
+----------------------------------------------------------------------
+VISTA 2: trip_occupancy_revenue
+----------------------------------------------------------------------
+Descripción: Vista de análisis de ocupación y rentabilidad por viaje con clasificaciones de rendimiento y eficiencia operativa
+Execution ID: 72ab4661-db47-4da8-ae3b-b7fe7183bed7
+Tiempo de creación: 4.09 segundos
+Timestamp: 2025-10-06T21:06:33.844377
+
+======================================================================
+EVIDENCIA GENERADA
+======================================================================
+✅ 2 vistas creadas en Athena
+✅ Vistas verificadas exitosamente
+✅ Comandos CREATE OR REPLACE VIEW ejecutados
+✅ Archivo de evidencia generado

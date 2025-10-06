@@ -90,72 +90,72 @@ class AthenaQueries:
         
         # Consulta 1: Contar pasajeros
         self.execute_query(
-            "SELECT COUNT(*) as total_passengers FROM passengers",
+            "SELECT COUNT(*) as total_passengers FROM passengers_csv",
             "Total de Pasajeros"
         )
-        
+
         # Consulta 2: Contar viajes
         self.execute_query(
-            "SELECT COUNT(*) as total_trips FROM trips",
+            "SELECT COUNT(*) as total_trips FROM trips_csv",
             "Total de Viajes"
         )
-        
+
         # Consulta 3: Contar tickets
         self.execute_query(
-            "SELECT COUNT(*) as total_tickets FROM tickets",
+            "SELECT COUNT(*) as total_tickets FROM tickets_csv",
             "Total de Tickets"
         )
-        
+
         # Consulta 4: Primeros 5 pasajeros
         self.execute_query(
             """
-            SELECT passenger_id, full_name, email, phone 
-            FROM passengers 
+            SELECT passenger_id, full_name, email, phone
+            FROM passengers_csv
             LIMIT 5
             """,
             "Primeros 5 Pasajeros"
         )
-        
+
         # Consulta 5: Viajes con información
         self.execute_query(
             """
-            SELECT tripid, routeid, departuredatetime, finalprice, status 
-            FROM trips 
+            SELECT tripid, routeid, departuredatetime, finalprice, status
+            FROM trips_csv
             LIMIT 5
             """,
             "Primeros 5 Viajes"
         )
-        
+
         # Consulta 6: Tickets con detalles
         self.execute_query(
             """
-            SELECT ticket_id, passenger_id, trip_id, total_price, seat_number 
-            FROM tickets 
+            SELECT ticket_id, passenger_id, trip_id, total_price, seat_number
+            FROM tickets_csv
             LIMIT 5
             """,
             "Primeros 5 Tickets"
         )
-        
+
         # Consulta 7: Análisis - Tickets por viaje (TOP 5)
         self.execute_query(
             """
-            SELECT trip_id, COUNT(*) as total_tickets 
-            FROM tickets 
-            GROUP BY trip_id 
-            ORDER BY total_tickets DESC 
+            SELECT trip_id, COUNT(*) as total_tickets
+            FROM tickets_csv
+            GROUP BY trip_id
+            ORDER BY total_tickets DESC
             LIMIT 5
             """,
             "Top 5 Viajes con Más Tickets Vendidos"
         )
-        
+
         # Consulta 8: Análisis - Ingresos totales
         self.execute_query(
             """
-            SELECT 
+            SELECT
                 SUM(total_price) as total_revenue,
                 AVG(total_price) as avg_ticket_price,
                 COUNT(*) as total_tickets
-            FROM tickets
+            FROM tickets_csv
             """,
             "Análisis de Ingresos"
         )

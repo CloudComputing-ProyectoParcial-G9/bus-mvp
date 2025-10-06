@@ -184,8 +184,8 @@ SELECT
         2
     ) as cancellation_rate_percentage
 
-FROM passengers p
-LEFT JOIN tickets t ON p.passenger_id = t.passenger_id
+FROM passengers_csv p
+LEFT JOIN tickets_csv t ON p.passenger_id = t.passenger_id
 GROUP BY 
     p.passenger_id,
     p.full_name,
@@ -279,8 +279,8 @@ SELECT
         ELSE 'Very Low Revenue'
     END as revenue_category
 
-FROM trips tr
-LEFT JOIN tickets ti ON tr.tripId = ti.trip_id
+FROM trips_csv tr
+LEFT JOIN tickets_csv ti ON tr.tripId = ti.trip_id
 GROUP BY 
     tr.tripId,
     tr.routeId,
@@ -346,20 +346,34 @@ GROUP BY
         print("\n🔗 VERIFICACIÓN:")
         print("   - AWS Athena Console: https://console.aws.amazon.com/athena/")
         print("   - Ejecutar: SHOW VIEWS;")
-        print(f"   - Ejecutar: DESCRIBE {self.views_created[0]['view_name']};")
-        
-        print("\n" + "="*70)
-        print("🎉 CREACIÓN DE VISTAS COMPLETADA EXITOSAMENTE")
-        print("="*70)
+        if len(self.views_created) > 0:
+            print(f"   - Ejecutar: DESCRIBE {self.views_created[0]['view_name']};")
+
+        if len(self.views_created) == 2:
+            print("\n" + "="*70)
+            print("🎉 CREACIÓN DE VISTAS COMPLETADA EXITOSAMENTE")
+            print("="*70)
+        elif len(self.views_created) > 0:
+            print("\n" + "="*70)
+            print("⚠️  CREACIÓN DE VISTAS COMPLETADA PARCIALMENTE")
+            print("="*70)
+        else:
+            print("\n" + "="*70)
+            print("❌ NO SE CREARON VISTAS")
+            print("="*70)
         
         # Guardar metadata en archivo local
         self._save_metadata_locally()
     
     def _save_metadata_locally(self):
         """Guarda metadata de las vistas creadas en archivo local"""
+        if len(self.views_created) == 0:
+            print("\n⚠️  No hay vistas creadas para guardar en el reporte")
+            return
+
         timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
         output_file = Path(__file__).parent / f'athena_views_creation_{timestamp}.txt'
-        
+
         try:
             with open(output_file, 'w', encoding='utf-8') as f:
                 f.write("="*70 + "\n")
@@ -369,7 +383,7 @@ GROUP BY
                 f.write(f"Fecha de creación: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
                 f.write(f"Database: {self.database}\n")
                 f.write(f"Total de vistas: {len(self.views_created)}\n\n")
-                
+
                 for i, view in enumerate(self.views_created, 1):
                     f.write("-" * 70 + "\n")
                     f.write(f"VISTA {i}: {view['view_name']}\n")
@@ -378,17 +392,17 @@ GROUP BY
                     f.write(f"Execution ID: {view['execution_id']}\n")
                     f.write(f"Tiempo de creación: {view['execution_time']:.2f} segundos\n")
                     f.write(f"Timestamp: {view['timestamp']}\n\n")
-                
+
                 f.write("="*70 + "\n")
                 f.write("EVIDENCIA GENERADA\n")
                 f.write("="*70 + "\n")
-                f.write("✅ 2 vistas creadas en Athena\n")
+                f.write(f"✅ {len(self.views_created)} vistas creadas en Athena\n")
                 f.write("✅ Vistas verificadas exitosamente\n")
                 f.write("✅ Comandos CREATE OR REPLACE VIEW ejecutados\n")
                 f.write("✅ Archivo de evidencia generado\n")
-            
+
             print(f"\n📄 Reporte guardado localmente en: {output_file}")
-            
+
         except Exception as e:
             print(f"\n⚠️  No se pudo guardar el reporte local: {e}")
 
