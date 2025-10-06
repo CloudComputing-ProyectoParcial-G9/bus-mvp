@@ -61,21 +61,21 @@ class ApiService {
   }
 
   async createPassenger(passenger: Omit<Passenger, 'id' | 'created_at' | 'updated_at'>) {
-    return this.fetchWithErrorHandling(`${API_URLS.passengers}/passengers`, {
+    return this.fetchWithErrorHandling(`${API_URLS.passengers}/api/v1/passengers`, {
       method: 'POST',
       body: JSON.stringify(passenger),
     });
   }
 
   async updatePassenger(id: string, passenger: Partial<Omit<Passenger, 'id' | 'created_at' | 'updated_at'>>) {
-    return this.fetchWithErrorHandling(`${API_URLS.passengers}/passengers/${id}`, {
+    return this.fetchWithErrorHandling(`${API_URLS.passengers}/api/v1/passengers/${id}`, {
       method: 'PUT',
       body: JSON.stringify(passenger),
     });
   }
 
   async getPassenger(id: string) {
-    const response = await this.fetchWithErrorHandling(`${API_URLS.passengers}/passengers/${id}`);
+    const response = await this.fetchWithErrorHandling(`${API_URLS.passengers}/api/v1/passengers/${id}`);
     // Asegurar que tenga el campo id correcto
     return {
       ...response,

@@ -277,7 +277,9 @@ export function HistorySection() {
                   <thead className="bg-gray-50">
                     <tr>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ticket ID</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Viaje</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Asiento</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha Compra</th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Precio</th>
                     </tr>
@@ -286,18 +288,30 @@ export function HistorySection() {
                     {passengerHistory.recent_tickets.map((ticket: any, index: number) => (
                       <tr key={index}>
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                          {ticket.id || 'N/A'}
+                          {ticket.ticket_id ? ticket.ticket_id.substring(0, 20) + '...' : 'N/A'}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          {ticket.date ? new Date(ticket.date).toLocaleString() : 'N/A'}
+                          {ticket.trip_id || 'N/A'}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {ticket.seat_number || 'N/A'}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {ticket.purchase_date && ticket.purchase_date !== '0001-01-01T00:00:00Z'
+                            ? new Date(ticket.purchase_date).toLocaleDateString()
+                            : 'N/A'}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <span className="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
-                            {ticket.status || 'N/A'}
+                          <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                            ticket.booking_status === 'confirmed' ? 'bg-green-100 text-green-800' :
+                            ticket.booking_status === 'cancelled' ? 'bg-red-100 text-red-800' :
+                            'bg-blue-100 text-blue-800'
+                          }`}>
+                            {ticket.booking_status || 'N/A'}
                           </span>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          ${ticket.price || 0}
+                          {ticket.total_price > 0 ? `${ticket.currency || 'PEN'} ${ticket.total_price.toFixed(2)}` : 'N/A'}
                         </td>
                       </tr>
                     ))}
