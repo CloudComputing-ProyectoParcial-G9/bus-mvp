@@ -88,7 +88,7 @@ class PassengerIngestion:
             # Upload CSV to passengers_csv folder
             csv_key = f'raw/passengers_csv/passengers_{timestamp}.csv'
             csv_buffer = df.to_csv(index=False)
-            # self.s3_client.put_object(
+            self.s3_client.put_object(
                 Bucket=self.bucket_name, 
                 Key=csv_key, 
                 Body=csv_buffer,
@@ -99,7 +99,7 @@ class PassengerIngestion:
             # Upload JSON to passengers_json folder
             json_key = f'raw/passengers_json/passengers_{timestamp}.json'
             json_buffer = df.to_json(orient='records', date_format='iso', indent=2)
-            # self.s3_client.put_object(
+            self.s3_client.put_object(
                 Bucket=self.bucket_name, 
                 Key=json_key, 
                 Body=json_buffer,
