@@ -85,7 +85,7 @@ TICKETS_API_URL=http://host.docker.internal:3003/api
 GLUE_DATABASE=bus_mvp_db
 
 # Athena Configuration
-ATHENA_OUTPUT_LOCATION=s3://bus-mvp-datalake/athena-results/
+ATHENA_OUTPUT_LOCATION=s3://bus-mvp-datalake-1/athena-results/
 
 # Ingestion Schedule (optional)
 INGESTION_INTERVAL=3600

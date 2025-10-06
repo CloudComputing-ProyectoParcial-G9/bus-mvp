@@ -17,7 +17,7 @@ class AthenaQueries:
     def __init__(self):
         self.athena = boto3.client('athena', region_name='us-east-1')
         self.database = os.getenv('GLUE_DATABASE', 'bus_mvp_db')
-        self.output_location = os.getenv('ATHENA_OUTPUT_LOCATION', 's3://bus-mvp-datalake/athena-results/')
+        self.output_location = os.getenv('ATHENA_OUTPUT_LOCATION', 's3://bus-mvp-datalake-1/athena-results/')
         
     def execute_query(self, query, description=""):
         """Ejecuta una consulta en Athena y espera los resultados"""

@@ -99,7 +99,7 @@ ms-analytics:
     - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
     - AWS_SESSION_TOKEN=${AWS_SESSION_TOKEN}
     - GLUE_DATABASE=bus_mvp_db
-    - ATHENA_OUTPUT_LOCATION=s3://bus-mvp-datalake/athena-results/
+    - ATHENA_OUTPUT_LOCATION=s3://bus-mvp-datalake-1/athena-results/
   networks:
     - bus-mvp-network
 ```

@@ -27,7 +27,7 @@ Este documento explica cómo MS-Analytics se integra con el ecosistema completo 
 │                       │   ┌───────────────────────────────┐  │  │
 │                       │   │       AWS S3 Bucket           │  │  │
 │                       │   ├───────────────────────────────┤  │  │
-│                       └──►│ bus-mvp-datalake/             │◄─┘  │
+│                       └──►│ bus-mvp-datalake-1/             │◄─┘  │
 │                           │   raw/passengers_csv/         │     │
 │                           │   raw/passengers_json/        │     │
 │                           │   raw/trips_csv/              │     │
@@ -227,7 +227,7 @@ AWS_DEFAULT_REGION=us-east-1
 
 # Athena Config (Compartido)
 GLUE_DATABASE=bus_mvp_db
-ATHENA_OUTPUT_LOCATION=s3://bus-mvp-datalake/athena-results/
+ATHENA_OUTPUT_LOCATION=s3://bus-mvp-datalake-1/athena-results/
 
 # MS-Analytics Específico
 APP_NAME=Bus MVP Analytics API
@@ -290,7 +290,7 @@ curl http://localhost:3003/api/tickets | jq
 docker-compose up passengers-ingestion
 
 # 3. Verificar S3
-aws s3 ls s3://bus-mvp-datalake/raw/passengers_csv/
+aws s3 ls s3://bus-mvp-datalake-1/raw/passengers_csv/
 
 # 4. Verificar Glue
 aws glue get-table --database-name bus_mvp_db --name passengers_csv
@@ -358,7 +358,7 @@ python scripts/setup_complete_glue.py
 
 ```bash
 # Limpiar resultados de Athena
-aws s3 rm s3://bus-mvp-datalake/athena-results/ --recursive
+aws s3 rm s3://bus-mvp-datalake-1/athena-results/ --recursive
 
 # MS-Analytics ejecutará queries frescas
 ```

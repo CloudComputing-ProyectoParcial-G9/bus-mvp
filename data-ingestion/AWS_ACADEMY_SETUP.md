@@ -56,7 +56,7 @@ TICKETS_API_URL=http://host.docker.internal:3003/api
 GLUE_DATABASE=bus_mvp_db
 
 # Athena Configuration
-ATHENA_OUTPUT_LOCATION=s3://bus-mvp-datalake/athena-results/
+ATHENA_OUTPUT_LOCATION=s3://bus-mvp-datalake-1/athena-results/
 ```
 
 ## ⚠️ Limitaciones de AWS Academy Lab
@@ -129,7 +129,7 @@ docker-compose build
 docker-compose up passengers-ingestion trips-ingestion tickets-ingestion
 
 # 5. Verificar datos en S3
-aws s3 ls s3://bus-mvp-datalake/raw/ --recursive
+aws s3 ls s3://bus-mvp-datalake-1/raw/ --recursive
 
 # 6. Configurar Glue (después de tener datos en S3)
 python3 scripts/setup_glue.py
@@ -154,10 +154,10 @@ python3 scripts/setup_s3.py
 aws s3 mb s3://bus-mvp-datalake
 
 # Crear estructura de carpetas
-aws s3api put-object --bucket bus-mvp-datalake --key raw/passengers/
-aws s3api put-object --bucket bus-mvp-datalake --key raw/trips/
-aws s3api put-object --bucket bus-mvp-datalake --key raw/tickets/
-aws s3api put-object --bucket bus-mvp-datalake --key athena-results/
+aws s3api put-object --bucket bus-mvp-datalake-1 --key raw/passengers/
+aws s3api put-object --bucket bus-mvp-datalake-1 --key raw/trips/
+aws s3api put-object --bucket bus-mvp-datalake-1 --key raw/tickets/
+aws s3api put-object --bucket bus-mvp-datalake-1 --key athena-results/
 ```
 
 ### Opción C: Usando Console Web
@@ -249,10 +249,10 @@ docker-compose up passengers-ingestion
 docker-compose down
 
 # Eliminar archivos de S3 (si ya no los necesitas)
-aws s3 rm s3://bus-mvp-datalake/raw/ --recursive
+aws s3 rm s3://bus-mvp-datalake-1/raw/ --recursive
 
 # Eliminar bucket S3 (al final del proyecto)
-aws s3 rb s3://bus-mvp-datalake --force
+aws s3 rb s3://bus-mvp-datalake-1 --force
 
 # Eliminar database de Glue
 aws glue delete-database --name bus_mvp_db
@@ -324,7 +324,7 @@ TICKETS_API_URL=http://host.docker.internal:3003/api
 GLUE_DATABASE=bus_mvp_db
 
 # Athena Configuration
-ATHENA_OUTPUT_LOCATION=s3://bus-mvp-datalake/athena-results/
+ATHENA_OUTPUT_LOCATION=s3://bus-mvp-datalake-1/athena-results/
 
 # Ingestion Schedule (optional)
 INGESTION_INTERVAL=3600

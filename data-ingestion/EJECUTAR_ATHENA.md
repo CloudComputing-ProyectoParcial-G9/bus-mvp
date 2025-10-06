@@ -2,7 +2,7 @@
 
 ## ✅ Scripts Listos para Ejecutar
 
-Ya tengo **3 scripts Python** que ejecutan automáticamente las consultas y vistas en Athena, guardando los resultados en `s3://bus-mvp-datalake/athena-results/`.
+Ya tengo **3 scripts Python** que ejecutan automáticamente las consultas y vistas en Athena, guardando los resultados en `s3://bus-mvp-datalake-1/athena-results/`.
 
 ---
 
@@ -49,7 +49,7 @@ python scripts/run_athena_queries.py
 - ✅ Consulta 4: Tendencias de Ventas por Ruta
 
 **Resultados:**
-- 📦 Archivos CSV guardados en: `s3://bus-mvp-datalake/athena-results/`
+- 📦 Archivos CSV guardados en: `s3://bus-mvp-datalake-1/athena-results/`
 - 📄 Reporte local: `scripts/athena_queries_execution_TIMESTAMP.txt`
 - 📊 Preview de resultados en consola
 
@@ -78,14 +78,14 @@ python scripts/create_athena_views.py
 ╔══════════════════════════════════════════════════════════════════╗
 ║        BUS MVP - EJECUCIÓN DE CONSULTAS SQL EN ATHENA           ║
 ║  Requisito: 4 consultas SQL que unen varias tablas              ║
-║  Destino: s3://bus-mvp-datalake/athena-results/                 ║
+║  Destino: s3://bus-mvp-datalake-1/athena-results/                 ║
 ╚══════════════════════════════════════════════════════════════════╝
 
 ======================================================================
 📊 CONSULTA 1: Historial de Compras por Pasajero
 ======================================================================
 ✅ Query ejecutada exitosamente en 3.45 segundos
-📁 Resultados guardados en: s3://bus-mvp-datalake/athena-results/abc123.csv
+📁 Resultados guardados en: s3://bus-mvp-datalake-1/athena-results/abc123.csv
 
 📊 RESULTADOS:
 passenger_id | full_name | email | total_tickets | total_spent
@@ -98,7 +98,7 @@ passenger_id | full_name | email | total_tickets | total_spent
    - Timestamps de ejecución
    - Evidencia completa
 
-3. **Archivos en S3**: `s3://bus-mvp-datalake/athena-results/`
+3. **Archivos en S3**: `s3://bus-mvp-datalake-1/athena-results/`
    - CSVs con resultados de cada query
 
 ### Al ejecutar `create_athena_views.py`:
@@ -127,7 +127,7 @@ passenger_id | full_name | email | total_tickets | total_spent
 ### Ver archivos en S3:
 
 ```powershell
-aws s3 ls s3://bus-mvp-datalake/athena-results/ --recursive
+aws s3 ls s3://bus-mvp-datalake-1/athena-results/ --recursive
 ```
 
 ### Descargar resultados como evidencia:
@@ -137,7 +137,7 @@ aws s3 ls s3://bus-mvp-datalake/athena-results/ --recursive
 mkdir evidencias
 
 # Descargar todos los CSVs
-aws s3 cp s3://bus-mvp-datalake/athena-results/ ./evidencias/ --recursive --exclude "*" --include "*.csv"
+aws s3 cp s3://bus-mvp-datalake-1/athena-results/ ./evidencias/ --recursive --exclude "*" --include "*.csv"
 ```
 
 ### Verificar vistas en Athena Console:
@@ -225,8 +225,8 @@ python scripts/create_athena_views.py
 # ✅ Guardar archivo athena_views_creation_*.txt
 
 # 6. Descargar resultados de S3
-aws s3 ls s3://bus-mvp-datalake/athena-results/
-aws s3 cp s3://bus-mvp-datalake/athena-results/ ./evidencias/ --recursive
+aws s3 ls s3://bus-mvp-datalake-1/athena-results/
+aws s3 cp s3://bus-mvp-datalake-1/athena-results/ ./evidencias/ --recursive
 ```
 
 ---
@@ -257,4 +257,4 @@ Con estos scripts, cumples automáticamente los requisitos:
 - ✅ **2 vistas** creadas en Athena
 - ✅ **Evidencia completa** generada automáticamente
 
-**Todo guardado en:** `s3://bus-mvp-datalake/athena-results/` ✨
+**Todo guardado en:** `s3://bus-mvp-datalake-1/athena-results/` ✨

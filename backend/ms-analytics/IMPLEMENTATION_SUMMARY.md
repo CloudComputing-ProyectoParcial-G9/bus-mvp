@@ -286,7 +286,7 @@ AWS_DEFAULT_REGION=us-east-1
 
 # Athena
 GLUE_DATABASE=bus_mvp_db
-ATHENA_OUTPUT_LOCATION=s3://bus-mvp-datalake/athena-results/
+ATHENA_OUTPUT_LOCATION=s3://bus-mvp-datalake-1/athena-results/
 
 # App
 APP_NAME=Bus MVP Analytics API

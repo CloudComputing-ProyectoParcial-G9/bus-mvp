@@ -259,7 +259,7 @@ Este modelo está en **3NF (Third Normal Form)**:
 Para optimizar queries en Athena:
 
 ```
-s3://bus-mvp-datalake/raw/
+s3://bus-mvp-datalake-1/raw/
 ├── passengers/
 │   └── year=2025/
 │       └── month=10/
