@@ -4,6 +4,8 @@ services:
   passengers-ingestion:
     build: ./passengers-ingestion
     container_name: passengers-ingestion
+    env_file:
+      - ../.env  # Usa el archivo .env centralizado en la raíz del proyecto
     environment:
       - PASSENGERS_API_URL=${PASSENGERS_API_URL}
       - S3_BUCKET=${S3_BUCKET}
@@ -19,6 +21,8 @@ services:
   trips-ingestion:
     build: ./trips-ingestion
     container_name: trips-ingestion
+    env_file:
+      - ../.env  # Usa el archivo .env centralizado en la raíz del proyecto
     environment:
       - TRIPS_API_URL=${TRIPS_API_URL}
       - S3_BUCKET=${S3_BUCKET}
@@ -34,6 +38,8 @@ services:
   tickets-ingestion:
     build: ./tickets-ingestion
     container_name: tickets-ingestion
+    env_file:
+      - ../.env  # Usa el archivo .env centralizado en la raíz del proyecto
     environment:
       - TICKETS_API_URL=${TICKETS_API_URL}
       - S3_BUCKET=${S3_BUCKET}

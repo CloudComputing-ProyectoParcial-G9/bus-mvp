@@ -11,8 +11,8 @@ from pathlib import Path
 # Cargar variables de entorno desde .env
 try:
     from dotenv import load_dotenv
-    # Buscar el archivo .env en el directorio padre (data-ingestion/)
-    env_path = Path(__file__).parent.parent / '.env'
+    # Buscar el archivo .env en la raíz del proyecto
+    env_path = Path(__file__).parent.parent.parent / '.env'
     if env_path.exists():
         load_dotenv(env_path)
         print(f'✅ Variables de entorno cargadas desde: {env_path}')

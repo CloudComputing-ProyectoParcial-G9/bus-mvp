@@ -19,7 +19,8 @@ from pathlib import Path
 
 try:
     from dotenv import load_dotenv
-    env_path = Path(__file__).parent.parent / '.env'
+    # Buscar el archivo .env en la raíz del proyecto
+    env_path = Path(__file__).parent.parent.parent / '.env'
     if env_path.exists():
         load_dotenv(env_path)
 except ImportError:

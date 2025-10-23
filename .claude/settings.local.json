@@ -11,7 +11,8 @@
       "Bash(docker-compose:*)",
       "Bash(awk:*)",
       "Bash(netstat:*)",
-      "Bash(mvn clean:*)"
+      "Bash(mvn clean:*)",
+      "Bash(python3:*)"
     ],
     "deny": [],
     "ask": []

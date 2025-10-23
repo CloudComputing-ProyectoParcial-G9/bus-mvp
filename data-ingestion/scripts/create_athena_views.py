@@ -15,8 +15,8 @@ from pathlib import Path
 from dotenv import load_dotenv
 from datetime import datetime
 
-# Cargar variables de entorno
-env_path = Path(__file__).parent.parent / '.env'
+# Cargar variables de entorno desde la raíz del proyecto
+env_path = Path(__file__).parent.parent.parent / '.env'
 load_dotenv(env_path)
 
 class AthenaViewsCreator:
