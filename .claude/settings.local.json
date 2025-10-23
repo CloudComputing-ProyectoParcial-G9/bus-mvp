@@ -12,7 +12,10 @@
       "Bash(awk:*)",
       "Bash(netstat:*)",
       "Bash(mvn clean:*)",
-      "Bash(python3:*)"
+      "Bash(python3:*)",
+      "Bash(cat:*)",
+      "Bash(chmod:*)",
+      "Bash(bash:*)"
     ],
     "deny": [],
     "ask": []
