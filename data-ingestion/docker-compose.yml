@@ -9,10 +9,9 @@ services:
     environment:
       - PASSENGERS_API_URL=${PASSENGERS_API_URL}
       - S3_BUCKET=${S3_BUCKET}
-      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
-      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
-      - AWS_SESSION_TOKEN=${AWS_SESSION_TOKEN}
       - AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION}
+    volumes:
+      - ~/.aws:/root/.aws:ro  # Monta credenciales de AWS en modo solo lectura
     networks:
       - ingestion-network
     extra_hosts:
@@ -26,10 +25,9 @@ services:
     environment:
       - TRIPS_API_URL=${TRIPS_API_URL}
       - S3_BUCKET=${S3_BUCKET}
-      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
-      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
-      - AWS_SESSION_TOKEN=${AWS_SESSION_TOKEN}
       - AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION}
+    volumes:
+      - ~/.aws:/root/.aws:ro  # Monta credenciales de AWS en modo solo lectura
     networks:
       - ingestion-network
     extra_hosts:
@@ -43,10 +41,9 @@ services:
     environment:
       - TICKETS_API_URL=${TICKETS_API_URL}
       - S3_BUCKET=${S3_BUCKET}
-      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
-      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
-      - AWS_SESSION_TOKEN=${AWS_SESSION_TOKEN}
       - AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION}
+    volumes:
+      - ~/.aws:/root/.aws:ro  # Monta credenciales de AWS en modo solo lectura
     networks:
       - ingestion-network
     extra_hosts:

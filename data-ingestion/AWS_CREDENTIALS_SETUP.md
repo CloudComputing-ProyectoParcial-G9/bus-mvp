@@ -1,62 +1,113 @@
 # 🔐 Configuración de Credenciales AWS - ACTUALIZADO
 
-## ⚠️ CAMBIO IMPORTANTE
+## ⚠️ CAMBIO IMPORTANTE DE SEGURIDAD
 
-**Todas las credenciales de AWS ahora están centralizadas en un solo archivo.**
+**Las credenciales de AWS ya NO se almacenan en el archivo `.env`**
 
-### Ubicación del archivo de credenciales
-
-```
-/root/bus-mvp/.env  ← ARCHIVO ÚNICO Y CENTRALIZADO
-```
-
-Ya **NO se usa** el archivo `data-ingestion/.env`. Todas las partes del proyecto (ingesta, analytics, scripts) leen desde el archivo `.env` en la raíz.
+Ahora usamos el método estándar de AWS CLI (`~/.aws/credentials`) para gestionar credenciales:
+- ✅ Más seguro (no expone credenciales en variables de entorno)
+- ✅ Compatible con AWS CLI, boto3, y todas las herramientas de AWS
+- ✅ Los contenedores Docker montan `~/.aws` en modo solo lectura
+- ✅ Fácil de actualizar cuando las credenciales expiran (AWS Academy)
 
 ---
 
-## 📋 Configuración Rápida
+## 📋 Métodos de Configuración
 
-### Opción 1: Script Automático (Recomendado)
+### Método 1: Configuración Manual (Recomendado)
+
+1. Crea el directorio `.aws` si no existe:
+```bash
+mkdir -p ~/.aws
+```
+
+2. Edita el archivo de credenciales:
+```bash
+nano ~/.aws/credentials
+```
+
+3. Agrega tus credenciales con el siguiente formato:
+```ini
+[default]
+aws_access_key_id=TU_ACCESS_KEY_ID
+aws_secret_access_key=TU_SECRET_ACCESS_KEY
+aws_session_token=TU_SESSION_TOKEN
+```
+
+4. (Opcional) Configura la región por defecto:
+```bash
+nano ~/.aws/config
+```
+
+```ini
+[default]
+region=us-east-1
+output=json
+```
+
+5. Establece permisos seguros:
+```bash
+chmod 600 ~/.aws/credentials
+chmod 600 ~/.aws/config
+```
+
+### Método 2: Script de Sincronización Automática
+
+Si ya tienes credenciales en el archivo `.env` y quieres copiarlas a `~/.aws/credentials`:
 
 ```bash
 cd /root/bus-mvp/data-ingestion
-bash setup_aws_academy.sh
+bash sync_aws_credentials.sh
 ```
 
 Este script:
-- Te guiará paso a paso para ingresar tus credenciales
-- Configurará automáticamente el archivo `/root/bus-mvp/.env`
-- Verificará que las credenciales sean válidas
-- Agregará el Account ID automáticamente
+- Lee las credenciales de `../.env`
+- Las copia a `~/.aws/credentials`
+- Establece los permisos correctos automáticamente
 
-### Opción 2: Manual
+### Método 3: AWS CLI
 
-1. Copia el archivo de ejemplo:
+Usa el comando de configuración de AWS CLI:
+
 ```bash
-cd /root/bus-mvp
-cp .env.example .env
+aws configure
 ```
 
-2. Edita el archivo y agrega tus credenciales:
-```bash
-nano .env
+Sigue las instrucciones e ingresa:
+- AWS Access Key ID
+- AWS Secret Access Key
+- Default region name (ej: us-east-1)
+- Default output format (ej: json)
+
+---
+
+## 🐳 Cómo Funciona con Docker
+
+El archivo `docker-compose.yml` ahora monta el directorio `~/.aws` como un volumen de solo lectura:
+
+```yaml
+volumes:
+  - ~/.aws:/root/.aws:ro  # Monta credenciales de AWS en modo solo lectura
 ```
 
-3. Actualiza estas variables:
-```bash
-AWS_ACCESS_KEY_ID=tu_access_key_aquí
-AWS_SECRET_ACCESS_KEY=tu_secret_key_aquí
-AWS_SESSION_TOKEN=tu_session_token_aquí
-AWS_DEFAULT_REGION=us-east-1
-AWS_ACCOUNT_ID=tu_account_id_aquí
-```
+Esto significa que:
+- Los contenedores Docker tienen acceso a tus credenciales
+- Las credenciales están en modo solo lectura (`:ro`) para mayor seguridad
+- No se copian ni exponen en variables de entorno
+- boto3 las encuentra automáticamente
 
 ---
 
 ## 🔍 Dónde se usan las credenciales
 
-### 1. Scripts de Python (data-ingestion/scripts/)
-Todos los scripts ahora leen desde `/root/bus-mvp/.env`:
+### 1. Contenedores Docker (data-ingestion/)
+El `docker-compose.yml` monta `~/.aws:/root/.aws:ro`:
+- `passengers-ingestion`
+- `trips-ingestion`
+- `tickets-ingestion`
+
+### 2. Scripts de Python (data-ingestion/scripts/)
+Todos los scripts usan boto3 que lee automáticamente de `~/.aws/credentials`:
 - `setup_s3.py`
 - `setup_glue.py`
 - `create_athena_tables.py`
@@ -66,70 +117,86 @@ Todos los scripts ahora leen desde `/root/bus-mvp/.env`:
 - `test_athena_queries.py`
 - `check_crawlers.py`
 
-### 2. Contenedores Docker (data-ingestion/)
-El `docker-compose.yml` en data-ingestion usa `env_file: ../.env`:
-- `passengers-ingestion`
-- `trips-ingestion`
-- `tickets-ingestion`
-
 ### 3. Microservicio ms-analytics
-El docker-compose principal pasa las credenciales desde `/root/bus-mvp/.env` al contenedor `ms-analytics`.
+Puede usar el mismo método de montar `~/.aws` como volumen.
+
+---
+
+## 🔄 Actualizar Credenciales de AWS Academy
+
+AWS Academy genera credenciales temporales que expiran cada 4 horas. Para actualizarlas:
+
+### Opción A: Actualización Manual
+
+1. Ve a tu laboratorio en AWS Academy
+2. Haz clic en "AWS Details"
+3. Haz clic en "Show" junto a "AWS CLI"
+4. Copia las tres líneas de credenciales
+
+```bash
+nano ~/.aws/credentials
+```
+Pega las nuevas credenciales
+
+### Opción B: Actualización desde .env
+
+Si copias las credenciales al archivo `.env` en la raíz del proyecto, ejecuta:
+```bash
+cd /root/bus-mvp/data-ingestion
+bash sync_aws_credentials.sh
+```
 
 ---
 
 ## ✅ Verificación
 
-Para verificar que las credenciales están configuradas correctamente:
+Verifica que tus credenciales funcionan correctamente:
 
 ```bash
-# Opción 1: Verificar con AWS CLI
+# Listar buckets S3
+aws s3 ls
+
+# Verificar identidad
 aws sts get-caller-identity
 
-# Opción 2: Ver las variables (sin mostrar los valores secretos)
-cd /root/bus-mvp
-grep -E "^AWS_|^S3_|^GLUE_|^ATHENA_" .env | sed 's/=.*/=***/'
+# Listar objetos en el bucket del proyecto
+aws s3 ls s3://bus-mvp-datalake-1/
 ```
 
 ---
 
-## 🔄 Actualizar credenciales expiradas
+## 📦 Variables requeridas
 
-Las credenciales de AWS Academy expiran cada 4 horas. Para actualizarlas:
-
-```bash
-cd /root/bus-mvp/data-ingestion
-bash setup_aws_academy.sh
+### En ~/.aws/credentials
+```ini
+[default]
+aws_access_key_id=TU_ACCESS_KEY_ID
+aws_secret_access_key=TU_SECRET_ACCESS_KEY
+aws_session_token=TU_SESSION_TOKEN
 ```
 
-El script detectará que el archivo `.env` ya existe y te preguntará si quieres actualizar las credenciales.
+### En ~/.aws/config (opcional)
+```ini
+[default]
+region=us-east-1
+output=json
+```
 
----
-
-## 📦 Variables requeridas en .env
-
-### AWS Credentials
+### En /root/bus-mvp/.env (sin credenciales)
 ```bash
-AWS_ACCESS_KEY_ID=
-AWS_SECRET_ACCESS_KEY=
-AWS_SESSION_TOKEN=
+# AWS Configuration
 AWS_DEFAULT_REGION=us-east-1
-AWS_ACCOUNT_ID=
-```
+AWS_ACCOUNT_ID=tu_account_id_aquí
 
-### S3 & Data Lake
-```bash
+# S3 & Data Lake
 S3_BUCKET=bus-mvp-datalake-1
-```
 
-### Glue & Athena
-```bash
+# Glue & Athena
 GLUE_DATABASE=bus_mvp_db
 ATHENA_OUTPUT_LOCATION=s3://bus-mvp-datalake-1/athena-results/
 ATHENA_QUERY_TIMEOUT=60
-```
 
-### Data Ingestion APIs
-```bash
+# Data Ingestion APIs
 PASSENGERS_API_URL=http://host.docker.internal:8001/api/v1
 TRIPS_API_URL=http://host.docker.internal:8002/api/v1
 TICKETS_API_URL=http://host.docker.internal:8003/api/v1
@@ -137,40 +204,126 @@ TICKETS_API_URL=http://host.docker.internal:8003/api/v1
 
 ---
 
-## 🛠️ Troubleshooting
+## 🔒 Seguridad
 
-### Error: "No se encontró archivo .env"
-```bash
-# Verifica que el archivo existe en la raíz
-ls -la /root/bus-mvp/.env
+### ✅ Buenas Prácticas
 
-# Si no existe, créalo desde el ejemplo
-cp /root/bus-mvp/.env.example /root/bus-mvp/.env
-```
+- ✅ Las credenciales están en `~/.aws/credentials` (nunca en Git)
+- ✅ El archivo `.env` está en `.gitignore`
+- ✅ Los contenedores montan `~/.aws` en modo solo lectura (`:ro`)
+- ✅ Permisos 600 en archivos de credenciales (solo el propietario puede leer/escribir)
 
-### Error: "Credenciales inválidas"
-- Verifica que copiaste correctamente todas las credenciales desde AWS Academy
-- Asegúrate de que el Lab de AWS Academy esté activo (botón verde)
-- Las credenciales expiran cada 4 horas
+### ❌ NO Hacer
 
-### Error: "Access Denied" al usar S3 o Glue
-- Verifica que hayas incluido el `AWS_SESSION_TOKEN`
-- Para AWS Academy, el session token es OBLIGATORIO
+- ❌ NO commitees archivos con credenciales a Git
+- ❌ NO compartas tu archivo `.env` o `~/.aws/credentials`
+- ❌ NO expongas credenciales en logs o código
+- ❌ NO uses credenciales en URLs o parámetros de línea de comando
+- ❌ NO definas AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY en variables de entorno
 
 ---
 
-## 💡 Beneficios de la centralización
+## 🛠️ Troubleshooting
 
-1. **Un solo lugar** para configurar credenciales
-2. **Menos archivos** que mantener sincronizados
-3. **Menos errores** por credenciales desactualizadas en múltiples lugares
-4. **Más seguro** - un solo archivo en `.gitignore`
-5. **Más fácil** de actualizar cuando expiran las credenciales
+### Error: "Unable to locate credentials"
+
+**Causa:** boto3 no puede encontrar las credenciales
+
+**Solución:**
+```bash
+# Verificar que existe el archivo
+ls -la ~/.aws/credentials
+
+# Verificar permisos
+chmod 600 ~/.aws/credentials
+
+# Verificar contenido (formato correcto)
+cat ~/.aws/credentials
+```
+
+### Error: "An error occurred (ExpiredToken)"
+
+**Causa:** Las credenciales de AWS Academy expiraron (cada 4 horas)
+
+**Solución:**
+1. Ve a AWS Academy y genera nuevas credenciales
+2. Actualiza `~/.aws/credentials` con las nuevas credenciales
+3. O ejecuta `bash data-ingestion/sync_aws_credentials.sh`
+
+### Error: "Access Denied"
+
+**Causa:** Las credenciales no tienen permisos suficientes
+
+**Solución:**
+- Verifica que estás usando las credenciales correctas
+- En AWS Academy, asegúrate de que el laboratorio esté iniciado (botón verde)
+- Verifica los permisos de tu usuario/rol en AWS
+
+### Los contenedores Docker no encuentran las credenciales
+
+**Causa:** El volumen no está montado correctamente
+
+**Solución:**
+```bash
+# Verificar que docker-compose.yml tiene el volumen
+grep -A5 "volumes:" docker-compose.yml
+
+# Debería mostrar:
+# volumes:
+#   - ~/.aws:/root/.aws:ro
+
+# Recrear los contenedores
+docker-compose down
+docker-compose up -d
+```
+
+---
+
+## 📁 Estructura de Archivos
+
+```
+~/.aws/
+├── credentials    # ✅ Credenciales de AWS (Access Key, Secret Key, Session Token)
+└── config         # ✅ Configuración (región, output format)
+
+/root/bus-mvp/
+├── .env           # ✅ Variables de entorno (NO contiene credenciales AWS)
+├── .env.example   # ✅ Plantilla de ejemplo
+└── .gitignore     # ✅ Incluye .env
+
+/root/bus-mvp/data-ingestion/
+├── docker-compose.yml           # ✅ Monta ~/.aws como volumen
+└── sync_aws_credentials.sh      # ✅ Script para sincronizar credenciales
+```
+
+---
+
+## 💡 Beneficios del Nuevo Método
+
+1. **Más seguro** - Las credenciales no están en variables de entorno
+2. **Estándar de la industria** - Mismo método que AWS CLI
+3. **Compatible** - Funciona con todas las herramientas de AWS (boto3, AWS CLI, etc.)
+4. **Solo lectura en Docker** - Los contenedores no pueden modificar las credenciales
+5. **Fácil de actualizar** - Solo actualiza `~/.aws/credentials`
+6. **Sin duplicación** - Una sola fuente de verdad para credenciales
 
 ---
 
 ## 📚 Recursos adicionales
 
-- [AWS Academy Learner Lab](https://awsacademy.instructure.com)
-- [Documentación AWS CLI](https://docs.aws.amazon.com/cli/)
-- [Documentación Athena](https://docs.aws.amazon.com/athena/)
+- [AWS CLI Configuration](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-files.html)
+- [Boto3 Credentials](https://boto3.amazonaws.com/v1/documentation/api/latest/guide/credentials.html)
+- [AWS Academy Learner Lab](https://awsacademy.instructure.com/)
+- [Docker Volumes](https://docs.docker.com/storage/volumes/)
+
+---
+
+## 🆘 Soporte
+
+Si tienes problemas con la configuración de credenciales:
+
+1. Verifica que tus credenciales sean válidas en AWS Academy
+2. Asegúrate de que el laboratorio esté iniciado (botón verde)
+3. Revisa los logs de Docker: `docker-compose logs`
+4. Consulta la sección de resolución de problemas arriba
+5. Ejecuta el script de verificación: `aws sts get-caller-identity`
