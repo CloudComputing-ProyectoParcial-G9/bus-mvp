@@ -81,10 +81,10 @@ cat > .env << 'EOF'
 # IMPORTANTE: Estas credenciales deben ser actualizadas con tus credenciales de AWS Academy
 # Ejecuta: bash data-ingestion/setup_aws_academy.sh para configurarlas automáticamente
 
-AWS_ACCESS_KEY_ID=ASIAVC25COXH2KQQXSDC
-AWS_SECRET_ACCESS_KEY=imC3zYVUXzbHumRMoAptEvT5awIu8lQnkcjuUTcZ
-AWS_SESSION_TOKEN=IQoJb3JpZ2luX2VjEI7//////////wEaCXVzLXdlc3QtMiJGMEQCIFN72hGTk0pGYndbjPLB8ov9iC4nbIkM5WcHh6vv1KH8AiBFRbtp09LHySn31LYy62VIzAoTvcJZhXSZgMrfZ1Xyriq6AghHEAIaDDM0OTY5ODE2MDA3OSIMRW6TvnmiI/MDMzj5KpcCICpPS14q8zobHnyi+2h7NdPk1OnilnYUNjF4w/1scnXOiNuZkXvDVnx9vfGX3Vrn+gaLlpGGYMjNJXOlwgMKZ0EqD1k3t0v7rIH5ze6xD4AMA3hZHyECIBq9mfwDfoHVM9CsSpyPqR8TiI1DbUmvQNINkKWhK+2MdNi32r0kbKjELS2r/yl2gu/nL/IL1Un/5Ixfk//X3yG2RscIl99BC4q6cF+oVG4ZrKsXelkDXtyLiBSPj9W8oic3DPfViLdijJ+6huo8AtogffdWSGgiPbCsF/Hi+cJTHmgTgcn+z1Wb+5cgTCmcJkebbPfGsSG8c3DQaZiCXJFy9s+c4LCHU/4yvxIrjbJALKJ71VexvTtLQ+7s6EDRMIXj6McGOp4B67zmYxABuy7KOfEZso2jbxx4OXvpuJELwfXpUX1a75Oq3E3Yx7/KHthBbTC7dUGlizEzKdOFyRf8oB0HKlnmBzgXJgubsNvYSMNuBRFbEdDBsk/I+T+uVPTFqcOxPsUYD/jiM+YG2TdZ2N4qpPwLd7JBGwfk5HOyfVrrXzs5bNWt3Wsb5Obs1vMoxtl+ZxaulHqaDhup/ckWTpXOxa0=
-AWS_DEFAULT_REGION=us-east-1
+AWS_ACCESS_KEY_ID=""
+AWS_SECRET_ACCESS_KEY=""
+AWS_SESSION_TOKEN=""
+AWS_DEFAULT_REGION=""
 
 # ========================================
 # S3 CONFIGURATION
