@@ -4,8 +4,10 @@ import { apiService } from '../services/api';
 import { Ticket, Passenger, Trip } from '../types';
 import { LoadingSpinner } from './LoadingSpinner';
 import { ErrorMessage } from './ErrorMessage';
+import { useDataRefresh } from '../contexts/DataRefreshContext';
 
 export function TicketsSection() {
+  const { triggerRefresh } = useDataRefresh();
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [passengers, setPassengers] = useState<Passenger[]>([]);
   const [trips, setTrips] = useState<Trip[]>([]);
@@ -90,6 +92,7 @@ export function TicketsSection() {
       setShowForm(false);
       resetForm();
       fetchTickets();
+      triggerRefresh(); // Notificar a otros componentes que los datos cambiaron
     } catch (err: unknown) {
       console.error('Error completo al crear el ticket:', err);
 
@@ -118,6 +121,7 @@ export function TicketsSection() {
         setError(null);
         await apiService.cancelTicket(id);
         fetchTickets();
+        triggerRefresh(); // Notificar a otros componentes que los datos cambiaron
       } catch (err: unknown) {
         console.error('Error al cancelar el ticket:', err);
         setError('Error al cancelar el ticket');

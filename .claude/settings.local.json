@@ -17,7 +17,11 @@
       "Bash(chmod:*)",
       "Bash(bash:*)",
       "Bash(./verify_infrastructure.sh:*)",
-      "Bash(aws:*)"
+      "Bash(aws:*)",
+      "Bash(ss:*)",
+      "Read(//etc/apache2/sites-enabled/**)",
+      "Read(//var/www/html/**)",
+      "Read(//etc/apache2/sites-available/**)"
     ],
     "deny": [],
     "ask": []

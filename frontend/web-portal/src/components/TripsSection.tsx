@@ -4,8 +4,11 @@ import { apiService } from '../services/api';
 import { Trip } from '../types';
 import { LoadingSpinner } from './LoadingSpinner';
 import { ErrorMessage } from './ErrorMessage';
+import { useDataRefresh } from '../contexts/DataRefreshContext';
 
 export function TripsSection() {
+  const { triggerRefresh } = useDataRefresh();
+
   // Rutas disponibles basadas en el seeder del backend
   const availableRoutes = [
     { id: "LIM_CUZ_001", origin: "Lima", destination: "Cusco", name: "Lima → Cusco Express", price: 120.00 },
@@ -280,6 +283,7 @@ export function TripsSection() {
       setEditingTrip(null);
       resetForm();
       await fetchTrips();
+      triggerRefresh(); // Notificar a otros componentes que los datos cambiaron
     } catch (err) {
       console.error('Error saving trip:', err);
       const errorMessage = err instanceof Error ? err.message : 'Error desconocido';
@@ -298,6 +302,7 @@ export function TripsSection() {
 
         await apiService.deleteTrip(tripId);
         await fetchTrips();
+        triggerRefresh(); // Notificar a otros componentes que los datos cambiaron
       } catch (err) {
         console.error('Error deleting trip:', err);
         const errorMessage = err instanceof Error ? err.message : 'Error desconocido';
@@ -378,6 +383,7 @@ export function TripsSection() {
 
       await apiService.updateTripSeats(tripId, { availableSeats: newAvailableSeats });
       await fetchTrips();
+      triggerRefresh(); // Notificar a otros componentes que los datos cambiaron
     } catch (err) {
       console.error('Error updating seats:', err);
       const errorMessage = err instanceof Error ? err.message : 'Error desconocido';

@@ -4,8 +4,10 @@ import { apiService } from '../services/api';
 import { PassengerHistory, DashboardSummary } from '../types';
 import { LoadingSpinner } from './LoadingSpinner';
 import { ErrorMessage } from './ErrorMessage';
+import { useDataRefresh } from '../contexts/DataRefreshContext';
 
 export function HistorySection() {
+  const { refreshTrigger } = useDataRefresh();
   const [activeView, setActiveView] = useState('dashboard');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -24,6 +26,13 @@ export function HistorySection() {
       loadDashboard();
     }
   }, [activeView]);
+
+  // Recargar dashboard cuando se notifica un cambio en los datos
+  useEffect(() => {
+    if (refreshTrigger > 0 && activeView === 'dashboard' && dashboardData) {
+      loadDashboard();
+    }
+  }, [refreshTrigger]);
 
   const loadDashboard = async () => {
     setLoading(true);

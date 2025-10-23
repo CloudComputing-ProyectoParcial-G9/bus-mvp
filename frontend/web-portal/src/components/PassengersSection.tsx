@@ -4,8 +4,10 @@ import { apiService } from '../services/api';
 import { Passenger } from '../types';
 import { LoadingSpinner } from './LoadingSpinner';
 import { ErrorMessage } from './ErrorMessage';
+import { useDataRefresh } from '../contexts/DataRefreshContext';
 
 export function PassengersSection() {
+  const { triggerRefresh } = useDataRefresh();
   const [passengers, setPassengers] = useState<Passenger[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -65,6 +67,7 @@ export function PassengersSection() {
       setEditingPassenger(null);
       resetForm();
       await fetchPassengers();
+      triggerRefresh(); // Notificar a otros componentes que los datos cambiaron
     } catch (err) {
       console.error('Error al guardar el pasajero:', err);
       setError(`Error al guardar el pasajero: ${err instanceof Error ? err.message : 'Error desconocido'}`);
