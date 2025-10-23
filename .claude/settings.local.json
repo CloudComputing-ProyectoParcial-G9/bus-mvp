@@ -15,7 +15,9 @@
       "Bash(python3:*)",
       "Bash(cat:*)",
       "Bash(chmod:*)",
-      "Bash(bash:*)"
+      "Bash(bash:*)",
+      "Bash(./verify_infrastructure.sh:*)",
+      "Bash(aws:*)"
     ],
     "deny": [],
     "ask": []
