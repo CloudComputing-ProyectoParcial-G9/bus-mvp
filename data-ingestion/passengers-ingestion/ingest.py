@@ -14,7 +14,8 @@ class PassengerIngestion:
     
     def __init__(self):
         self.api_url = os.getenv('PASSENGERS_API_URL', 'http://host.docker.internal:8001/api/v1')
-        self.s3_client = boto3.client('s3')
+        self.region = os.getenv('AWS_DEFAULT_REGION', 'us-east-1')
+        self.s3_client = boto3.client('s3', region_name=self.region)
         self.bucket_name = os.getenv('S3_BUCKET', 'bus-mvp-datalake-1')
         
     def extract_passengers(self):

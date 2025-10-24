@@ -21,7 +21,16 @@
       "Bash(ss:*)",
       "Read(//etc/apache2/sites-enabled/**)",
       "Read(//var/www/html/**)",
-      "Read(//etc/apache2/sites-available/**)"
+      "Read(//etc/apache2/sites-available/**)",
+      "Bash(xargs:*)",
+      "Bash(systemctl status:*)",
+      "Read(//var/log/apache2/**)",
+      "Bash(systemctl restart:*)",
+      "Bash(LB_ARN=\"arn:aws:elasticloadbalancing:us-east-1:349698160079:loadbalancer/app/LB-Prod/da2fd21511c83206\")",
+      "Bash(TG_ARN=\"arn:aws:elasticloadbalancing:us-east-1:349698160079:targetgroup/TG-Prod-5173/d7e7d493a4bae81f\":*)",
+      "Bash(TG_ARN_80=\"arn:aws:elasticloadbalancing:us-east-1:349698160079:targetgroup/TG-Prod-80-Apache/ca3343ea83cb7f9b\":*)",
+      "Bash(LISTENER_ARN=\"arn:aws:elasticloadbalancing:us-east-1:349698160079:listener/app/LB-Prod/da2fd21511c83206/ccc85a62f0c98a25\")",
+      "Bash(LISTENER_ARN=\"arn:aws:elasticloadbalancing:us-east-1:349698160079:listener/app/LB-Prod/da2fd21511c83206/2a1ab37db40fb396\")"
     ],
     "deny": [],
     "ask": []
